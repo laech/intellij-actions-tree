@@ -1,0 +1,27 @@
+<idea-plugin>
+    <id>com.gitlab.lae.intellij.actions.tree.actions-tree</id>
+    <name>Actions Tree</name>
+    <vendor>Lae</vendor>
+
+    <description><![CDATA[
+    Enter short description for your plugin here.<br>
+    <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
+
+    <application-components>
+        <component>
+            <implementation-class>
+                com.gitlab.lae.intellij.actions.tree.Component
+            </implementation-class>
+        </component>
+    </application-components>
+
+    <actions>
+    </actions>
+</idea-plugin>
