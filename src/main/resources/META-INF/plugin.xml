@@ -17,7 +17,7 @@
     <application-components>
         <component>
             <implementation-class>
-                com.gitlab.lae.intellij.actions.tree.Component
+                com.gitlab.lae.intellij.actions.tree.AppComponent
             </implementation-class>
         </component>
     </application-components>
