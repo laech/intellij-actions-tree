@@ -2,13 +2,16 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.IdeActions.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
-import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.util.AsyncResult
+import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.Consumer
 import java.awt.Component
 import javax.swing.JComponent
+import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.KeyStroke
 
 sealed class ActionTree(val key: KeyStroke?) : AnAction(), ShortcutProvider {
@@ -85,16 +88,17 @@ class ActionNode(
 
     override fun actionPerformed(event: AnActionEvent) {
         val component = event.dataContext.getData(CONTEXT_COMPONENT)
-        val popup = JBPopupFactory.getInstance()
-                .createListPopup(ActionStep(component, this@ActionNode))
+        val popup = ListPopupImpl(ActionStep(component, this@ActionNode))
 
-        items.forEach {
-            if (it.key != null) {
-                popup.content.registerKeyboardAction({ e ->
-                    it.performAction(component, e.modifiers)
-                    popup.dispose()
-                }, it.key, JComponent.WHEN_IN_FOCUSED_WINDOW)
-            }
+        popup.registerAction(ACTION_EDITOR_ESCAPE) { dispose() }
+        popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { list.selectedIndex += 1 }
+        popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { list.selectedIndex -= 1 }
+
+        items.asSequence().filter { it.key != null }.forEach {
+            popup.content.registerKeyboardAction({ e ->
+                it.performAction(component, e.modifiers)
+                popup.dispose()
+            }, it.key, JComponent.WHEN_IN_FOCUSED_WINDOW)
         }
 
         popup.showInBestPositionFor(event.dataContext)
@@ -102,6 +106,17 @@ class ActionNode(
 
     override fun isDumbAware() = true
 
+}
+
+private fun ListPopupImpl.registerAction(actionId: String, run: ListPopupImpl.() -> Unit) {
+    KeymapManager.getInstance().activeKeymap
+            .getShortcuts(actionId)
+            .filterIsInstance<KeyboardShortcut>()
+            .filter { it.secondKeyStroke == null }
+            .map { it.firstKeyStroke }
+            .forEach { key ->
+                content.registerKeyboardAction({ run() }, key, WHEN_IN_FOCUSED_WINDOW)
+            }
 }
 
 fun AnAction.performAction(component: Component?, modifiers: Int) {
