@@ -28,5 +28,11 @@
     </application-components>
 
     <actions>
+        <action id="com.gitlab.lae.intellij.actions.tree.reload"
+                class="com.gitlab.lae.intellij.actions.tree.ReloadAction"
+                text="Reload Actions Tree"
+                description="Reloads actions from configuration file">
+            <add-to-group group-id="ToolsMenu"/>
+        </action>
     </actions>
 </idea-plugin>
