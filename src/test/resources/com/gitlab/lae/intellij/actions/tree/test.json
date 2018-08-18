@@ -1,24 +1,24 @@
-[
-  {
-    "key": "ctrl C",
-    "items": [
-      {
-        "name": "Project",
-        "key": "P",
-        "items": [
-          {"key": "K", "id": "CloseProject"},
-          {"key": "P", "id": "OpenProjectGroup"}
-        ]
-      }
-    ]
-  },
-  {
-    "key": "ctrl X",
-    "name": "test",
-    "items": [
-      {
-        "key": "ctrl X", "id": "EditorSwapSelectionBoundaries"
-      }
-    ]
-  }
-]
+{
+  "items": [
+    {
+      "key": "ctrl C",
+      "items": [
+        {
+          "key": "P",
+          "items": [
+            {"key": "K", "id": "CloseProject"},
+            {"key": "P", "id": "OpenProjectGroup"}
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ctrl X",
+      "items": [
+        {
+          "key": "ctrl X", "id": "EditorSwapSelectionBoundaries"
+        }
+      ]
+    }
+  ]
+}

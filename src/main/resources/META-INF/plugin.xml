@@ -12,6 +12,11 @@
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationConfigurable
+                displayName="Actions Tree"
+                id="com.gitlab.lae.intellij.actions.tree"
+                parentId="preferences.keymap"
+                instance="com.gitlab.lae.intellij.actions.tree.AppConfigurable"/>
     </extensions>
 
     <application-components>
