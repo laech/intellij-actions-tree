@@ -1,48 +1,65 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.google.gson.*
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.databind.module.SimpleModule
 import java.io.Reader
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.KeyStroke
+import javax.swing.KeyStroke.getKeyStroke
 
-private val gson: Gson = GsonBuilder()
-        .registerTypeAdapter(
-                ActionNode::class.java,
-                JsonDeserializer { e, _, _ ->
-                    readActionNode(e.asJsonObject)
-                }
-        )
-        .create()
+private interface JsonAction {
+    fun toActionNode(): ActionNode
+}
+
+private data class JsonActionRef @JsonCreator constructor(
+        @JsonProperty("id", required = true) val id: String,
+        @JsonProperty("keys") val keys: List<KeyStroke>?,
+        @JsonProperty("sep") val sep: Boolean) : JsonAction {
+
+    override fun toActionNode() =
+            ActionRef(keys ?: emptyList(), id, sep)
+}
+
+private data class JsonActionGroup @JsonCreator constructor(
+        @JsonProperty("items", required = true) val items: List<JsonAction>,
+        @JsonProperty("keys") val keys: List<KeyStroke>?) : JsonAction {
+
+    override fun toActionNode() =
+            ActionGroup(keys ?: emptyList(), items.map { it.toActionNode() })
+}
+
+private val mapper = ObjectMapper().registerModule(SimpleModule()
+        .addDeserializer(KeyStroke::class.java, deserializer(::readKeyStroke))
+        .addDeserializer(JsonAction::class.java, deserializer(::readJsonAction)))
 
 fun parseJsonActions(path: Path): List<ActionNode> =
         Files.newBufferedReader(path).use(::parseJsonActions)
 
-fun parseJsonActions(reader: Reader): List<ActionNode> =
-        gson.fromJson(reader, ActionGroup::class.java).items
+fun parseJsonActions(reader: Reader) =
+        mapper.readValue(reader, JsonActionGroup::class.java)
+                .toActionNode().items
 
-private fun readActionNode(node: JsonObject): ActionNode {
-    return if (node.has("items")) {
-        readActionGroup(node)
+private inline fun <reified T> deserializer(crossinline f: (JsonParser) -> T) =
+        object : StdDeserializer<T>(T::class.java) {
+            override fun deserialize(p: JsonParser, ctx: DeserializationContext) = f(p)
+        }
+
+private fun readKeyStroke(p: JsonParser) =
+        getKeyStroke(p.text)
+                ?: throw IllegalArgumentException(
+                        "Invalid key stroke: ${p.text}")
+
+private fun readJsonAction(p: JsonParser): JsonAction = p.codec.readTree<JsonNode>(p).let {
+    if (it.has("id")) {
+        mapper.treeToValue<JsonActionRef>(it, JsonActionRef::class.java)
     } else {
-        readActionRef(node)
+        mapper.treeToValue<JsonActionGroup>(it, JsonActionGroup::class.java)
     }
-}
-
-private fun readActionRef(node: JsonObject): ActionRef {
-    val keys = node.getAsJsonArray("keys").map(::readKeyStroke)
-    val id = node.getAsJsonPrimitive("id").asString
-    val sep = node.getAsJsonPrimitive("sep")?.asBoolean ?: false
-    return ActionRef(keys, id, sep)
-}
-
-private fun readActionGroup(node: JsonObject): ActionGroup {
-    val keys = node.getAsJsonArray("keys").map(::readKeyStroke)
-    val items = node.getAsJsonArray("items")
-    return ActionGroup(keys, items.map { readActionNode(it.asJsonObject) })
-}
-
-private fun readKeyStroke(node: JsonElement): KeyStroke {
-    return KeyStroke.getKeyStroke(node.asString)
-            ?: throw IllegalArgumentException("Invalid key: $node")
 }

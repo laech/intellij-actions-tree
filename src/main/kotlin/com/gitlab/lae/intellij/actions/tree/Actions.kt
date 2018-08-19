@@ -2,12 +2,10 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.IdeActions.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.keymap.KeymapManager
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.AsyncResult
 import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.Consumer
