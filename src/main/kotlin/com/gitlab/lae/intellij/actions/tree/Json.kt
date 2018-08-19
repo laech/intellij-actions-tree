@@ -30,20 +30,19 @@ private fun readActionNode(node: JsonObject): ActionNode {
 }
 
 private fun readActionRef(node: JsonObject): ActionRef {
-    val key = readKeyStroke(node.getAsJsonPrimitive("key"))
+    val keys = node.getAsJsonArray("keys").map(::readKeyStroke)
     val id = node.getAsJsonPrimitive("id").asString
     val sep = node.getAsJsonPrimitive("sep")?.asBoolean ?: false
-    return ActionRef(key, id, sep)
+    return ActionRef(keys, id, sep)
 }
 
 private fun readActionGroup(node: JsonObject): ActionGroup {
-    val key = readKeyStroke(node.getAsJsonPrimitive("key"))
+    val keys = node.getAsJsonArray("keys").map(::readKeyStroke)
     val items = node.getAsJsonArray("items")
-    return ActionGroup(key, items.map { readActionNode(it.asJsonObject) })
+    return ActionGroup(keys, items.map { readActionNode(it.asJsonObject) })
 }
 
-private fun readKeyStroke(node: JsonPrimitive?): KeyStroke? {
-    node ?: return null
+private fun readKeyStroke(node: JsonElement): KeyStroke {
     return KeyStroke.getKeyStroke(node.asString)
             ?: throw IllegalArgumentException("Invalid key: $node")
 }

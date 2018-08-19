@@ -53,12 +53,14 @@ private fun loadActions(): List<GenAction> {
 
 private fun Keymap.registerShortcuts(actions: List<GenAction>) {
     actions.forEach { (id, action) ->
-        action.key?.also { addShortcut(id, KeyboardShortcut(it, null)) }
+        action.keys.forEach { key ->
+            addShortcut(id, KeyboardShortcut(key, null))
+        }
     }
 }
 
 private data class GenAction(val id: String, val action: ActionNode) {
     constructor(action: ActionNode) : this(
-            "Actions Tree Generated ${identityHashCode(action)} (${action.key})",
+            "Actions Tree Generated ${identityHashCode(action)} ${action.keys.joinToString(",")}",
             action)
 }

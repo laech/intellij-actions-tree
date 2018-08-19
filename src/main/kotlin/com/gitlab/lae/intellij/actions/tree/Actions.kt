@@ -13,18 +13,19 @@ import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.KeyStroke
+import javax.swing.ListCellRenderer
 
 sealed class ActionNode : AnAction(), ShortcutProvider {
 
-    abstract val key: KeyStroke?
+    abstract val keys: List<KeyStroke>
 
-    override fun getShortcut() = key.let {
-        if (it == null) null else CustomShortcutSet(it)
-    }
+    override fun getShortcut() = CustomShortcutSet(*keys
+            .map { KeyboardShortcut(it, null) }
+            .toTypedArray())
 }
 
 data class ActionRef(
-        override val key: KeyStroke?,
+        override val keys: List<KeyStroke>,
         val id: String,
         val sep: Boolean
 ) : ActionNode() {
@@ -81,21 +82,23 @@ data class ActionRef(
 }
 
 data class ActionGroup(
-        override val key: KeyStroke?,
+        override val keys: List<KeyStroke>,
         val items: List<ActionNode>
 ) : ActionNode() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val component = event.dataContext.getData(CONTEXT_COMPONENT)
-        val popup = ListPopupImpl(ActionStep(component, this@ActionGroup))
-
+        val popup = object : ListPopupImpl(ActionStep(component, this@ActionGroup)) {
+            override fun getListElementRenderer(): ListCellRenderer<*> {
+                return ActionRenderer(this)
+            }
+        }
         popup.registerAction(ACTION_EDITOR_ESCAPE) { dispose() }
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { list.selectedIndex += 1 }
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { list.selectedIndex -= 1 }
 
         items.forEach { action ->
-            val key = action.key
-            if (key != null) {
+            action.keys.forEach { key ->
                 popup.content.registerKeyboardAction({ e ->
                     popup.closeOk(null)
                     action.performAction(component, e.modifiers)

@@ -72,4 +72,9 @@ class ActionStep(
                 if (isEnabled) icon else disabledIcon
             }
 
+    override fun getSelectedIconFor(value: ActionNode): Icon? =
+            value.templatePresentation.run {
+                if (isEnabled) selectedIcon else disabledIcon
+            }
+
 }
