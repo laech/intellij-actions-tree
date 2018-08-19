@@ -67,14 +67,8 @@ class ActionStep(
     override fun getTooltipTextFor(value: ActionNode): String? =
             value.templatePresentation.description
 
-    override fun getIconFor(value: ActionNode): Icon? =
-            value.templatePresentation.run {
-                if (isEnabled) icon else disabledIcon
-            }
+    override fun getIconFor(value: ActionNode): Icon? = null
 
-    override fun getSelectedIconFor(value: ActionNode): Icon? =
-            value.templatePresentation.run {
-                if (isEnabled) selectedIcon else disabledIcon
-            }
+    override fun getSelectedIconFor(value: ActionNode): Icon? = null
 
 }

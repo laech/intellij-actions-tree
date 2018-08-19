@@ -12,6 +12,7 @@ import com.intellij.util.Consumer
 import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
+import javax.swing.JList
 import javax.swing.KeyStroke
 import javax.swing.ListCellRenderer
 
@@ -93,9 +94,9 @@ data class ActionGroup(
                 return ActionRenderer(this)
             }
         }
-        popup.registerAction(ACTION_EDITOR_ESCAPE) { dispose() }
-        popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { list.selectedIndex += 1 }
-        popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { list.selectedIndex -= 1 }
+        popup.registerAction(ACTION_EDITOR_ESCAPE) { cancel() }
+        popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { select(list, 1) }
+        popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { select(list, -1) }
 
         items.forEach { action ->
             action.keys.forEach { key ->
@@ -111,6 +112,10 @@ data class ActionGroup(
 
     override fun isDumbAware() = true
 
+    private fun select(list: JList<Any>, increment: Int) {
+        val i = list.selectedIndex + increment
+        list.selectedIndex = (i + list.model.size) % list.model.size
+    }
 }
 
 private fun ListPopupImpl.registerAction(actionId: String, run: ListPopupImpl.() -> Unit) {
