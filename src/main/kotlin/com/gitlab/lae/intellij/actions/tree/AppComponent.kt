@@ -27,7 +27,12 @@ class AppComponent : ApplicationComponent {
         val manager = ActionManager.getInstance()
         actions.forEach { (id, _) -> manager.unregisterAction(id) }
         actions = loadActions()
-        actions.forEach { (id, action) -> manager.registerAction(id, action) }
+        actions.forEach { (id, node) ->
+            val action = node.toAction(manager)
+            if (action != null) {
+                manager.registerAction(id, action)
+            }
+        }
 
         val keymaps = KeymapManager.getInstance()
         keymaps.activeKeymap.registerShortcuts(actions)

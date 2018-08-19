@@ -16,9 +16,26 @@ import javax.swing.JList
 import javax.swing.KeyStroke
 import javax.swing.ListCellRenderer
 
-sealed class ActionNode : AnAction(), ShortcutProvider {
+interface ActionNode : ShortcutProvider {
 
-    abstract val keys: List<KeyStroke>
+    val keys: List<KeyStroke>
+
+    fun toPresentation(src: AnActionEvent): ActionPresentation? {
+        val action = toAction(src.actionManager) ?: return null
+        val presentation = action.templatePresentation.clone()
+        val place = ActionPlaces.EDITOR_POPUP
+        val input = src.inputEvent
+        val ctx = src.dataContext
+        action.update(AnActionEvent.createFromAnAction(action, input, place, ctx))
+        val result = ActionPresentation(action, keys, presentation)
+        when (this) {
+            is ActionGroup -> result.hasSubstep = true
+            is ActionRef -> result.sepAbove = this.sepAbove
+        }
+        return result
+    }
+
+    fun toAction(mgr: ActionManager): AnAction?
 
     override fun getShortcut() = CustomShortcutSet(*keys
             .map { KeyboardShortcut(it, null) }
@@ -28,68 +45,29 @@ sealed class ActionNode : AnAction(), ShortcutProvider {
 data class ActionRef(
         override val keys: List<KeyStroke>,
         val id: String,
-        val sep: Boolean
-) : ActionNode() {
+        val sepAbove: Boolean) : ActionNode {
 
-    init {
-        val action = ActionManager.getInstance().getActionOrStub(id)
-        if (action != null) {
-            templatePresentation.copyFrom(action.templatePresentation)
-        } else {
-            templatePresentation.text = id
-            templatePresentation.isEnabled = false
-        }
-    }
-
-    private val action: AnAction? by lazy {
-        ActionManager.getInstance().getAction(id)
-    }
-
-    override fun actionPerformed(e: AnActionEvent) {
-        action?.actionPerformed(e)
-    }
-
-    override fun update(e: AnActionEvent) {
-        val a = action
-        if (a != null) {
-            a.update(e)
-            templatePresentation.copyFrom(a.templatePresentation)
-        }
-    }
-
-    override fun isDumbAware() = action?.isDumbAware ?: true
-
-    override fun setInjectedContext(worksInInjected: Boolean) {
-        super.setInjectedContext(worksInInjected)
-        action?.setInjectedContext(worksInInjected)
-    }
-
-    override fun isTransparentUpdate() =
-            action?.isTransparentUpdate ?: super.isTransparentUpdate()
-
-    override fun setDefaultIcon(isDefaultIconSet: Boolean) {
-        super.setDefaultIcon(isDefaultIconSet)
-        action?.isDefaultIcon = isDefaultIcon
-    }
-
-    override fun startInTransaction() =
-            action?.startInTransaction() ?: super.startInTransaction()
-
-    override fun isInInjectedContext() =
-            action?.isInInjectedContext ?: super.isInInjectedContext()
-
-    override fun isDefaultIcon() =
-            action?.isDefaultIcon ?: super.isDefaultIcon()
+    override fun toAction(mgr: ActionManager): AnAction? =
+            mgr.getAction(id)
 }
 
 data class ActionGroup(
         override val keys: List<KeyStroke>,
-        val items: List<ActionNode>
-) : ActionNode() {
+        val items: List<ActionNode>) : ActionNode {
 
-    override fun actionPerformed(event: AnActionEvent) {
-        val component = event.dataContext.getData(CONTEXT_COMPONENT)
-        val popup = object : ListPopupImpl(ActionStep(component, this@ActionGroup)) {
+    override fun toAction(mgr: ActionManager) = object : AnAction("...") { // TODO
+        override fun actionPerformed(e: AnActionEvent) = run(e)
+        override fun isDumbAware() = true
+    }
+
+    private fun run(e: AnActionEvent) {
+        val actions = items.asSequence()
+                .map { it.toPresentation(e) }
+                .filterNotNull()
+                .toList()
+
+        val component = e.dataContext.getData(CONTEXT_COMPONENT)
+        val popup = object : ListPopupImpl(ActionStep(component, actions)) {
             override fun getListElementRenderer(): ListCellRenderer<*> {
                 return ActionRenderer(this)
             }
@@ -98,8 +76,8 @@ data class ActionGroup(
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { select(list, 1) }
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { select(list, -1) }
 
-        items.forEach { action ->
-            action.keys.forEach { key ->
+        actions.forEach { (action, keys, _) ->
+            keys.forEach { key ->
                 popup.content.registerKeyboardAction({ e ->
                     popup.closeOk(null)
                     action.performAction(component, e.modifiers)
@@ -107,10 +85,8 @@ data class ActionGroup(
             }
         }
 
-        popup.showInBestPositionFor(event.dataContext)
+        popup.showInBestPositionFor(e.dataContext)
     }
-
-    override fun isDumbAware() = true
 
     private fun select(list: JList<Any>, increment: Int) {
         val i = list.selectedIndex + increment
