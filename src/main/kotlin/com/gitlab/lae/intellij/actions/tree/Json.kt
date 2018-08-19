@@ -32,7 +32,8 @@ private fun readActionNode(node: JsonObject): ActionNode {
 private fun readActionRef(node: JsonObject): ActionRef {
     val key = readKeyStroke(node.getAsJsonPrimitive("key"))
     val id = node.getAsJsonPrimitive("id").asString
-    return ActionRef(key, id)
+    val sep = node.getAsJsonPrimitive("sep")?.asBoolean ?: false
+    return ActionRef(key, id, sep)
 }
 
 private fun readActionGroup(node: JsonObject): ActionGroup {

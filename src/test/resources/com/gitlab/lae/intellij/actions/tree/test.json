@@ -7,7 +7,7 @@
           "key": "P",
           "items": [
             {"key": "K", "id": "CloseProject"},
-            {"key": "P", "id": "OpenProjectGroup"}
+            {"key": "P", "id": "OpenProjectGroup", "sep": true}
           ]
         }
       ]

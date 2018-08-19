@@ -9,12 +9,12 @@ class JsonTest : LightPlatformCodeInsightFixtureTestCase() {
         val expected = listOf(
                 ActionGroup(getKeyStroke("ctrl C"), listOf(
                         ActionGroup(getKeyStroke("P"), listOf(
-                                ActionRef(getKeyStroke("K"), "CloseProject"),
-                                ActionRef(getKeyStroke("P"), "OpenProjectGroup")
+                                ActionRef(getKeyStroke("K"), "CloseProject", false),
+                                ActionRef(getKeyStroke("P"), "OpenProjectGroup", true)
                         ))
                 )),
                 ActionGroup(getKeyStroke("ctrl X"), listOf(
-                        ActionRef(getKeyStroke("ctrl X"), "EditorSwapSelectionBoundaries")
+                        ActionRef(getKeyStroke("ctrl X"), "EditorSwapSelectionBoundaries", false)
                 ))
         )
 

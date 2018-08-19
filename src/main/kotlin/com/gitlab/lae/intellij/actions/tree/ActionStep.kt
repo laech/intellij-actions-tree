@@ -17,7 +17,12 @@ class ActionStep(
 
     override fun getDefaultOptionIndex() = -1
 
-    override fun getSeparatorAbove(value: ActionNode): ListSeparator? = null
+    override fun getSeparatorAbove(value: ActionNode) =
+            if (value is ActionRef && value.sep) {
+                ListSeparator()
+            } else {
+                null
+            }
 
     override fun isAutoSelectionEnabled() = false
 

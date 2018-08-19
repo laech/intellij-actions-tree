@@ -25,7 +25,8 @@ sealed class ActionNode : AnAction(), ShortcutProvider {
 
 data class ActionRef(
         override val key: KeyStroke?,
-        val id: String
+        val id: String,
+        val sep: Boolean
 ) : ActionNode() {
 
     init {
