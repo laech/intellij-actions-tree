@@ -45,6 +45,6 @@ private fun Keymap.registerShortcuts(actions: List<GenAction>) {
 
 private data class GenAction(val id: String, val action: ActionNode) {
     constructor(action: ActionNode) : this(
-            "ActionsTree ${identityHashCode(action)} (${action.key})",
+            "Actions Tree Generated ${identityHashCode(action)} (${action.key})",
             action)
 }

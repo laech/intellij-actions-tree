@@ -96,8 +96,8 @@ data class ActionGroup(
             val key = action.key
             if (key != null) {
                 popup.content.registerKeyboardAction({ e ->
+                    popup.closeOk(null)
                     action.performAction(component, e.modifiers)
-                    popup.dispose()
                 }, key, JComponent.WHEN_IN_FOCUSED_WINDOW)
             }
         }
