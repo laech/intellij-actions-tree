@@ -33,7 +33,7 @@ class ActionStep(
     override fun getSeparatorAbove(value: ActionItem) = value.separator
 
     override fun getTextFor(value: ActionItem) = value.name ?: ""
-    override fun getIconFor(value: ActionItem): Icon? = null
+    override fun getIconFor(value: ActionItem) = value.icon
     override fun getSelectedIconFor(value: ActionItem): Icon? = null
     override fun getTooltipTextFor(value: ActionItem) = value.description
 

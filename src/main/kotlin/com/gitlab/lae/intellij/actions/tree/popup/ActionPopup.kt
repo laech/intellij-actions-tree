@@ -2,6 +2,7 @@ package com.gitlab.lae.intellij.actions.tree.popup
 
 import com.intellij.openapi.actionSystem.IdeActions.*
 import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.actionSystem.impl.ActionMenu.showDescriptionInStatusBar
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.ui.popup.list.ListPopupImpl
 import java.awt.Component
@@ -18,6 +19,15 @@ class ActionPopup(component: Component?, items: List<ActionItem>)
         registerKeymapAction(ACTION_EDITOR_ESCAPE) { cancel() }
         registerKeymapAction(ACTION_EDITOR_MOVE_CARET_DOWN) { select(list, 1) }
         registerKeymapAction(ACTION_EDITOR_MOVE_CARET_UP) { select(list, -1) }
+        addListSelectionListener {
+            val item = list.selectedValue as ActionItem
+            showDescriptionInStatusBar(true, content, item.description)
+        }
+    }
+
+    override fun dispose() {
+        showDescriptionInStatusBar(true, content, null)
+        super.dispose()
     }
 
     override fun getListElementRenderer(): ListCellRenderer<*> {

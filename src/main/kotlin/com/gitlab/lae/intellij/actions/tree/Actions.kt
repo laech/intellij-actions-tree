@@ -65,11 +65,12 @@ fun ActionNode.toActionItem(src: AnActionEvent): ActionItem? {
     return ActionItem(
             action,
             keys,
+            hasChildren,
+            separator,
             presentation.text,
             presentation.description,
             presentation.isEnabled,
-            hasChildren,
-            separator)
+            presentation.icon)
 }
 
 fun AnAction.performAction(component: Component?, modifiers: Int) {
