@@ -5,8 +5,10 @@ import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.ui.popup.list.ListPopupImpl
 import java.awt.Component
+import java.awt.event.ActionEvent
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.JList
+import javax.swing.KeyStroke
 import javax.swing.ListCellRenderer
 
 class ActionPopup(component: Component?, items: List<ActionItem>)
@@ -21,6 +23,12 @@ class ActionPopup(component: Component?, items: List<ActionItem>)
     override fun getListElementRenderer(): ListCellRenderer<*> {
         return ActionRenderer(this)
     }
+
+    fun registerKeyboardAction(keys: List<KeyStroke>, action: (ActionEvent) -> Unit) =
+            keys.forEach { key ->
+                content.registerKeyboardAction(
+                        action, key, WHEN_IN_FOCUSED_WINDOW)
+            }
 
     private fun registerKeymapAction(actionId: String, run: () -> Unit) {
         KeymapManager.getInstance().activeKeymap

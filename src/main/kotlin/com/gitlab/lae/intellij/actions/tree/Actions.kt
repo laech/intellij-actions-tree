@@ -13,72 +13,63 @@ import com.intellij.openapi.ui.popup.ListSeparator
 import com.intellij.openapi.util.AsyncResult
 import com.intellij.util.Consumer
 import java.awt.Component
-import javax.swing.JComponent
 import javax.swing.KeyStroke
 
-interface ActionNode {
-
-    val keys: List<KeyStroke>
-
-    fun toPresentation(src: AnActionEvent): ActionItem? {
-        val action = toAction(src.actionManager) ?: return null
-        val presentation = action.templatePresentation.clone()
-        val place = ActionPlaces.EDITOR_POPUP
-        val input = src.inputEvent
-        val ctx = src.dataContext
-        action.update(AnActionEvent.createFromAnAction(action, input, place, ctx))
-        return ActionItem(
-                action,
-                keys,
-                presentation.text,
-                presentation.description,
-                this is ActionGroup,
-                presentation.isEnabled,
-                if (this is ActionRef && separatorAbove) ListSeparator()
-                else null)
-    }
-
-    fun toAction(mgr: ActionManager): AnAction?
+sealed class ActionNode {
+    abstract val keys: List<KeyStroke>
 }
 
 data class ActionRef(
         override val keys: List<KeyStroke>,
         val id: String,
-        val separatorAbove: Boolean) : ActionNode {
-
-    override fun toAction(mgr: ActionManager): AnAction? =
-            mgr.getAction(id)
-}
+        val separatorAbove: Boolean) : ActionNode()
 
 data class ActionGroup(
         override val keys: List<KeyStroke>,
-        val items: List<ActionNode>) : ActionNode {
+        val items: List<ActionNode>) : ActionNode()
 
-    override fun toAction(mgr: ActionManager) = object : AnAction("...") { // TODO
-        override fun actionPerformed(e: AnActionEvent) = run(e)
+fun ActionNode.toAction(mgr: ActionManager): AnAction? = when (this) {
+    is ActionRef -> mgr.getAction(id)
+    is ActionGroup -> object : AnAction("...") { // TODO
+        override fun actionPerformed(e: AnActionEvent) = showPopup(e)
         override fun isDumbAware() = true
     }
+}
 
-    private fun run(e: AnActionEvent) {
-        val actions = items.asSequence()
-                .map { it.toPresentation(e) }
-                .filterNotNull()
-                .toList()
-
-        val component = e.dataContext.getData(CONTEXT_COMPONENT)
-        val popup = ActionPopup(component, actions)
-
-        actions.forEach { (action, keys, _, _, _) ->
-            keys.forEach { key ->
-                popup.content.registerKeyboardAction({ e ->
-                    popup.closeOk(null)
-                    action.performAction(component, e.modifiers)
-                }, key, JComponent.WHEN_IN_FOCUSED_WINDOW)
-            }
+private fun ActionGroup.showPopup(e: AnActionEvent) {
+    val actions = items.mapNotNull { it.toActionItem(e) }
+    val component = e.dataContext.getData(CONTEXT_COMPONENT)
+    val popup = ActionPopup(component, actions)
+    actions.forEach { (action, keys, _, _, _) ->
+        popup.registerKeyboardAction(keys) { e ->
+            popup.closeOk(null)
+            action.performAction(component, e.modifiers)
         }
-
-        popup.showInBestPositionFor(e.dataContext)
     }
+    popup.showInBestPositionFor(e.dataContext)
+}
+
+fun ActionNode.toActionItem(src: AnActionEvent): ActionItem? {
+    val action = toAction(src.actionManager) ?: return null
+    val presentation = action.templatePresentation.clone()
+    val place = ActionPlaces.EDITOR_POPUP
+    val input = src.inputEvent
+    val ctx = src.dataContext
+    action.update(AnActionEvent.createFromAnAction(action, input, place, ctx))
+    val hasChildren = this is ActionGroup
+    val separator = if (this is ActionRef && separatorAbove) {
+        ListSeparator()
+    } else {
+        null
+    }
+    return ActionItem(
+            action,
+            keys,
+            presentation.text,
+            presentation.description,
+            hasChildren,
+            presentation.isEnabled,
+            separator)
 }
 
 fun AnAction.performAction(component: Component?, modifiers: Int) {
