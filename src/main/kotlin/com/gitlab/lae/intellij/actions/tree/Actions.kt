@@ -22,7 +22,7 @@ sealed class ActionNode {
 data class ActionRef(
         override val keys: List<KeyStroke>,
         val id: String,
-        val separatorAbove: Boolean) : ActionNode()
+        val header: String?) : ActionNode()
 
 data class ActionGroup(
         override val keys: List<KeyStroke>,
@@ -40,7 +40,7 @@ private fun ActionGroup.showPopup(e: AnActionEvent) {
     val actions = items.mapNotNull { it.toActionItem(e) }
     val component = e.dataContext.getData(CONTEXT_COMPONENT)
     val popup = ActionPopup(component, actions)
-    actions.forEach { (action, keys, _, _, _) ->
+    actions.forEach { (action, keys) ->
         popup.registerKeyboardAction(keys) { e ->
             popup.closeOk(null)
             action.performAction(component, e.modifiers)
@@ -57,8 +57,8 @@ fun ActionNode.toActionItem(src: AnActionEvent): ActionItem? {
     val ctx = src.dataContext
     action.update(AnActionEvent.createFromAnAction(action, input, place, ctx))
     val hasChildren = this is ActionGroup
-    val separator = if (this is ActionRef && separatorAbove) {
-        ListSeparator()
+    val separator = if (this is ActionRef && header != null) {
+        ListSeparator(header)
     } else {
         null
     }
@@ -67,8 +67,8 @@ fun ActionNode.toActionItem(src: AnActionEvent): ActionItem? {
             keys,
             presentation.text,
             presentation.description,
-            hasChildren,
             presentation.isEnabled,
+            hasChildren,
             separator)
 }
 

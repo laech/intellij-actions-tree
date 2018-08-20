@@ -12,8 +12,8 @@ data class ActionItem(
         val keys: List<KeyStroke>,
         val name: String?,
         val description: String?,
-        val hasChildren: Boolean,
         val isEnabled: Boolean,
+        val hasChildren: Boolean,
         val separator: ListSeparator?) : ShortcutProvider {
 
     override fun getShortcut() = CustomShortcutSet(*keys

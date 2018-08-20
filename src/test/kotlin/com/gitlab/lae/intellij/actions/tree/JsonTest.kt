@@ -11,12 +11,12 @@ class JsonTest : LightPlatformCodeInsightFixtureTestCase() {
                         ActionGroup(listOf(getKeyStroke("P")), listOf(
                                 ActionRef(listOf(
                                         getKeyStroke("K"),
-                                        getKeyStroke("ctrl K")), "CloseProject", false),
-                                ActionRef(listOf(getKeyStroke("P")), "OpenProjectGroup", true)
+                                        getKeyStroke("ctrl K")), "CloseProject", null),
+                                ActionRef(listOf(getKeyStroke("P")), "OpenProjectGroup", "bob")
                         ))
                 )),
                 ActionGroup(listOf(getKeyStroke("ctrl X")), listOf(
-                        ActionRef(listOf(getKeyStroke("ctrl X")), "EditorSwapSelectionBoundaries", false)
+                        ActionRef(listOf(getKeyStroke("ctrl X")), "EditorSwapSelectionBoundaries", null)
                 ))
         )
 

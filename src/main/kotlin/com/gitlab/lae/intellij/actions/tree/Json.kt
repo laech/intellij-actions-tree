@@ -21,10 +21,10 @@ private interface JsonAction {
 private data class JsonActionRef @JsonCreator constructor(
         @JsonProperty("id", required = true) val id: String,
         @JsonProperty("keys") val keys: List<KeyStroke>?,
-        @JsonProperty("sep") val sep: Boolean) : JsonAction {
+        @JsonProperty("header") val header: String?) : JsonAction {
 
     override fun toActionNode() =
-            ActionRef(keys ?: emptyList(), id, sep)
+            ActionRef(keys ?: emptyList(), id, header)
 }
 
 private data class JsonActionGroup @JsonCreator constructor(
