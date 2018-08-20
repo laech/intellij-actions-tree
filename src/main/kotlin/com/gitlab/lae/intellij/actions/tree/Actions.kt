@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.IdeActions.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.ui.popup.ListSeparator
 import com.intellij.openapi.util.AsyncResult
 import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.Consumer
@@ -27,12 +28,15 @@ interface ActionNode : ShortcutProvider {
         val input = src.inputEvent
         val ctx = src.dataContext
         action.update(AnActionEvent.createFromAnAction(action, input, place, ctx))
-        val result = ActionPresentation(action, keys, presentation)
-        when (this) {
-            is ActionGroup -> result.hasSubstep = true
-            is ActionRef -> result.sepAbove = this.sepAbove
-        }
-        return result
+        return ActionPresentation(
+                action,
+                keys,
+                presentation.text,
+                presentation.description,
+                this is ActionGroup,
+                presentation.isEnabled,
+                if (this is ActionRef && separatorAbove) ListSeparator()
+                else null)
     }
 
     fun toAction(mgr: ActionManager): AnAction?
@@ -45,7 +49,7 @@ interface ActionNode : ShortcutProvider {
 data class ActionRef(
         override val keys: List<KeyStroke>,
         val id: String,
-        val sepAbove: Boolean) : ActionNode {
+        val separatorAbove: Boolean) : ActionNode {
 
     override fun toAction(mgr: ActionManager): AnAction? =
             mgr.getAction(id)
@@ -76,7 +80,7 @@ data class ActionGroup(
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { select(list, 1) }
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { select(list, -1) }
 
-        actions.forEach { (action, keys, _) ->
+        actions.forEach { (action, keys, _, _, _) ->
             keys.forEach { key ->
                 popup.content.registerKeyboardAction({ e ->
                     popup.closeOk(null)

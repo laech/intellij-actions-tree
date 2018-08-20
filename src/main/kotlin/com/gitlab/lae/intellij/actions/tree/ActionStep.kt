@@ -1,6 +1,9 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.intellij.openapi.ui.popup.*
+import com.intellij.openapi.ui.popup.ListPopupStepEx
+import com.intellij.openapi.ui.popup.MnemonicNavigationFilter
+import com.intellij.openapi.ui.popup.PopupStep
+import com.intellij.openapi.ui.popup.SpeedSearchFilter
 import com.intellij.util.ui.StatusText
 import java.awt.Component
 import javax.swing.Icon
@@ -12,13 +15,11 @@ class ActionStep(
 
     override fun setEmptyText(emptyText: StatusText) {}
 
-    override fun isSelectable(value: ActionPresentation) =
-            value.presentation.isEnabled
+    override fun isSelectable(value: ActionPresentation) = value.isEnabled
 
     override fun getDefaultOptionIndex() = -1
 
-    override fun getSeparatorAbove(value: ActionPresentation) =
-            if (value.sepAbove) ListSeparator() else null
+    override fun getSeparatorAbove(value: ActionPresentation) = value.separator
 
     override fun isAutoSelectionEnabled() = false
 
@@ -36,8 +37,7 @@ class ActionStep(
 
     override fun getValues() = items
 
-    override fun hasSubstep(selectedValue: ActionPresentation) =
-            selectedValue.hasSubstep
+    override fun hasSubstep(selectedValue: ActionPresentation) = selectedValue.hasChildren
 
     override fun onChosen(selectedValue: ActionPresentation, finalChoice: Boolean) =
             onChosen(selectedValue, finalChoice, 0)
@@ -53,11 +53,9 @@ class ActionStep(
 
     override fun getTitle(): String? = null
 
-    override fun getTextFor(value: ActionPresentation) =
-            value.presentation.text ?: ""
+    override fun getTextFor(value: ActionPresentation) = value.name ?: ""
 
-    override fun getTooltipTextFor(value: ActionPresentation): String? =
-            value.presentation.description
+    override fun getTooltipTextFor(value: ActionPresentation) = value.description
 
     override fun getIconFor(value: ActionPresentation): Icon? = null
 
