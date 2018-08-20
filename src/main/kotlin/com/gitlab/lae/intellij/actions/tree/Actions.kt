@@ -3,19 +3,17 @@ package com.gitlab.lae.intellij.actions.tree
 import com.gitlab.lae.intellij.actions.tree.popup.ActionItem
 import com.gitlab.lae.intellij.actions.tree.popup.ActionPopup
 import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.IdeActions.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
-import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.ui.popup.ListSeparator
 import com.intellij.openapi.util.AsyncResult
-import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.Consumer
 import java.awt.Component
 import javax.swing.JComponent
-import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
-import javax.swing.JList
 import javax.swing.KeyStroke
 
 interface ActionNode {
@@ -69,9 +67,6 @@ data class ActionGroup(
 
         val component = e.dataContext.getData(CONTEXT_COMPONENT)
         val popup = ActionPopup(component, actions)
-        popup.registerAction(ACTION_EDITOR_ESCAPE) { cancel() }
-        popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { select(list, 1) }
-        popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { select(list, -1) }
 
         actions.forEach { (action, keys, _, _, _) ->
             keys.forEach { key ->
@@ -84,24 +79,6 @@ data class ActionGroup(
 
         popup.showInBestPositionFor(e.dataContext)
     }
-
-    private fun select(list: JList<Any>, increment: Int) {
-        val i = list.selectedIndex + increment
-        list.selectedIndex = (i + list.model.size) % list.model.size
-    }
-}
-
-private fun ListPopupImpl.registerAction(actionId: String, run: ListPopupImpl.() -> Unit) {
-    KeymapManager.getInstance().activeKeymap
-            .getShortcuts(actionId)
-            .filterIsInstance<KeyboardShortcut>()
-            .filter { it.secondKeyStroke == null }
-            .map { it.firstKeyStroke }
-            .forEach { key ->
-                content.registerKeyboardAction({
-                    run()
-                }, key, WHEN_IN_FOCUSED_WINDOW)
-            }
 }
 
 fun AnAction.performAction(component: Component?, modifiers: Int) {
