@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree
+package com.gitlab.lae.intellij.actions.tree.popup
 
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.ui.popup.list.ListPopupImpl
@@ -6,20 +6,21 @@ import com.intellij.ui.popup.list.PopupListElementRenderer
 import javax.swing.JLabel
 import javax.swing.JList
 
-class ActionRenderer(list: ListPopupImpl) : PopupListElementRenderer<ActionPresentation>(list) {
+class ActionRenderer(list: ListPopupImpl)
+    : PopupListElementRenderer<ActionItem>(list) {
 
     // TODO remove reflection
 
     override fun customizeComponent(
-            list: JList<out ActionPresentation>,
-            value: ActionPresentation,
+            list: JList<out ActionItem>,
+            value: ActionItem,
             isSelected: Boolean
     ) {
         super.customizeComponent(list, value, isSelected)
         updateShortcutText(value)
     }
 
-    private fun updateShortcutText(value: ActionPresentation) {
+    private fun updateShortcutText(value: ActionItem) {
         if (value.keys.size < 2) return
         if (myShortcutLabelField == null) return
         try {

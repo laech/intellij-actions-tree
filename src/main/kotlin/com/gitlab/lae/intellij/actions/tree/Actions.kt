@@ -1,5 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree
 
+import com.gitlab.lae.intellij.actions.tree.popup.ActionItem
+import com.gitlab.lae.intellij.actions.tree.popup.ActionPopup
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.IdeActions.*
@@ -15,20 +17,19 @@ import javax.swing.JComponent
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.JList
 import javax.swing.KeyStroke
-import javax.swing.ListCellRenderer
 
-interface ActionNode : ShortcutProvider {
+interface ActionNode {
 
     val keys: List<KeyStroke>
 
-    fun toPresentation(src: AnActionEvent): ActionPresentation? {
+    fun toPresentation(src: AnActionEvent): ActionItem? {
         val action = toAction(src.actionManager) ?: return null
         val presentation = action.templatePresentation.clone()
         val place = ActionPlaces.EDITOR_POPUP
         val input = src.inputEvent
         val ctx = src.dataContext
         action.update(AnActionEvent.createFromAnAction(action, input, place, ctx))
-        return ActionPresentation(
+        return ActionItem(
                 action,
                 keys,
                 presentation.text,
@@ -40,10 +41,6 @@ interface ActionNode : ShortcutProvider {
     }
 
     fun toAction(mgr: ActionManager): AnAction?
-
-    override fun getShortcut() = CustomShortcutSet(*keys
-            .map { KeyboardShortcut(it, null) }
-            .toTypedArray())
 }
 
 data class ActionRef(
@@ -71,11 +68,7 @@ data class ActionGroup(
                 .toList()
 
         val component = e.dataContext.getData(CONTEXT_COMPONENT)
-        val popup = object : ListPopupImpl(ActionStep(component, actions)) {
-            override fun getListElementRenderer(): ListCellRenderer<*> {
-                return ActionRenderer(this)
-            }
-        }
+        val popup = ActionPopup(component, actions)
         popup.registerAction(ACTION_EDITOR_ESCAPE) { cancel() }
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_DOWN) { select(list, 1) }
         popup.registerAction(ACTION_EDITOR_MOVE_CARET_UP) { select(list, -1) }
