@@ -80,8 +80,11 @@ private fun readActionNode(p: JsonParser): ActionNode = p.codec.readTree<JsonNod
 }
 
 fun ActionNode.toAction(mgr: ActionManager): AnAction? = when (this) {
-    is ActionRef -> mgr.getAction(id)?.let { ActionWrapper(keys, it) }
     is ActionSeparator -> Separator(name)
+    is ActionRef -> mgr.getAction(id)?.let {
+        if (it is ActionGroup) ActionGroupWrapper(keys, it)
+        else ActionWrapper(keys, it)
+    }
     is ActionContainer -> ActionWrapper(keys, object : AnAction(name) {
         override fun actionPerformed(e: AnActionEvent) = showPopup(e)
         override fun isDumbAware() = true
