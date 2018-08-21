@@ -7,12 +7,13 @@
           "keys": ["P"],
           "items": [
             {"keys": ["K", "ctrl K"], "id": "CloseProject"},
-            {"keys": ["P"], "id": "OpenProjectGroup", "header": "bob"}
+            {"keys": ["P"], "id": "OpenProjectGroup"}
           ]
         }
       ]
     },
     {
+      "name": "b",
       "keys": ["ctrl X"],
       "items": [
         {

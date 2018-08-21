@@ -25,8 +25,9 @@ class AppComponent : ApplicationComponent {
 
     fun reload() {
         val manager = ActionManager.getInstance()
+        val newActions = loadActions()
         actions.forEach { (id, _) -> manager.unregisterAction(id) }
-        actions = loadActions()
+        actions = newActions
         actions.forEach { (id, node) ->
             val action = node.toAction(manager)
             if (action != null) {
@@ -44,7 +45,11 @@ private fun loadActions(): List<GenAction> {
     val props = PropertiesComponent.getInstance()
     val conf = props.getValue(confKey)?.trim() ?: return emptyList()
     return try {
-        parseJsonActions(Paths.get(conf)).map(::GenAction)
+
+        parseJsonActions(Paths.get(conf))
+                .filterNot { it is ActionSeparator }
+                .map(::GenAction)
+
     } catch (e: Exception) {
         Notifications.Bus.notify(Notification(
                 "ActionsTree",

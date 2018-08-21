@@ -1,18 +1,13 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.gitlab.lae.intellij.actions.tree.popup.ActionItem
-import com.gitlab.lae.intellij.actions.tree.popup.ActionPopup
-import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionPlaces
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
-import com.intellij.openapi.actionSystem.ex.ActionUtil
-import com.intellij.openapi.ui.popup.ListSeparator
-import com.intellij.openapi.util.AsyncResult
-import com.intellij.util.Consumer
-import java.awt.Component
+import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.ui.popup.PopupFactoryImpl.*
+import com.intellij.ui.popup.PopupFactoryImpl.ActionGroupPopup.getActionItems
+import java.awt.event.ActionEvent
+import javax.swing.AbstractAction
 import javax.swing.KeyStroke
 
 sealed class ActionNode {
@@ -21,71 +16,83 @@ sealed class ActionNode {
 
 data class ActionRef(
         override val keys: List<KeyStroke>,
-        val id: String,
-        val header: String?) : ActionNode()
+        val id: String) : ActionNode()
 
-data class ActionGroup(
+data class ActionContainer(
         override val keys: List<KeyStroke>,
+        val name: String?,
         val items: List<ActionNode>) : ActionNode()
 
-fun ActionNode.toAction(mgr: ActionManager): AnAction? = when (this) {
-    is ActionRef -> mgr.getAction(id)
-    is ActionGroup -> object : AnAction("...") { // TODO
-        override fun actionPerformed(e: AnActionEvent) = showPopup(e)
-        override fun isDumbAware() = true
-    }
+data class ActionSeparator(val name: String?) : ActionNode() {
+    override val keys: List<KeyStroke> get() = emptyList()
 }
 
-private fun ActionGroup.showPopup(e: AnActionEvent) {
-    val actions = items.mapNotNull { it.toActionItem(e) }
+fun ActionNode.toAction(mgr: ActionManager): AnAction? = when (this) {
+    is ActionRef -> mgr.getAction(id)?.let { ActionWrapper(keys, it) }
+    is ActionSeparator -> Separator(name)
+    is ActionContainer -> ActionWrapper(keys, object : AnAction(name ?: "...") {
+        override fun actionPerformed(e: AnActionEvent) = showPopup(e)
+        override fun isDumbAware() = true
+    })
+}
+
+private fun ActionContainer.toActionGroup(mgr: ActionManager) =
+        object : ActionGroup(name ?: "...", true) {
+            override fun isDumbAware() = true
+            override fun getChildren(e: AnActionEvent?) =
+                    items.mapNotNull { it.toAction(mgr) }.toTypedArray()
+        }
+
+private fun ActionContainer.showPopup(e: AnActionEvent) {
     val component = e.dataContext.getData(CONTEXT_COMPONENT)
-    val popup = ActionPopup(component, actions)
-    actions.forEach { (action, keys) ->
-        popup.registerKeyboardAction(keys) { e ->
-            popup.closeOk(null)
-            action.performAction(component, e.modifiers)
+    val place = ActionPlaces.UNKNOWN
+    val items = getActionItems(
+            toActionGroup(e.actionManager),
+            e.dataContext, false, false, true, false, place)
+
+    val step = object : ActionPopupStep(items, null, component, false, null, false, true) {
+        override fun isSpeedSearchEnabled() = false
+    }
+
+    val popup = object : ActionGroupPopup(null, step, null, e.dataContext, place, 30) {
+        override fun getListElementRenderer() = ActionRenderer(this)
+    }
+
+    // Removes the default behaviour of jumping to an item when keys are typed,
+    popup.list.keyListeners
+            .filter { it.javaClass.name == "javax.swing.plaf.basic.BasicListUI\$Handler" }
+            .forEach { popup.list.removeKeyListener(it) }
+
+    items.forEachIndexed { i, item ->
+        item.keys().forEach { key ->
+            popup.registerAction("action-$i", key, object : AbstractAction() {
+                override fun actionPerformed(e: ActionEvent) {
+                    popup.list.selectedIndex = i
+                    popup.handleSelect(true)
+                }
+            })
         }
     }
+
+    KeymapManager.getInstance().activeKeymap
+            .getShortcuts(ACTION_EDITOR_ESCAPE)
+            .filterIsInstance<KeyboardShortcut>()
+            .filter { it.secondKeyStroke == null }
+            .map { it.firstKeyStroke }
+            .forEach { key ->
+                popup.registerAction("cancel", key, object : AbstractAction() {
+                    override fun actionPerformed(e: ActionEvent) {
+                        popup.cancel()
+                    }
+                })
+            }
+
     popup.showInBestPositionFor(e.dataContext)
 }
 
-fun ActionNode.toActionItem(src: AnActionEvent): ActionItem? {
-    val action = toAction(src.actionManager) ?: return null
-    val presentation = action.templatePresentation.clone()
-    val place = ActionPlaces.EDITOR_POPUP
-    val input = src.inputEvent
-    val ctx = src.dataContext
-    action.update(AnActionEvent.createFromAnAction(action, input, place, ctx))
-    val hasChildren = this is ActionGroup
-    val separator = if (this is ActionRef && header != null) {
-        ListSeparator(header)
-    } else {
-        null
-    }
-    return ActionItem(
-            action,
-            keys,
-            hasChildren,
-            separator,
-            presentation.text,
-            presentation.description,
-            presentation.isEnabled,
-            presentation.icon)
-}
-
-fun AnAction.performAction(component: Component?, modifiers: Int) {
-    val dataManager = DataManager.getInstance()
-    when (component) {
-        null -> dataManager.dataContextFromFocus
-        else -> AsyncResult.done(dataManager.getDataContext(component))
-    }.doWhenDone(Consumer {
-        val actions = ActionManager.getInstance()
-        val template = templatePresentation.clone()
-        val place = ActionPlaces.EDITOR_POPUP
-        val event = AnActionEvent(null, it, place, template, actions, modifiers)
-        event.setInjectedContext(isInInjectedContext)
-        if (ActionUtil.lastUpdateAndCheckDumb(this, event, false)) {
-            ActionUtil.performActionDumbAware(this, event)
-        }
-    })
-}
+fun ActionItem.keys() = action.shortcutSet.shortcuts
+        .asSequence()
+        .filterIsInstance<KeyboardShortcut>()
+        .filter { it.secondKeyStroke == null }
+        .map { it.firstKeyStroke }
+        .toList()

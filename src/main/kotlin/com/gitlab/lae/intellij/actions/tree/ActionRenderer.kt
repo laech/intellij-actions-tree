@@ -1,6 +1,7 @@
-package com.gitlab.lae.intellij.actions.tree.popup
+package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.ui.popup.PopupFactoryImpl.ActionItem
 import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.ui.popup.list.PopupListElementRenderer
 import javax.swing.JLabel
@@ -21,11 +22,12 @@ class ActionRenderer(list: ListPopupImpl)
     }
 
     private fun updateShortcutText(value: ActionItem) {
-        if (value.keys.size < 2) return
+        val keys = value.keys()
+        if (keys.size < 2) return
         if (myShortcutLabelField == null) return
         try {
             val field = myShortcutLabelField.get(this) as JLabel
-            field.text = value.keys.joinToString(
+            field.text = keys.joinToString(
                     separator = " ",
                     prefix = "     ",
                     transform = KeymapUtil::getKeystrokeText)

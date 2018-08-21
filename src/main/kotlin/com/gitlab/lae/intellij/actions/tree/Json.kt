@@ -20,19 +20,24 @@ private interface JsonAction {
 
 private data class JsonActionRef @JsonCreator constructor(
         @JsonProperty("id", required = true) val id: String,
-        @JsonProperty("keys") val keys: List<KeyStroke>?,
-        @JsonProperty("header") val header: String?) : JsonAction {
+        @JsonProperty("keys") val keys: List<KeyStroke>?) : JsonAction {
 
-    override fun toActionNode() =
-            ActionRef(keys ?: emptyList(), id, header)
+    override fun toActionNode() = ActionRef(keys ?: emptyList(), id)
 }
 
 private data class JsonActionGroup @JsonCreator constructor(
         @JsonProperty("items", required = true) val items: List<JsonAction>,
+        @JsonProperty("name") val name: String?,
         @JsonProperty("keys") val keys: List<KeyStroke>?) : JsonAction {
 
-    override fun toActionNode() =
-            ActionGroup(keys ?: emptyList(), items.map { it.toActionNode() })
+    override fun toActionNode() = ActionContainer(
+            keys ?: emptyList(), name, items.map { it.toActionNode() })
+}
+
+private data class JsonSeparator @JsonCreator constructor(
+        @JsonProperty("separator") val name: String?) : JsonAction {
+
+    override fun toActionNode() = ActionSeparator(name)
 }
 
 private val mapper = ObjectMapper().registerModule(SimpleModule()
@@ -56,10 +61,10 @@ private fun readKeyStroke(p: JsonParser) =
                 ?: throw IllegalArgumentException(
                         "Invalid key stroke: ${p.text}")
 
-private fun readJsonAction(p: JsonParser): JsonAction = p.codec.readTree<JsonNode>(p).let {
-    if (it.has("id")) {
-        mapper.treeToValue<JsonActionRef>(it, JsonActionRef::class.java)
-    } else {
-        mapper.treeToValue<JsonActionGroup>(it, JsonActionGroup::class.java)
+private fun readJsonAction(p: JsonParser): JsonAction = p.codec.readTree<JsonNode>(p).run {
+    when {
+        has("id") -> mapper.treeToValue<JsonActionRef>(this, JsonActionRef::class.java)
+        has("separator") -> mapper.treeToValue<JsonSeparator>(this, JsonSeparator::class.java)
+        else -> mapper.treeToValue<JsonActionGroup>(this, JsonActionGroup::class.java)
     }
 }
