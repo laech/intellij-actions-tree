@@ -3,9 +3,9 @@ package com.gitlab.lae.intellij.actions.tree
 import com.intellij.openapi.actionSystem.*
 import javax.swing.KeyStroke
 
-data class ActionWrapper(
-        private val keys: List<KeyStroke>,
-        private val action: AnAction
+open class ActionWrapper(
+        keys: List<KeyStroke>,
+        val action: AnAction
 ) : AnAction() {
 
     init {

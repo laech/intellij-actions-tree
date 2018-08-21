@@ -3,8 +3,8 @@ package com.gitlab.lae.intellij.actions.tree
 import com.intellij.openapi.actionSystem.*
 import javax.swing.KeyStroke
 
-data class ActionGroupWrapper(
-        private val keys: List<KeyStroke>,
+open class ActionGroupWrapper(
+        keys: List<KeyStroke>,
         private val action: ActionGroup
 ) : ActionGroup() {
 
