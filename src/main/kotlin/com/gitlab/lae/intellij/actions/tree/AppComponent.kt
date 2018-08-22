@@ -3,42 +3,42 @@ package com.gitlab.lae.intellij.actions.tree
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
+import com.intellij.notification.Notifications.Bus.notify
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.keymap.Keymap
 import com.intellij.openapi.keymap.KeymapManager
-import org.apache.commons.lang3.exception.ExceptionUtils
-import java.lang.System.identityHashCode
+import com.intellij.openapi.keymap.KeymapManagerListener
+import org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace
 import java.nio.file.Paths
 
-class AppComponent : ApplicationComponent {
+class AppComponent : ApplicationComponent, KeymapManagerListener {
 
-    @Volatile
-    private var actions: List<GenAction> = emptyList()
+    private val actions = mutableListOf<GenAction>()
 
     override fun initComponent() {
         super.initComponent()
-        reload()
+        reload(ActionManager.getInstance())
     }
 
-    fun reload() {
-        val manager = ActionManager.getInstance()
+    fun reload(actionManager: ActionManager) {
         val newActions = loadActions()
-        actions.forEach { (id, _) -> manager.unregisterAction(id) }
-        actions = newActions
-        actions.forEach { (id, node) ->
-            val action = node.toAction(manager)
-            if (action != null) {
-                manager.registerAction(id, action)
-            }
-        }
+        val keymapManager = KeymapManager.getInstance()
 
-        val keymaps = KeymapManager.getInstance()
-        keymaps.activeKeymap.registerShortcuts(actions)
-        keymaps.addKeymapManagerListener({ it.registerShortcuts(actions) }, { })
+        keymapManager.activeKeymap.removeShortcuts(actions)
+        actionManager.unregisterActions(actions)
+        actions.clear()
+
+        actions.addAll(newActions)
+        actionManager.registerActions(actions)
+        keymapManager.activeKeymap.addShortcuts(actions)
+        keymapManager.addKeymapManagerListener(this, Disposable { })
     }
+
+    override fun activeKeymapChanged(keymap: Keymap) =
+            keymap.addShortcuts(actions)
 }
 
 private fun loadActions(): List<GenAction> {
@@ -48,29 +48,43 @@ private fun loadActions(): List<GenAction> {
 
         parseJsonActions(Paths.get(conf))
                 .filterNot { it is ActionSeparator }
-                .map(::GenAction)
+                .mapIndexed(::GenAction)
 
     } catch (e: Exception) {
-        Notifications.Bus.notify(Notification(
+        notify(Notification(
                 "ActionsTree",
                 "Failed to load keymap",
-                "Failed to load keymap: $conf\n${ExceptionUtils.getStackTrace(e)}",
+                "Failed to load keymap: $conf\n${getStackTrace(e)}",
                 NotificationType.ERROR
         ))
         emptyList()
     }
 }
 
-private fun Keymap.registerShortcuts(actions: List<GenAction>) {
-    actions.forEach { (id, action) ->
-        action.keys.forEach { key ->
-            addShortcut(id, KeyboardShortcut(key, null))
+private fun Keymap.addShortcuts(actions: Iterable<GenAction>) =
+        actions.forEach { (id, action) ->
+            action.keys.forEach { key ->
+                addShortcut(id, KeyboardShortcut(key, null))
+            }
         }
-    }
-}
 
-private data class GenAction(val id: String, val action: ActionNode) {
-    constructor(action: ActionNode) : this(
-            "Actions Tree Generated ${identityHashCode(action)} ${action.keys.joinToString(",")}",
+private fun Keymap.removeShortcuts(actions: Iterable<GenAction>) =
+        actions.forEach { (id, action) ->
+            action.keys.forEach { key ->
+                removeShortcut(id, KeyboardShortcut(key, null))
+            }
+        }
+
+private fun ActionManager.registerActions(actions: Iterable<GenAction>) =
+        actions.forEach { (id, node) ->
+            node.toAction(this)?.also { registerAction(id, it) }
+        }
+
+private fun ActionManager.unregisterActions(actions: Iterable<GenAction>) =
+        actions.forEach { (id, _) -> unregisterAction(id) }
+
+data class GenAction(val id: String, val action: ActionNode) {
+    constructor(id: Int, action: ActionNode) : this(
+            "Actions Tree Generated #$id ${action.keys.joinToString(",")}",
             action)
 }

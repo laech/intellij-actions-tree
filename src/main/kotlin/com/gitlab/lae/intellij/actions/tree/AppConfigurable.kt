@@ -1,6 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
@@ -29,7 +30,7 @@ class AppConfigurable : Configurable {
         ApplicationManager
                 .getApplication()
                 .getComponent(AppComponent::class.java)
-                .reload()
+                .reload(ActionManager.getInstance())
     }
 
     override fun reset() {

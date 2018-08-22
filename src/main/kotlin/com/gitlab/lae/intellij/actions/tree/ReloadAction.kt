@@ -11,7 +11,7 @@ class ReloadAction : AnAction(), DumbAware {
         ApplicationManager
                 .getApplication()
                 .getComponent(AppComponent::class.java)
-                .reload()
+                .reload(e.actionManager)
     }
 
 }
