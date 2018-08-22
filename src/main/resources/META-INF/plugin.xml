@@ -34,7 +34,7 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <action id="com.gitlab.lae.intellij.actions.tree.reload"
                     class="com.gitlab.lae.intellij.actions.tree.ReloadAction"
-                    text="Reload Configuration"
+                    text="Reload"
                     description="Reloads actions from configuration file"/>
         </group>
     </actions>
