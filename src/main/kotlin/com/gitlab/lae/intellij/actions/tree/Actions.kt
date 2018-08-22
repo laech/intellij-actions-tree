@@ -121,7 +121,9 @@ private fun ActionContainer.showPopup(e: AnActionEvent) {
             inputMap.put(key, item)
             actionMap.put(item, object : AbstractAction() {
                 override fun actionPerformed(e: ActionEvent) {
-                    item.toAction(mgr)?.performAction(component, e.modifiers)
+                    popup.setFinalRunnable {
+                        item.toAction(mgr)?.performAction(component, e.modifiers)
+                    }
                     popup.closeOk(null)
                 }
             })
