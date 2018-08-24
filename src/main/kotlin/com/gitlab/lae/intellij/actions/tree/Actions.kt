@@ -23,6 +23,7 @@ import java.io.Reader
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.AbstractAction
+import javax.swing.JComponent
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.KeyStroke
 
@@ -113,6 +114,7 @@ private fun ActionContainer.showPopup(e: AnActionEvent) {
             e.dataContext, false, true, null, component, false, -1, false))
 
     val popup = factory.createListPopup(step)
+    popup.content.clearActionsRecursively()
 
     items.forEach { item ->
         item.keys.forEach { key ->
@@ -184,4 +186,14 @@ private fun AnAction.showPopupIfGroup(e: AnActionEvent): Boolean {
                     e.dataContext, true, true, true, null, 30, null)
             .showInBestPositionFor(e.dataContext)
     return true
+}
+
+private fun JComponent.clearActionsRecursively() {
+    actionMap.clear()
+    actionMap.parent = null
+    components.forEach {
+        if (it is JComponent) {
+            it.clearActionsRecursively()
+        }
+    }
 }
