@@ -1,13 +1,5 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
@@ -20,66 +12,17 @@ import com.intellij.openapi.util.AsyncResult
 import com.intellij.ui.components.JBList
 import com.intellij.util.Consumer
 import java.awt.Component
-import java.io.Reader
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.stream.IntStream
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.JList
 import javax.swing.KeyStroke
 
-sealed class ActionNode {
-    abstract val keys: List<KeyStroke>
-    abstract val separatorAbove: Boolean
-}
-
-data class ActionRef @JsonCreator constructor(
-        @JsonProperty("separator-above") override val separatorAbove: Boolean,
-        @JsonProperty("keys") private val _keys: List<KeyStroke>?,
-        @JsonProperty("id", required = true) val id: String
-) : ActionNode() {
-
-    override val keys get() = _keys ?: emptyList()
-}
-
-data class ActionContainer @JsonCreator constructor(
-        @JsonProperty("separator-above") override val separatorAbove: Boolean,
-        @JsonProperty("keys") private val _keys: List<KeyStroke>?,
-        @JsonProperty("name") private val _name: String?,
-        @JsonProperty("items", required = true) val items: List<ActionNode>
-) : ActionNode() {
-
-    override val keys get() = _keys ?: emptyList()
-
-    val name get() = _name ?: "..."
-}
-
-private val mapper = ObjectMapper().registerModule(SimpleModule()
-        .addDeserializer(KeyStroke::class.java, deserializer(::readKeyStroke))
-        .addDeserializer(ActionNode::class.java, deserializer(::readActionNode)))
-
-fun parseJsonActions(path: Path): List<ActionNode> =
-        Files.newBufferedReader(path).use(::parseJsonActions)
-
-fun parseJsonActions(reader: Reader) =
-        mapper.readValue(reader, ActionContainer::class.java).items
-
-private inline fun <reified T> deserializer(crossinline f: (JsonParser) -> T) =
-        object : StdDeserializer<T>(T::class.java) {
-            override fun deserialize(p: JsonParser, ctx: DeserializationContext) = f(p)
-        }
-
-private fun readKeyStroke(p: JsonParser) =
-        KeyStroke.getKeyStroke(p.text)
-                ?: throw IllegalArgumentException(
-                        "Invalid key stroke: ${p.text}")
-
-private fun readActionNode(p: JsonParser): ActionNode = p.codec.readTree<JsonNode>(p).run {
-    when {
-        has("id") -> mapper.treeToValue<ActionRef>(this, ActionRef::class.java)
-        else -> mapper.treeToValue<ActionContainer>(this, ActionContainer::class.java)
-    }
-}
+data class ActionNode(
+        val id: String,
+        val name: String?,
+        val separatorAbove: Boolean,
+        val keys: List<KeyStroke>,
+        val items: List<ActionNode>)
 
 private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
     var action = toAction(e.actionManager) ?: return null
@@ -92,7 +35,7 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
             e.actionManager,
             e.modifiers
     )
-    event.setInjectedContext(action.isInInjectedContext())
+    event.setInjectedContext(action.isInInjectedContext)
 
     if (action is ActionWrapper) {
         action = action.action
@@ -102,9 +45,9 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
     return ActionPresentation(presentation, keys, separatorAbove, action)
 }
 
-fun ActionNode.toAction(mgr: ActionManager): AnAction? = when (this) {
-    is ActionContainer -> ActionGroupWrapper(keys, toActionGroup(mgr))
-    is ActionRef -> mgr.getAction(id)?.let {
+fun ActionNode.toAction(mgr: ActionManager): AnAction? = when {
+    items.isNotEmpty() -> ActionGroupWrapper(keys, toActionGroup(mgr))
+    else -> mgr.getAction(id)?.let {
         return object : ActionWrapper(keys, it) {
             override fun actionPerformed(e: AnActionEvent) {
                 if (!showPopupIfGroup(e)) super.actionPerformed(e)
@@ -113,7 +56,7 @@ fun ActionNode.toAction(mgr: ActionManager): AnAction? = when (this) {
     }
 }
 
-private fun ActionContainer.toActionGroup(mgr: ActionManager) = object : ActionGroup(name, true) {
+private fun ActionNode.toActionGroup(mgr: ActionManager) = object : ActionGroup(name, true) {
     override fun canBePerformed(context: DataContext) = true
     override fun actionPerformed(e: AnActionEvent) = showPopup(e)
     override fun isDumbAware() = true
@@ -121,7 +64,7 @@ private fun ActionContainer.toActionGroup(mgr: ActionManager) = object : ActionG
             items.mapNotNull { it.toAction(mgr) }.toTypedArray()
 }
 
-private fun ActionContainer.showPopup(e: AnActionEvent) {
+private fun ActionNode.showPopup(e: AnActionEvent) {
     val component = e.getData(CONTEXT_COMPONENT)
     val presentations = items.mapNotNull { it.toPresentation(e) }
 
