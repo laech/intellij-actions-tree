@@ -1,9 +1,11 @@
 {
   "items": [
     {
+      "id": "node0",
       "keys": ["ctrl C"],
       "items": [
         {
+          "id": "node1",
           "keys": ["P"],
           "items": [
             {"keys": ["K", "ctrl K"], "id": "CloseProject"},
@@ -13,12 +15,11 @@
       ]
     },
     {
+      "id": "node2",
       "name": "b",
       "keys": ["ctrl X"],
       "items": [
-        {
-          "keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries"
-        }
+        {"keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries"}
       ]
     }
   ]
