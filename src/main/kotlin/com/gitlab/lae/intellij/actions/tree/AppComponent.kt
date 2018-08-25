@@ -46,9 +46,7 @@ private fun loadActions(): List<GenAction> {
     val conf = props.getValue(confKey)?.trim() ?: return emptyList()
     return try {
 
-        parseJsonActions(Paths.get(conf))
-                .filterNot { it is ActionSeparator }
-                .mapIndexed(::GenAction)
+        parseJsonActions(Paths.get(conf)).mapIndexed(::GenAction)
 
     } catch (e: Exception) {
         notify(Notification(

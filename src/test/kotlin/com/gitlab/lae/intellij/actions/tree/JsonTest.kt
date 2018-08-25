@@ -7,16 +7,16 @@ class JsonTest : LightPlatformCodeInsightFixtureTestCase() {
 
     fun testDeserialization() {
         val expected = listOf(
-                ActionContainer(listOf(getKeyStroke("ctrl C")), null, listOf(
-                        ActionContainer(listOf(getKeyStroke("P")), null, listOf(
-                                ActionRef(listOf(
+                ActionContainer(false, listOf(getKeyStroke("ctrl C")), null, listOf(
+                        ActionContainer(false, listOf(getKeyStroke("P")), null, listOf(
+                                ActionRef(false, listOf(
                                         getKeyStroke("K"),
                                         getKeyStroke("ctrl K")), "CloseProject"),
-                                ActionRef(listOf(getKeyStroke("P")), "OpenProjectGroup")
+                                ActionRef(true, listOf(getKeyStroke("P")), "OpenProjectGroup")
                         ))
                 )),
-                ActionContainer(listOf(getKeyStroke("ctrl X")), "b", listOf(
-                        ActionRef(listOf(getKeyStroke("ctrl X")), "EditorSwapSelectionBoundaries")
+                ActionContainer(false, listOf(getKeyStroke("ctrl X")), "b", listOf(
+                        ActionRef(false, listOf(getKeyStroke("ctrl X")), "EditorSwapSelectionBoundaries")
                 ))
         )
 

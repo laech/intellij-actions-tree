@@ -14,24 +14,27 @@ import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.AsyncResult
+import com.intellij.ui.components.JBList
 import com.intellij.util.Consumer
 import java.awt.Component
-import java.awt.event.ActionEvent
 import java.io.Reader
 import java.nio.file.Files
 import java.nio.file.Path
-import javax.swing.AbstractAction
-import javax.swing.JComponent
+import java.util.stream.IntStream
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
+import javax.swing.JList
 import javax.swing.KeyStroke
 
 sealed class ActionNode {
     abstract val keys: List<KeyStroke>
+    abstract val separatorAbove: Boolean
 }
 
 data class ActionRef @JsonCreator constructor(
+        @JsonProperty("separator-above") override val separatorAbove: Boolean,
         @JsonProperty("keys") private val _keys: List<KeyStroke>?,
         @JsonProperty("id", required = true) val id: String
 ) : ActionNode() {
@@ -40,6 +43,7 @@ data class ActionRef @JsonCreator constructor(
 }
 
 data class ActionContainer @JsonCreator constructor(
+        @JsonProperty("separator-above") override val separatorAbove: Boolean,
         @JsonProperty("keys") private val _keys: List<KeyStroke>?,
         @JsonProperty("name") private val _name: String?,
         @JsonProperty("items", required = true) val items: List<ActionNode>
@@ -48,13 +52,6 @@ data class ActionContainer @JsonCreator constructor(
     override val keys get() = _keys ?: emptyList()
 
     val name get() = _name ?: "..."
-}
-
-data class ActionSeparator @JsonCreator constructor(
-        @JsonProperty("separator") val name: String?
-) : ActionNode() {
-
-    override val keys: List<KeyStroke> get() = emptyList()
 }
 
 private val mapper = ObjectMapper().registerModule(SimpleModule()
@@ -80,14 +77,33 @@ private fun readKeyStroke(p: JsonParser) =
 private fun readActionNode(p: JsonParser): ActionNode = p.codec.readTree<JsonNode>(p).run {
     when {
         has("id") -> mapper.treeToValue<ActionRef>(this, ActionRef::class.java)
-        has("separator") -> mapper.treeToValue<ActionSeparator>(this, ActionSeparator::class.java)
         else -> mapper.treeToValue<ActionContainer>(this, ActionContainer::class.java)
     }
 }
 
+private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
+    var action = toAction(e.actionManager) ?: return null
+    val presentation = action.templatePresentation.clone()
+    val event = AnActionEvent(
+            null,
+            e.dataContext,
+            ActionPlaces.UNKNOWN,
+            presentation,
+            e.actionManager,
+            e.modifiers
+    )
+    event.setInjectedContext(action.isInInjectedContext())
+
+    if (action is ActionWrapper) {
+        action = action.action
+    }
+
+    ActionUtil.performDumbAwareUpdate(true, action, event, false)
+    return ActionPresentation(presentation, keys, separatorAbove, action)
+}
+
 fun ActionNode.toAction(mgr: ActionManager): AnAction? = when (this) {
     is ActionContainer -> ActionGroupWrapper(keys, toActionGroup(mgr))
-    is ActionSeparator -> Separator(name)
     is ActionRef -> mgr.getAction(id)?.let {
         return object : ActionWrapper(keys, it) {
             override fun actionPerformed(e: AnActionEvent) {
@@ -106,51 +122,52 @@ private fun ActionContainer.toActionGroup(mgr: ActionManager) = object : ActionG
 }
 
 private fun ActionContainer.showPopup(e: AnActionEvent) {
-    val component = e.dataContext.getData(CONTEXT_COMPONENT)
-    val mgr = e.actionManager
-    val factory = JBPopupFactory.getInstance()
-    val step = ActionStep(factory.createActionsStep(
-            toActionGroup(e.actionManager),
-            e.dataContext, false, true, null, component, false, -1, false))
+    val component = e.getData(CONTEXT_COMPONENT)
+    val presentations = items.mapNotNull { it.toPresentation(e) }
 
-    val popup = factory.createListPopup(step)
-    popup.content.clearActionsRecursively()
+    val list = JBList<ActionPresentation>(presentations)
+    list.cellRenderer = ActionPresentationRenderer()
+    list.actionMap.clear()
+    list.actionMap.parent = null
 
-    items.forEach { item ->
-        item.keys.forEach { key ->
-            val actionMap = popup.content.actionMap
-            val inputMap = popup.content.getInputMap(WHEN_IN_FOCUSED_WINDOW)
-            inputMap.put(key, item)
-            actionMap.put(item, object : AbstractAction() {
-                override fun actionPerformed(e: ActionEvent) {
-                    popup.setFinalRunnable {
-                        item.toAction(mgr)?.performAction(component, e.modifiers)
-                    }
-                    popup.closeOk(null)
+    val popup = JBPopupFactory.getInstance()
+            .createListPopupBuilder(list)
+            .setModalContext(true)
+            .setItemChoosenCallback {
+                val value = list.selectedValue
+                if (value != null && value.presentation.isEnabled) {
+                    value.action.performAction(component, 0)
                 }
-            })
-        }
-    }
-
-    KeymapManager.getInstance().activeKeymap
-            .getShortcuts(ACTION_EDITOR_ESCAPE)
-            .filterIsInstance<KeyboardShortcut>()
-            .filter { it.secondKeyStroke == null }
-            .map { it.firstKeyStroke }
-            .forEach { key ->
-                val inputMap = popup.content.getInputMap(WHEN_IN_FOCUSED_WINDOW)
-                val actionMap = popup.content.actionMap
-                val actionKey = "cancel"
-                inputMap.put(key, actionKey)
-                actionMap.put(actionKey, object : AbstractAction() {
-                    override fun actionPerformed(e: ActionEvent) {
-                        popup.cancel()
-                    }
-                })
             }
+            .createPopup()
 
+    popup.registerKeys(list, component)
+    popup.registerAdditionalEscapeKeys(list)
     popup.showInBestPositionFor(e.dataContext)
 }
+
+private fun JBPopup.registerKeys(list: JList<ActionPresentation>, comp: Component?) = IntStream
+        .range(0, list.model.size).forEach { i ->
+            val item = list.model.getElementAt(i)
+            item.keys.forEach { key ->
+                list.registerKeyboardAction(g@{ e ->
+                    list.selectedIndex = i
+                    if (item.presentation.isEnabled) {
+                        setFinalRunnable { item.action.performAction(comp, e.modifiers) }
+                        closeOk(null)
+                    }
+                }, key, WHEN_IN_FOCUSED_WINDOW)
+            }
+        }
+
+private fun JBPopup.registerAdditionalEscapeKeys(list: JBList<ActionPresentation>) = KeymapManager
+        .getInstance().activeKeymap.getShortcuts(ACTION_EDITOR_ESCAPE)
+        .filterIsInstance<KeyboardShortcut>()
+        .filter { it.secondKeyStroke == null }
+        .map { it.firstKeyStroke }
+        .forEach { key ->
+            list.registerKeyboardAction({ cancel() }, key, WHEN_IN_FOCUSED_WINDOW)
+        }
 
 fun AnAction.performAction(component: Component?, modifiers: Int) {
     val dataManager = DataManager.getInstance()
@@ -186,14 +203,4 @@ private fun AnAction.showPopupIfGroup(e: AnActionEvent): Boolean {
                     e.dataContext, true, true, true, null, 30, null)
             .showInBestPositionFor(e.dataContext)
     return true
-}
-
-private fun JComponent.clearActionsRecursively() {
-    actionMap.clear()
-    actionMap.parent = null
-    components.forEach {
-        if (it is JComponent) {
-            it.clearActionsRecursively()
-        }
-    }
 }
