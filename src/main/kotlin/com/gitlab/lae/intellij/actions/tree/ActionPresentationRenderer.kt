@@ -1,6 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ui.SeparatorWithText
+import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import java.awt.Component
@@ -16,6 +17,9 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
     private val nameLabel = JLabel()
     private val keyLabels = mutableListOf<KeyStrokeLabel>()
     private val keyLabelsPanel = JPanel(FlowLayout(FlowLayout.TRAILING, 0, 0))
+
+    private var emptyIconInit = false
+    private var emptyIcon: EmptyIcon? = null
 
     init {
 
@@ -39,6 +43,8 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
             cellHasFocus: Boolean
     ): Component {
 
+        initEmptyIcon(list)
+
         separator.isVisible = value.separatorAbove
 
         while (keyLabels.size < value.keys.size) {
@@ -47,18 +53,37 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
 
         setColors(list, isSelected)
 
-        nameLabel.isEnabled = value.presentation.isEnabled
-        nameLabel.text = value.presentation.text
+        val p = value.presentation
+        nameLabel.isEnabled = p.isEnabled
+        nameLabel.text = p.text
+        nameLabel.disabledIcon = p.disabledIcon ?: emptyIcon
+        nameLabel.icon =
+                (if (isSelected) p.selectedIcon
+                else p.icon) ?: emptyIcon
 
         keyLabelsPanel.removeAll()
         value.keys.forEachIndexed { i, key ->
             val label = keyLabels[keyLabels.size - i - 1]
-            label.setEnabled(value.presentation.isEnabled)
+            label.setEnabled(p.isEnabled)
             label.setTextFromKeyStroke(key)
             keyLabelsPanel.add(label.component)
         }
 
         return root
+    }
+
+    private fun initEmptyIcon(list: JList<out ActionPresentation>) {
+        if (emptyIconInit) {
+            return
+        }
+        emptyIconInit = true
+        (0 until list.model.size).map(list.model::getElementAt).find g@{
+            val p = it.presentation
+            val icon = p.icon ?: p.disabledIcon ?: p.selectedIcon
+            ?: return@g false
+            emptyIcon = EmptyIcon.create(icon.iconWidth, icon.iconHeight)
+            true
+        }
     }
 
     private fun setColors(list: JList<out ActionPresentation>, isSelected: Boolean) {

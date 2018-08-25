@@ -12,7 +12,6 @@ import com.intellij.openapi.util.AsyncResult
 import com.intellij.ui.components.JBList
 import com.intellij.util.Consumer
 import java.awt.Component
-import java.util.stream.IntStream
 import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.JList
 import javax.swing.KeyStroke
@@ -89,11 +88,10 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
     popup.showInBestPositionFor(e.dataContext)
 }
 
-private fun JBPopup.registerKeys(list: JList<ActionPresentation>, comp: Component?) = IntStream
-        .range(0, list.model.size).forEach { i ->
-            val item = list.model.getElementAt(i)
+private fun JBPopup.registerKeys(list: JList<ActionPresentation>, comp: Component?) =
+        (0 until list.model.size).map(list.model::getElementAt).forEachIndexed { i, item ->
             item.keys.forEach { key ->
-                list.registerKeyboardAction(g@{ e ->
+                list.registerKeyboardAction({ e ->
                     list.selectedIndex = i
                     if (item.presentation.isEnabled) {
                         setFinalRunnable { item.action.performAction(comp, e.modifiers) }
