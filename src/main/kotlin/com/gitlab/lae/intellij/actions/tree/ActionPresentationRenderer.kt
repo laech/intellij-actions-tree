@@ -4,9 +4,13 @@ import com.intellij.ui.SeparatorWithText
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
+import java.awt.Color
 import java.awt.Component
 import java.awt.FlowLayout
-import javax.swing.*
+import javax.swing.JLabel
+import javax.swing.JList
+import javax.swing.JPanel
+import javax.swing.ListCellRenderer
 import javax.swing.border.EmptyBorder
 
 class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
@@ -15,8 +19,11 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
     private val root = JPanel(BorderLayout())
     private val content = JPanel(BorderLayout(30, 0))
     private val nameLabel = JLabel()
+
     private val keyLabels = mutableListOf<KeyStrokeLabel>()
     private val keyLabelsPanel = JPanel(FlowLayout(FlowLayout.TRAILING, 0, 0))
+    private var keySelectionForeground: Color? = null
+    private var keyForeground: Color? = null
 
     private var emptyIconInit = false
     private var emptyIcon: EmptyIcon? = null
@@ -57,9 +64,8 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
         nameLabel.isEnabled = p.isEnabled
         nameLabel.text = p.text
         nameLabel.disabledIcon = p.disabledIcon ?: emptyIcon
-        nameLabel.icon =
-                (if (isSelected) p.selectedIcon
-                else p.icon) ?: emptyIcon
+        nameLabel.icon = (if (isSelected) p.selectedIcon else p.icon)
+                ?: p.icon ?: emptyIcon
 
         keyLabelsPanel.removeAll()
         value.keys.forEachIndexed { i, key ->
@@ -87,20 +93,33 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
     }
 
     private fun setColors(list: JList<out ActionPresentation>, isSelected: Boolean) {
+
+        val selectionForeground = list.selectionForeground
+        if (keySelectionForeground == null && selectionForeground != null) {
+            keySelectionForeground = Color(
+                    selectionForeground.red,
+                    selectionForeground.green,
+                    selectionForeground.blue,
+                    180)
+        }
+
+        val foreground = list.foreground
+        if (keyForeground == null && foreground != null) {
+            keyForeground = Color(
+                    foreground.red,
+                    foreground.green,
+                    foreground.blue,
+                    180)
+        }
+
         if (isSelected) {
             content.background = list.selectionBackground
-            nameLabel.foreground = list.selectionForeground
-            keyLabels.forEach {
-                it.setForeground(UIManager.getColor(
-                        "MenuItem.acceleratorSelectionForeground"))
-            }
+            nameLabel.foreground = selectionForeground
+            keyLabels.forEach { it.setForeground(keySelectionForeground) }
         } else {
             content.background = list.background
             nameLabel.foreground = list.foreground
-            keyLabels.forEach {
-                it.setForeground(UIManager.getColor(
-                        "MenuItem.acceleratorForeground"))
-            }
+            keyLabels.forEach { it.setForeground(keyForeground) }
         }
     }
 

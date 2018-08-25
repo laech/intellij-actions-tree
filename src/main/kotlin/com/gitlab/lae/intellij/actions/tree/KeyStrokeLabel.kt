@@ -35,7 +35,7 @@ class KeyStrokeLabel {
         panel.border = JBUI.Borders.emptyLeft(5)
     }
 
-    fun setForeground(fg: Color) {
+    fun setForeground(fg: Color?) {
         first.foreground = fg
         second.foreground = fg
     }
