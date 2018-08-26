@@ -24,7 +24,7 @@ data class ActionNode(
         val items: List<ActionNode>)
 
 private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
-    var action = toAction(e.actionManager) ?: return null
+    val action = toAction(e.actionManager) ?: return null
     val presentation = action.templatePresentation.clone()
     val event = AnActionEvent(
             null,
@@ -36,26 +36,17 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
     )
     event.setInjectedContext(action.isInInjectedContext)
 
-    if (action is ActionWrapper) {
-        action = action.action
-    }
-
     ActionUtil.performDumbAwareUpdate(true, action, event, false)
     return ActionPresentation(presentation, keys, separatorAbove, action)
 }
 
 fun ActionNode.toAction(mgr: ActionManager): AnAction? {
-    if (items.isNotEmpty()) {
-        return ActionWrapper(keys, object : AnAction(name) {
-            override fun isDumbAware() = true
-            override fun actionPerformed(e: AnActionEvent) = showPopup(e)
-        })
+    if (items.isEmpty()) {
+        return mgr.getAction(id)
     }
-    val action = mgr.getAction(id) ?: return null
-    return object : ActionWrapper(keys, action) {
-        override fun actionPerformed(e: AnActionEvent) {
-            if (!showPopupIfGroup(e)) super.actionPerformed(e)
-        }
+    return object : AnAction(name) {
+        override fun isDumbAware() = true
+        override fun actionPerformed(e: AnActionEvent) = showPopup(e)
     }
 }
 
@@ -123,15 +114,14 @@ private fun AnAction.performAction(dataContext: DataContext, modifiers: Int) {
     val event = AnActionEvent(null, dataContext, place, presentation, actions, modifiers)
     event.setInjectedContext(isInInjectedContext)
 
-    val action = (this as? ActionWrapper)?.action ?: this
-    if (action.showPopupIfGroup(event)) return
+    if (showPopupIfGroup(event)) return
     if (ActionUtil.lastUpdateAndCheckDumb(this, event, false)) {
         ActionUtil.performActionDumbAware(this, event)
     }
 }
 
 private fun AnAction.showPopupIfGroup(e: AnActionEvent): Boolean {
-    if (this !is ActionGroup || this.canBePerformed(e.dataContext)) {
+    if (this !is ActionGroup || canBePerformed(e.dataContext)) {
         return false
     }
     JBPopupFactory.getInstance()
