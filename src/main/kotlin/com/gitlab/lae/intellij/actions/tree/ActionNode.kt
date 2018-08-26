@@ -44,23 +44,18 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
     return ActionPresentation(presentation, keys, separatorAbove, action)
 }
 
-fun ActionNode.toAction(mgr: ActionManager): AnAction? = when {
-    items.isNotEmpty() -> ActionGroupWrapper(keys, toActionGroup(mgr))
-    else -> mgr.getAction(id)?.let {
-        return object : ActionWrapper(keys, it) {
-            override fun actionPerformed(e: AnActionEvent) {
-                if (!showPopupIfGroup(e)) super.actionPerformed(e)
-            }
+fun ActionNode.toAction(mgr: ActionManager): AnAction? {
+    if (items.isNotEmpty()) {
+        return ActionWrapper(keys, object : AnAction(name) {
+            override fun actionPerformed(e: AnActionEvent) = showPopup(e)
+        })
+    }
+    val action = mgr.getAction(id) ?: return null
+    return object : ActionWrapper(keys, action) {
+        override fun actionPerformed(e: AnActionEvent) {
+            if (!showPopupIfGroup(e)) super.actionPerformed(e)
         }
     }
-}
-
-private fun ActionNode.toActionGroup(mgr: ActionManager) = object : ActionGroup(name, true) {
-    override fun canBePerformed(context: DataContext) = true
-    override fun actionPerformed(e: AnActionEvent) = showPopup(e)
-    override fun isDumbAware() = true
-    override fun getChildren(e: AnActionEvent?) =
-            items.mapNotNull { it.toAction(mgr) }.toTypedArray()
 }
 
 private fun ActionNode.showPopup(e: AnActionEvent) {

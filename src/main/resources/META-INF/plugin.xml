@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.gitlab.lae.intellij.actions.tree.actions-tree</id>
+    <id>com.gitlab.lae.intellij.actions.tree</id>
     <name>Actions Tree</name>
     <vendor>Lae</vendor>
 

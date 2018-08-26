@@ -8,6 +8,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.keymap.Keymap
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.keymap.KeymapManagerListener
@@ -47,7 +48,6 @@ private fun loadActions(): List<ActionNode> {
     return try {
 
         parseJsonActions(Paths.get(conf))
-                .map { it.copy(name = "Actions Tree User Defined: ${it.name}") }
 
     } catch (e: Exception) {
         notify(Notification(
@@ -68,12 +68,14 @@ private fun Iterable<ActionNode>.forEachShortcut(
     }
 }
 
-private fun ActionManager.registerActions(actions: Iterable<ActionNode>) =
-        actions.forEach { action ->
-            action.toAction(this)?.also {
-                registerAction(action.id, it)
-            }
+private fun ActionManager.registerActions(actions: Iterable<ActionNode>) {
+    val pluginId = PluginId.getId("com.gitlab.lae.intellij.actions.tree")
+    actions.forEach { action ->
+        action.toAction(this)?.also {
+            registerAction(action.id, it, pluginId)
         }
+    }
+}
 
 private fun ActionManager.unregisterActions(actions: Iterable<ActionNode>) =
         actions.asSequence().map(ActionNode::id).forEach(::unregisterAction)
