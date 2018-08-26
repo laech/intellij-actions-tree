@@ -16,37 +16,38 @@ import java.nio.file.Paths
 
 class AppComponent : ApplicationComponent, KeymapManagerListener {
 
-    private val actions = mutableListOf<GenAction>()
+    private val actions = mutableListOf<ActionNode>()
 
     override fun initComponent() {
         super.initComponent()
         reload(ActionManager.getInstance())
+        KeymapManager.getInstance().addKeymapManagerListener(this, Disposable { })
     }
 
     fun reload(actionManager: ActionManager) {
         val newActions = loadActions()
-        val keymapManager = KeymapManager.getInstance()
+        val activeKeymap = KeymapManager.getInstance().activeKeymap
 
-        keymapManager.activeKeymap.removeShortcuts(actions)
+        actions.forEachShortcut(activeKeymap::removeShortcut)
         actionManager.unregisterActions(actions)
         actions.clear()
 
         actions.addAll(newActions)
         actionManager.registerActions(actions)
-        keymapManager.activeKeymap.addShortcuts(actions)
-        keymapManager.addKeymapManagerListener(this, Disposable { })
+        actions.forEachShortcut(activeKeymap::addShortcut)
     }
 
     override fun activeKeymapChanged(keymap: Keymap) =
-            keymap.addShortcuts(actions)
+            actions.forEachShortcut(keymap::addShortcut)
 }
 
-private fun loadActions(): List<GenAction> {
+private fun loadActions(): List<ActionNode> {
     val props = PropertiesComponent.getInstance()
     val conf = props.getValue(confKey)?.trim() ?: return emptyList()
     return try {
 
-        parseJsonActions(Paths.get(conf)).mapIndexed(::GenAction)
+        parseJsonActions(Paths.get(conf))
+                .map { it.copy(name = "Actions Tree User Defined: ${it.name}") }
 
     } catch (e: Exception) {
         notify(Notification(
@@ -59,30 +60,21 @@ private fun loadActions(): List<GenAction> {
     }
 }
 
-private fun Keymap.addShortcuts(actions: Iterable<GenAction>) =
-        actions.forEach { (id, action) ->
-            action.keys.forEach { key ->
-                addShortcut(id, KeyboardShortcut(key, null))
-            }
-        }
-
-private fun Keymap.removeShortcuts(actions: Iterable<GenAction>) =
-        actions.forEach { (id, action) ->
-            action.keys.forEach { key ->
-                removeShortcut(id, KeyboardShortcut(key, null))
-            }
-        }
-
-private fun ActionManager.registerActions(actions: Iterable<GenAction>) =
-        actions.forEach { (id, node) ->
-            node.toAction(this)?.also { registerAction(id, it) }
-        }
-
-private fun ActionManager.unregisterActions(actions: Iterable<GenAction>) =
-        actions.forEach { (id, _) -> unregisterAction(id) }
-
-data class GenAction(val id: String, val action: ActionNode) {
-    constructor(id: Int, action: ActionNode) : this(
-            "Actions Tree Generated #$id ${action.keys.joinToString(",")}",
-            action)
+private fun Iterable<ActionNode>.forEachShortcut(
+        handler: (String, KeyboardShortcut) -> Unit
+) = forEach { action ->
+    action.keys.forEach { key ->
+        handler(action.id, KeyboardShortcut(key, null))
+    }
 }
+
+private fun ActionManager.registerActions(actions: Iterable<ActionNode>) =
+        actions.forEach { action ->
+            action.toAction(this)?.also {
+                registerAction(action.id, it)
+            }
+        }
+
+private fun ActionManager.unregisterActions(actions: Iterable<ActionNode>) =
+        actions.asSequence().map(ActionNode::id).forEach(::unregisterAction)
+
