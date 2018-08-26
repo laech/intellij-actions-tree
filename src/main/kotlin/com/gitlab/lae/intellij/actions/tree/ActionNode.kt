@@ -47,6 +47,7 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
 fun ActionNode.toAction(mgr: ActionManager): AnAction? {
     if (items.isNotEmpty()) {
         return ActionWrapper(keys, object : AnAction(name) {
+            override fun isDumbAware() = true
             override fun actionPerformed(e: AnActionEvent) = showPopup(e)
         })
     }

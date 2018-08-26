@@ -1,6 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import javax.swing.KeyStroke
 
 open class ActionWrapper(
@@ -10,12 +11,7 @@ open class ActionWrapper(
 
     init {
         copyFrom(action)
-        super.setShortcutSet(CustomShortcutSet(*keys.map {
-            KeyboardShortcut(it, null)
-        }.toTypedArray()))
     }
-
-    override fun setShortcutSet(shortcutSet: ShortcutSet) {}
 
     override fun actionPerformed(e: AnActionEvent) = action.actionPerformed(e)
     override fun beforeActionPerformedUpdate(e: AnActionEvent) {
