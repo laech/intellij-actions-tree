@@ -4,7 +4,6 @@ import com.intellij.ui.SeparatorWithText
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
-import java.awt.Color
 import java.awt.Component
 import java.awt.FlowLayout
 import javax.swing.JLabel
@@ -22,8 +21,6 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
 
     private val keyLabels = mutableListOf<KeyStrokeLabel>()
     private val keyLabelsPanel = JPanel(FlowLayout(FlowLayout.TRAILING, 0, 0))
-    private var keySelectionForeground: Color? = null
-    private var keyForeground: Color? = null
 
     private var emptyIconInit = false
     private var emptyIcon: EmptyIcon? = null
@@ -93,33 +90,14 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
     }
 
     private fun setColors(list: JList<out ActionPresentation>, isSelected: Boolean) {
-
-        val selectionForeground = list.selectionForeground
-        if (keySelectionForeground == null && selectionForeground != null) {
-            keySelectionForeground = Color(
-                    selectionForeground.red,
-                    selectionForeground.green,
-                    selectionForeground.blue,
-                    180)
-        }
-
-        val foreground = list.foreground
-        if (keyForeground == null && foreground != null) {
-            keyForeground = Color(
-                    foreground.red,
-                    foreground.green,
-                    foreground.blue,
-                    180)
-        }
-
         if (isSelected) {
             content.background = list.selectionBackground
-            nameLabel.foreground = selectionForeground
-            keyLabels.forEach { it.setForeground(keySelectionForeground) }
+            nameLabel.foreground = list.selectionForeground
+            keyLabels.forEach { it.setForeground(list.selectionForeground) }
         } else {
             content.background = list.background
             nameLabel.foreground = list.foreground
-            keyLabels.forEach { it.setForeground(keyForeground) }
+            keyLabels.forEach { it.setForeground(list.foreground) }
         }
     }
 
