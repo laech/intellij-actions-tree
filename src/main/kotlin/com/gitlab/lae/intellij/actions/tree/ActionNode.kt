@@ -125,9 +125,8 @@ private fun AnAction.showPopupIfGroup(e: AnActionEvent): Boolean {
         return false
     }
     JBPopupFactory.getInstance()
-            .createActionGroupPopup(
-                    e.presentation.text, this,
-                    e.dataContext, true, true, true, null, 30, null)
+            .createActionGroupPopup(e.presentation.text, this, e.dataContext,
+                    JBPopupFactory.ActionSelectionAid.NUMBERING, true)
             .showInBestPositionFor(e.dataContext)
     return true
 }
