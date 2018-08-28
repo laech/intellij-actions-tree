@@ -1,6 +1,12 @@
 # Actions Tree
 
-Like the built-in IntelliJ Quick Lists, for defining a list of actions to show in a popup, an action in the list can be other action list to show when invoked. The main difference between this plugin and Quick Lists is that this plugin allows each action in the list to be assigned a keyboard shortcut that is local to the list, doesn't conflict with other global shortcuts. This allows simulation of Emacs like prefix keys (n-level deep), so you are not restricted to IntelliJ keymap's maximumn of two key strokes.
+Like the built-in IntelliJ Quick Lists, for defining a list of actions to show
+in a popup, an action in the list can be other action list to show when invoked.
+The main difference between this plugin and Quick Lists is that this plugin
+allows each action in the list to be assigned a keyboard shortcut that is local
+to the list, doesn't conflict with other global shortcuts. This allows
+simulation of Emacs like prefix keys (n-level deep), so you are not restricted
+to IntelliJ keymap's maximum of two key strokes.
 
 ## Configuration
 
