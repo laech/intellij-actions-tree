@@ -6,10 +6,7 @@ import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.FlowLayout
-import javax.swing.JLabel
-import javax.swing.JList
-import javax.swing.JPanel
-import javax.swing.ListCellRenderer
+import javax.swing.*
 import javax.swing.border.EmptyBorder
 
 class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
@@ -93,11 +90,17 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
         if (isSelected) {
             content.background = list.selectionBackground
             nameLabel.foreground = list.selectionForeground
-            keyLabels.forEach { it.setForeground(list.selectionForeground) }
+            keyLabels.forEach {
+                it.setForeground(UIManager.getColor(
+                        "MenuItem.acceleratorSelectionForeground"))
+            }
         } else {
             content.background = list.background
             nameLabel.foreground = list.foreground
-            keyLabels.forEach { it.setForeground(list.foreground) }
+            keyLabels.forEach {
+                it.setForeground(UIManager.getColor(
+                        "MenuItem.acceleratorForeground"))
+            }
         }
     }
 
