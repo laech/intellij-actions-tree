@@ -20,7 +20,7 @@ fun parseJsonActions(reader: Reader) =
 private fun JsonElement.toActionNode(seq: () -> Int): ActionNode {
     val o = asJsonObject
     val id = o.remove("id")?.asString ?: "ActionsTree${seq()}"
-    val sep = o.remove("separator-above")?.asBoolean ?: false
+    val sep = o.remove("separator-above")?.asString
     val name = o.remove("name")?.asString ?: "Unnamed"
     val keys = o.remove("keys")?.asJsonArray
             ?.map { it.toKeyStroke() }

@@ -19,7 +19,7 @@ import javax.swing.KeyStroke
 data class ActionNode(
         val id: String,
         val name: String?,
-        val separatorAbove: Boolean,
+        val separatorAbove: String?,
         val keys: List<KeyStroke>,
         val items: List<ActionNode>)
 

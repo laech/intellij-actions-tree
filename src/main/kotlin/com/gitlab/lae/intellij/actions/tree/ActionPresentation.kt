@@ -7,5 +7,5 @@ import javax.swing.KeyStroke
 class ActionPresentation(
         val presentation: Presentation,
         val keys: List<KeyStroke>,
-        val separatorAbove: Boolean,
+        val separatorAbove: String?,
         val action: AnAction)

@@ -46,7 +46,8 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
 
         initEmptyIcon(list)
 
-        separator.isVisible = value.separatorAbove
+        separator.setCaption(value.separatorAbove)
+        separator.isVisible = value.separatorAbove != null
 
         while (keyLabels.size < value.keys.size) {
             keyLabels.add(KeyStrokeLabel())
