@@ -34,11 +34,18 @@
         <group text="Actions Tree"
                id="com.gitlab.lae.intellij.actions.tree.group"
                popup="true">
+
             <add-to-group group-id="ToolsMenu" anchor="last"/>
+
             <action id="com.gitlab.lae.intellij.actions.tree.reload"
                     class="com.gitlab.lae.intellij.actions.tree.ReloadAction"
                     text="Reload"
                     description="Reloads actions from configuration file"/>
+
+            <action id="com.gitlab.lae.intellij.actions.tree.ExportIdeActions"
+                    class="com.gitlab.lae.intellij.actions.tree.ExportIdeActions"
+                    text="Export IDE Actions"
+                    description="Exports IDE actions to a file containing ID to name mappings"/>
         </group>
     </actions>
 </idea-plugin>
