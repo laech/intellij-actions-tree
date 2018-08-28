@@ -71,6 +71,7 @@ With the above example configuration, typing `ctrl X` will show a popup containi
 The basic structures are:
 
 1. Action Group - defines a custom group of actions:
+
     ```json
     {
       "keys": [...],
@@ -84,6 +85,7 @@ The basic structures are:
     - `separator-above`: (optional) inserts this string separator above this item in the popup, empty for a line separator
     - `items`: (required) sub-actions to show in a popup when this action is invoked, each item can be an action group or an actin reference.
 2. Action Reference - references an existing IDE action:
+
     ```json
     {
       "keys": [...],
