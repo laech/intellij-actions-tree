@@ -2,7 +2,8 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
+import com.intellij.openapi.actionSystem.AnAction.ACTIONS_KEY
+import com.intellij.openapi.actionSystem.IdeActions.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.keymap.KeymapManager
@@ -56,8 +57,14 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
 
     val list = JBList<ActionPresentation>(presentations)
     list.cellRenderer = ActionPresentationRenderer()
+
+    // Remove default JDK keyboard actions so these shortcuts are available
+    // for use in popup items. For example, by default Ctrl-C will copy the
+    // text of the highlighted item.
     list.actionMap.clear()
     list.actionMap.parent = null
+    list.inputMap.clear()
+    list.inputMap.parent = null
 
     val popup = JBPopupFactory.getInstance()
             .createListPopupBuilder(list)
@@ -70,9 +77,37 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
             }
             .createPopup()
 
+    // Remove IntelliJ keyboard shortcuts, they occur before normal JComponent
+    // key event processing so they are not overridable. For example if you define
+    // Ctrl-A as go to line start, then IntelliJ will register Ctrl-A here and use
+    // it to go to the first item in the list, then if you want to define Ctrl-A as
+    // a shortcut for one of the popup action item, it won't work because Ctrl-A
+    // will be stolen by IntelliJ.
+    // TODO maybe we should use this too?
+    list.putClientProperty(ACTIONS_KEY, null)
+
     popup.registerKeys(list, component)
-    popup.registerAdditionalEscapeKeys(list)
+    // TODO check home/end page up/down etc
+    registerIdeAction(list, ACTION_EDITOR_ESCAPE) { popup.cancel() }
+    registerIdeAction(list, ACTION_EDITOR_MOVE_CARET_UP) { selectPreviousItem(list) }
+    registerIdeAction(list, ACTION_EDITOR_MOVE_CARET_DOWN) { selectNextItem(list) }
     popup.showInBestPositionFor(e.dataContext)
+}
+
+private fun selectNextItem(list: JBList<ActionPresentation>) {
+    var i = list.selectedIndex + 1
+    if (i >= list.itemsCount) {
+        i = 0
+    }
+    list.selectedIndex = i
+}
+
+private fun selectPreviousItem(list: JBList<ActionPresentation>) {
+    var i = list.selectedIndex - 1
+    if (i < 0) {
+        i = list.itemsCount - 1
+    }
+    list.selectedIndex = i
 }
 
 private fun JBPopup.registerKeys(list: JList<ActionPresentation>, comp: Component?) =
@@ -88,13 +123,17 @@ private fun JBPopup.registerKeys(list: JList<ActionPresentation>, comp: Componen
             }
         }
 
-private fun JBPopup.registerAdditionalEscapeKeys(list: JBList<ActionPresentation>) = KeymapManager
-        .getInstance().activeKeymap.getShortcuts(ACTION_EDITOR_ESCAPE)
+private fun registerIdeAction(
+        list: JBList<ActionPresentation>,
+        actionId: String,
+        run: () -> Unit
+) = KeymapManager
+        .getInstance().activeKeymap.getShortcuts(actionId)
         .filterIsInstance<KeyboardShortcut>()
         .filter { it.secondKeyStroke == null }
         .map { it.firstKeyStroke }
         .forEach { key ->
-            list.registerKeyboardAction({ cancel() }, key, WHEN_IN_FOCUSED_WINDOW)
+            list.registerKeyboardAction({ run() }, key, WHEN_IN_FOCUSED_WINDOW)
         }
 
 fun AnAction.performAction(component: Component?, modifiers: Int) {
