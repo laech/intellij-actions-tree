@@ -13,8 +13,16 @@
     This allows simulation of Emacs like prefix keys (n-level deep), so you are not restricted to
     IntelliJ keymap's maximum of two key strokes.
     </p>
-    See https://gitlab.com/lae/intellij-actions-tree for more details.
+    See <a href="https://gitlab.com/lae/intellij-actions-tree">here</a> for more details.
     ]]></description>
+
+    <change-notes><![CDATA[
+    0.1.1
+    <ul>
+    <li>Fix issue with some keyboard shortcuts not working.</li>
+    </ul>
+    ]]>
+    </change-notes>
 
     <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
     <idea-version since-build="181"/>
