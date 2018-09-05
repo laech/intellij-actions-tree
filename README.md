@@ -89,7 +89,7 @@ The basic structures are:
     - `keys`: (optional) typing any of these key strokes while the parent popup is showing will invoke this action, for the format see [JDK's KeyStroke class](https://docs.oracle.com/javase/8/docs/api/javax/swing/KeyStroke.html#getKeyStroke-java.lang.String-)
     - `name`: (optional) name to display in the popup.
     - `separator-above`: (optional) inserts this string separator above this item in the popup, empty for a line separator
-    - `items`: (required) sub-actions to show in a popup when this action is invoked, each item can be an action group or an actin reference.
+    - `items`: (required) sub-actions to show in a popup when this action is invoked, each item can be an action group or an action reference.
 2. Action Reference - references an existing IDE action:
 
     ```json
