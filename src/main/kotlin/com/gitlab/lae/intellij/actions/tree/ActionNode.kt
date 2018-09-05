@@ -2,18 +2,15 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.AnAction.ACTIONS_KEY
-import com.intellij.openapi.actionSystem.IdeActions.*
+import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
-import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.AsyncResult
 import com.intellij.ui.components.JBList
 import com.intellij.util.Consumer
 import java.awt.Component
-import javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
 import javax.swing.JList
 import javax.swing.KeyStroke
 
@@ -55,18 +52,17 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
     val component = e.getData(CONTEXT_COMPONENT)
     val presentations = items.mapNotNull { it.toPresentation(e) }
 
+    var popup: JBPopup? = null
     val list = JBList<ActionPresentation>(presentations)
     list.cellRenderer = ActionPresentationRenderer()
 
-    // Remove default JDK keyboard actions so these shortcuts are available
-    // for use in popup items. For example, by default Ctrl-C will copy the
-    // text of the highlighted item.
-    list.actionMap.clear()
-    list.actionMap.parent = null
-    list.inputMap.clear()
-    list.inputMap.parent = null
+    // Register our action first before IntelliJ registers the default
+    // actions (e.g. com.intellij.ui.ScrollingUtil) so that in case of
+    // conflict our action will be executed
+    registerKeys(list, component) { popup }
+    registerIdeAction(list, ACTION_EDITOR_ESCAPE, e.actionManager) { popup?.cancel() }
 
-    val popup = JBPopupFactory.getInstance()
+    popup = JBPopupFactory.getInstance()
             .createListPopupBuilder(list)
             .setModalContext(true)
             .setItemChoosenCallback {
@@ -77,64 +73,43 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
             }
             .createPopup()
 
-    // Remove IntelliJ keyboard shortcuts, they occur before normal JComponent
-    // key event processing so they are not overridable. For example if you define
-    // Ctrl-A as go to line start, then IntelliJ will register Ctrl-A here and use
-    // it to go to the first item in the list, then if you want to define Ctrl-A as
-    // a shortcut for one of the popup action item, it won't work because Ctrl-A
-    // will be stolen by IntelliJ.
-    // TODO maybe we should use this too?
-    list.putClientProperty(ACTIONS_KEY, null)
-
-    popup.registerKeys(list, component)
-    // TODO check home/end page up/down etc
-    registerIdeAction(list, ACTION_EDITOR_ESCAPE) { popup.cancel() }
-    registerIdeAction(list, ACTION_EDITOR_MOVE_CARET_UP) { selectPreviousItem(list) }
-    registerIdeAction(list, ACTION_EDITOR_MOVE_CARET_DOWN) { selectNextItem(list) }
     popup.showInBestPositionFor(e.dataContext)
 }
 
-private fun selectNextItem(list: JBList<ActionPresentation>) {
-    var i = list.selectedIndex + 1
-    if (i >= list.itemsCount) {
-        i = 0
-    }
-    list.selectedIndex = i
-}
+private fun registerKeys(list: JList<ActionPresentation>, comp: Component?, getPopup: () -> JBPopup?) {
+    (0 until list.model.size).map(list.model::getElementAt).forEachIndexed { i, item ->
+        if (item.keys.isEmpty()) {
+            return@forEachIndexed
+        }
 
-private fun selectPreviousItem(list: JBList<ActionPresentation>) {
-    var i = list.selectedIndex - 1
-    if (i < 0) {
-        i = list.itemsCount - 1
-    }
-    list.selectedIndex = i
-}
-
-private fun JBPopup.registerKeys(list: JList<ActionPresentation>, comp: Component?) =
-        (0 until list.model.size).map(list.model::getElementAt).forEachIndexed { i, item ->
-            item.keys.forEach { key ->
-                list.registerKeyboardAction({ e ->
-                    list.selectedIndex = i
-                    if (item.presentation.isEnabled) {
-                        setFinalRunnable { item.action.performAction(comp, e.modifiers) }
-                        closeOk(null)
-                    }
-                }, key, WHEN_IN_FOCUSED_WINDOW)
+        val shortcuts = CustomShortcutSet(*item.keys.map { KeyboardShortcut(it, null) }.toTypedArray())
+        val action = object : AnAction() {
+            override fun actionPerformed(e: AnActionEvent) {
+                if (!item.presentation.isEnabled) return
+                val popup = getPopup() ?: return
+                list.selectedIndex = i
+                popup.setFinalRunnable { item.action.performAction(comp, e.modifiers) }
+                popup.closeOk(null)
             }
         }
+        action.registerCustomShortcutSet(shortcuts, list)
+    }
+}
 
 private fun registerIdeAction(
         list: JBList<ActionPresentation>,
         actionId: String,
+        actionManager: ActionManager,
         run: () -> Unit
-) = KeymapManager
-        .getInstance().activeKeymap.getShortcuts(actionId)
-        .filterIsInstance<KeyboardShortcut>()
-        .filter { it.secondKeyStroke == null }
-        .map { it.firstKeyStroke }
-        .forEach { key ->
-            list.registerKeyboardAction({ run() }, key, WHEN_IN_FOCUSED_WINDOW)
+) {
+    val shortcutSet = actionManager.getAction(actionId)?.shortcutSet ?: return
+    if (shortcutSet.shortcuts.isEmpty()) return
+    object : AnAction() {
+        override fun actionPerformed(e: AnActionEvent) {
+            run()
         }
+    }.registerCustomShortcutSet(shortcutSet, list)
+}
 
 fun AnAction.performAction(component: Component?, modifiers: Int) {
     val dataManager = DataManager.getInstance()
