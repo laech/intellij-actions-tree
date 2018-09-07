@@ -21,13 +21,19 @@ data class ActionNode(
         val keys: List<KeyStroke>,
         val items: List<ActionNode>)
 
+// Use main menu as the action place seems to work the best.
+// For example, when multiple process are running,
+// the 'Run | Stop' menu action works correctly this way by
+// showing a list of processes to stop
+private const val actionPlace = ActionPlaces.MAIN_MENU
+
 private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
     val action = toAction(e.actionManager) ?: return null
     val presentation = action.templatePresentation.clone()
     val event = AnActionEvent(
             null,
             e.dataContext,
-            ActionPlaces.UNKNOWN,
+            actionPlace,
             presentation,
             e.actionManager,
             e.modifiers
@@ -124,8 +130,7 @@ fun AnAction.performAction(component: Component?, modifiers: Int) {
 private fun AnAction.performAction(dataContext: DataContext, modifiers: Int) {
     val actions = ActionManager.getInstance()
     val presentation = templatePresentation.clone()
-    val place = ActionPlaces.UNKNOWN
-    val event = AnActionEvent(null, dataContext, place, presentation, actions, modifiers)
+    val event = AnActionEvent(null, dataContext, actionPlace, presentation, actions, modifiers)
     event.setInjectedContext(isInInjectedContext)
 
     if (showPopupIfGroup(event)) return
