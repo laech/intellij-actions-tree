@@ -17,9 +17,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
+    0.1.2
+    <ul>
+    <li>Fix an issue with some actions not working.</li>
+    </ul>
+
     0.1.1
     <ul>
-    <li>Fix issue with some keyboard shortcuts not working.</li>
+    <li>Fix an issue with some keyboard shortcuts not working.</li>
     </ul>
     ]]>
     </change-notes>
