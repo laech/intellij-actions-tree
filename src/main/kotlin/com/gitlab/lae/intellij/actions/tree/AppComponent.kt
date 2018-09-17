@@ -87,9 +87,7 @@ private fun Array<Keymap>.setShortcuts(actions: Iterable<ActionNode>) {
 private fun ActionManager.registerActions(actions: Iterable<ActionNode>) {
     val pluginId = PluginId.getId("com.gitlab.lae.intellij.actions.tree")
     actions.forEach { action ->
-        action.toAction(this)?.also {
-            registerAction(action.id, it, pluginId)
-        }
+        registerAction(action.id, action.toAction(this), pluginId)
     }
 }
 

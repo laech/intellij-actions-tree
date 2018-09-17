@@ -27,8 +27,8 @@ data class ActionNode(
 // showing a list of processes to stop
 private const val actionPlace = ActionPlaces.MAIN_MENU
 
-private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
-    val action = toAction(e.actionManager) ?: return null
+private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation {
+    val action = toAction(e.actionManager)
     val presentation = action.templatePresentation.clone()
     val event = AnActionEvent(
             null,
@@ -44,11 +44,15 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation? {
     return ActionPresentation(presentation, keys, separatorAbove, action)
 }
 
-fun ActionNode.toAction(mgr: ActionManager): AnAction? {
-    if (items.isEmpty()) {
-        return mgr.getAction(id)
+fun ActionNode.toAction(mgr: ActionManager) = if (items.isEmpty()) {
+    mgr.getAction(id) ?: object : AnAction("???") {
+        override fun actionPerformed(e: AnActionEvent) = Unit
+        override fun update(e: AnActionEvent) {
+            e.presentation.isEnabled = false
+        }
     }
-    return object : AnAction(name) {
+} else {
+    object : AnAction(name) {
         override fun isDumbAware() = true
         override fun actionPerformed(e: AnActionEvent) = showPopup(e)
     }
@@ -56,7 +60,7 @@ fun ActionNode.toAction(mgr: ActionManager): AnAction? {
 
 private fun ActionNode.showPopup(e: AnActionEvent) {
     val component = e.getData(CONTEXT_COMPONENT)
-    val presentations = items.mapNotNull { it.toPresentation(e) }
+    val presentations = items.map { it.toPresentation(e) }
 
     var popup: JBPopup? = null
     val list = JBList<ActionPresentation>(presentations)
