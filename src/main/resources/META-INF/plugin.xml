@@ -13,10 +13,15 @@
     This allows simulation of Emacs like prefix keys (n-level deep), so you are not restricted to
     IntelliJ keymap's maximum of two key strokes.
     </p>
-    See <a href="https://gitlab.com/lae/intellij-actions-tree">here</a> for more details.
+    Configuration is done via a JSON file, see <a href="https://gitlab.com/lae/intellij-actions-tree">here</a> for more details.
     ]]></description>
 
     <change-notes><![CDATA[
+    0.1.3
+    <ul>
+    <li>Show invalid actions defined in config.</li>
+    </ul>
+
     0.1.2
     <ul>
     <li>Fix an issue with some actions not working.</li>
