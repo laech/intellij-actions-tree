@@ -21,11 +21,14 @@ data class ActionNode(
         val keys: List<KeyStroke>,
         val items: List<ActionNode>)
 
-// Use main menu as the action place seems to work the best.
-// For example, when multiple process are running,
-// the 'Run | Stop' menu action works correctly this way by
+// Use ACTION_SEARCH as the action place seems to work the best.
+//
+// 'Run | Stop' menu action works correctly this way by
 // showing a list of processes to stop
-private const val actionPlace = ActionPlaces.MAIN_MENU
+//
+// 'Exit' actions works (doesn't work if place is MAIN_MENU)
+//
+private const val actionPlace = ActionPlaces.ACTION_SEARCH
 
 private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation {
     val action = toAction(e.actionManager)
