@@ -1,11 +1,12 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.intellij.openapi.keymap.KeymapUtil.getKeyText
-import com.intellij.openapi.keymap.KeymapUtil.getKeystrokeText
+import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.util.ui.JBUI
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.FlowLayout
+import java.awt.event.KeyEvent
+import java.awt.event.KeyEvent.*
 import javax.swing.*
 
 /**
@@ -53,20 +54,40 @@ class KeyStrokeLabel {
 
         key ?: return
 
-        val text = getKeystrokeText(key)
-        if (getKeyText(key.keyCode).length > 1) {
-            first.text = text
-            panel.add(first)
-            return
-        }
-
-        val prefix = text.dropLast(1)
+        val (prefix, suffix) = getKeyTextParts(key)
         first.text = prefix
         panel.add(first)
 
-        val ms = second.getFontMetrics(second.font)
-        second.text = text.substring(prefix.length)
-        second.preferredSize = Dimension(ms.stringWidth("W"), ms.height)
+        second.text = suffix
+        second.preferredSize = if (suffix.length > 1) {
+            null
+        } else {
+            val ms = second.getFontMetrics(second.font)
+            Dimension(ms.stringWidth("W"), ms.height)
+        }
         panel.add(second)
     }
+}
+
+fun getKeyText(key: KeyStroke): String {
+    val (prefix, suffix) = getKeyTextParts(key)
+    return "$prefix$suffix"
+}
+
+private fun getKeyTextParts(key: KeyStroke): Pair<String, String> {
+    val copy = KeyStroke.getKeyStroke(KeyEvent.VK_A, key.modifiers, key.isOnKeyRelease)
+    val prefix = KeymapUtil.getKeystrokeText(copy).dropLast(1)
+    val suffix = if (key.keyChar != CHAR_UNDEFINED) {
+        "${key.keyChar}"
+    } else {
+        getKeyText(key.keyCode)
+    }
+    return Pair(prefix, suffix)
+}
+
+private fun getKeyText(keyCode: Int): String = when (keyCode) {
+    VK_MINUS -> "-"
+    VK_COMMA -> ","
+    VK_QUOTE -> "'"
+    else -> KeymapUtil.getKeyText(keyCode)
 }
