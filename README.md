@@ -19,54 +19,30 @@ The following is an example Emacs like configuration:
     {"keys": ["ctrl X"],
      "items": [
          {"keys": ["ctrl F"], "id": "GotoFile"},
-         {"keys": ["ctrl B"], "id": "RecentFiles"},
-         {"keys": [     "B"], "id": "RecentChangedFiles"},
+         {"keys": ["ctrl B", "B"], "id": "RecentFiles"},
          {"separator-above": "",
           "keys": ["K", "0"], "id": "CloseContent"},
-         {"keys": [     "1"], "id": "UnsplitAll"},
-         {"keys": [     "2"], "id": "SplitHorizontally"},
-         {"keys": [     "3"], "id": "SplitVertically"},
-         {"keys": [     "O"], "id": "NextSplitter"},
-         {"keys": [     "ctrl N"], "id": "NextSplitter"},
+         {"keys": ["1"], "id": "UnsplitAll"},
+         {"keys": ["2"], "id": "SplitHorizontally"},
+         {"keys": ["3"], "id": "SplitVertically"},
+         {"keys": ["O"], "id": "NextSplitter"},
+         {"keys": ["ctrl N"], "id": "NextSplitter"},
          {"separator-above": "",
-          "keys": [     "H"], "id": "$SelectAll"},
-         {"keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries"},
-         {"separator-above": "",
-          "keys": [     "E"], "id": "PlaybackLastMacro"},
+          "keys": ["H"], "id": "$SelectAll"},
          {"separator-above": "",
           "keys": ["ctrl C"], "id": "Exit"}
      ]},
-    {"keys": ["ctrl C"],
-     "items": [
-         {"keys": ["released P"],
-          "name": "Project...",
-          "items": [
-              {"keys": [         "C"], "id": "CompileDirty"},
-              {"separator-above": "",
-               "keys": [         "K"], "id": "CloseProject"},
-              {"keys": ["released P"], "id": "RecentProjectListGroup"}
-          ]}
-     ]},
-    {"keys": ["alt G"],
-     "items": [
-         {"keys": ["alt N", "N"], "id": "GotoNextError"},
-         {"keys": ["alt P", "P"], "id": "GotoPreviousError"},
-         {"separator-above": "",
-          "keys": ["released G"], "id": "GotoLine"}
-     ]},
     {"keys": ["alt S"],
      "items": [
-         {"keys": [     "PERIOD"], "id": "Find"},
-         {"keys": ["shift alt 5"], "id": "Replace"},
-         {"separator-above": "",   "id": "FindInPath"},
-         {                         "id": "ReplaceInPath"},
+         {"keys": ["typed ."], "id": "Find"},
+         {"keys": ["alt typed %"], "id": "Replace"},
          {"keys": ["H"],
           "separator-above": "",
           "name": "Highlight...",
           "items": [
-              {"keys": ["PERIOD"], "id": "HighlightUsagesInFile"},
-              {"keys": [     "N"], "id": "GotoNextElementUnderCaretUsage"},
-              {"keys": [     "P"], "id": "GotoPrevElementUnderCaretUsage"}
+              {"keys": ["typed ."], "id": "HighlightUsagesInFile"},
+              {"keys": ["N"], "id": "GotoNextElementUnderCaretUsage"},
+              {"keys": ["P"], "id": "GotoPrevElementUnderCaretUsage"}
           ]}
      ]}
 ]}
@@ -86,10 +62,30 @@ The basic structures are:
       "items": [...]
     }
     ```
-    - `keys`: (optional) typing any of these key strokes while the parent popup is showing will invoke this action, for the format see [JDK's KeyStroke class](https://docs.oracle.com/javase/8/docs/api/javax/swing/KeyStroke.html#getKeyStroke-java.lang.String-)
+    - `keys`: (optional) typing any of these key strokes while the parent popup 
+       is showing will invoke this action, for the format see
+       [JDK's KeyStroke class](https://docs.oracle.com/javase/8/docs/api/javax/swing/KeyStroke.html#getKeyStroke-java.lang.String-).
+       
+       Basic format is `modifiers <KEY>`.
+       
+       Where modifiers can be one or more of:
+         - `shift`
+         - `control`
+         - `ctrl`
+         - `meta`
+         - `alt`
+         - `altGraph`.
+        
+        And `<KEY>` can be one of:
+         - Any upper case constants prefixed with `VK_` in the
+           [KeyEvent](https://docs.oracle.com/javase/8/docs/api/java/awt/event/KeyEvent.html#field.summary)
+           class. But you need to specify the name of the constant without the `VK_` prefix.
+         - `typed <CHAR>` where `<CHAR>` is the unicode character to be typed, case sensitive.
     - `name`: (optional) name to display in the popup.
-    - `separator-above`: (optional) inserts this string separator above this item in the popup, empty for a line separator
-    - `items`: (required) sub-actions to show in a popup when this action is invoked, each item can be an action group or an action reference.
+    - `separator-above`: (optional) inserts this string separator above this
+      item in the popup, empty for a line separator
+    - `items`: (required) sub-actions to show in a popup when this action is
+      invoked, each item can be an action group or an action reference.
 2. Action Reference - references an existing IDE action:
 
     ```json
