@@ -26,7 +26,6 @@ The following is an example Emacs like configuration:
          {"keys": ["2"], "id": "SplitHorizontally"},
          {"keys": ["3"], "id": "SplitVertically"},
          {"keys": ["O"], "id": "NextSplitter"},
-         {"keys": ["ctrl N"], "id": "NextSplitter"},
          {"separator-above": "",
           "keys": ["H"], "id": "$SelectAll"},
          {"separator-above": "",
