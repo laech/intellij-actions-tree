@@ -48,7 +48,7 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation {
 }
 
 fun ActionNode.toAction(mgr: ActionManager) = if (items.isEmpty()) {
-    mgr.getAction(id) ?: object : AnAction("???") {
+    mgr.getAction(id) ?: object : AnAction("?$id?") {
         override fun actionPerformed(e: AnActionEvent) = Unit
         override fun update(e: AnActionEvent) {
             e.presentation.isEnabled = false
