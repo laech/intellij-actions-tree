@@ -17,6 +17,11 @@
     ]]></description>
 
     <change-notes><![CDATA[
+    0.1.6
+    <ul>
+    <li>Minor UI fix.</li>
+    </ul>
+
     0.1.5
     <ul>
     <li>Handle display of symbolic shortcuts.</li>

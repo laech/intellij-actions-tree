@@ -63,7 +63,7 @@ class KeyStrokeLabel {
             null
         } else {
             val ms = second.getFontMetrics(second.font)
-            Dimension(ms.stringWidth("W"), ms.height)
+            Dimension(Integer.max(ms.stringWidth("W"), ms.stringWidth("@")), ms.height)
         }
         panel.add(second)
     }
