@@ -15,36 +15,44 @@ Configuration is done via a JSON file, set it under *Preferences | Keymap | Acti
 The following is an example Emacs like configuration:
 
 ```json
-{"items": [
-    {"keys": ["ctrl X"],
-     "items": [
-         {"keys": ["ctrl F"], "id": "GotoFile"},
-         {"keys": ["ctrl B", "B"], "id": "RecentFiles"},
-         {"separator-above": "",
-          "keys": ["K", "0"], "id": "CloseContent"},
-         {"keys": ["1"], "id": "UnsplitAll"},
-         {"keys": ["2"], "id": "SplitHorizontally"},
-         {"keys": ["3"], "id": "SplitVertically"},
-         {"keys": ["O"], "id": "NextSplitter"},
-         {"separator-above": "",
-          "keys": ["H"], "id": "$SelectAll"},
-         {"separator-above": "",
-          "keys": ["ctrl C"], "id": "Exit"}
-     ]},
-    {"keys": ["alt S"],
-     "items": [
-         {"keys": ["typed ."], "id": "Find"},
-         {"keys": ["alt typed %"], "id": "Replace"},
-         {"keys": ["H"],
+{
+  "items": [
+    {
+      "keys": ["ctrl X"],
+      "items": [
+        {"keys": ["ctrl F"], "id": "GotoFile"},
+        {"keys": ["ctrl B", "B"], "id": "RecentFiles"},
+        {"separator-above": "",
+         "keys": ["K", "0"], "id": "CloseContent"},
+        {"keys": ["1"], "id": "UnsplitAll"},
+        {"keys": ["2"], "id": "SplitHorizontally"},
+        {"keys": ["3"], "id": "SplitVertically"},
+        {"keys": ["O"], "id": "NextSplitter"},
+        {"separator-above": "",
+         "keys": ["H"], "id": "$SelectAll"},
+        {"separator-above": "",
+         "keys": ["ctrl C"], "id": "Exit"}
+      ]
+    },
+    {
+      "keys": ["alt S"],
+      "items": [
+        {"keys": ["typed ."], "id": "Find"},
+        {"keys": ["alt typed %"], "id": "Replace"},
+        {
+          "keys": ["H"],
           "separator-above": "",
           "name": "Highlight...",
           "items": [
-              {"keys": ["typed ."], "id": "HighlightUsagesInFile"},
-              {"keys": ["N"], "id": "GotoNextElementUnderCaretUsage"},
-              {"keys": ["P"], "id": "GotoPrevElementUnderCaretUsage"}
-          ]}
-     ]}
-]}
+            {"keys": ["typed ."], "id": "HighlightUsagesInFile"},
+            {"keys": ["N"], "id": "GotoNextElementUnderCaretUsage"},
+            {"keys": ["P"], "id": "GotoPrevElementUnderCaretUsage"}
+          ]
+        }
+      ]
+    }
+  ]
+}
 ```
 
 With the above example configuration, typing `ctrl X` will show a popup containing its items, then typing `H` will invoke the `$SelectAll` action.
