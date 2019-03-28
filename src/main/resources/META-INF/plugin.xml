@@ -17,6 +17,11 @@
     ]]></description>
 
     <change-notes><![CDATA[
+    0.1.7
+    <ul>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/4">Fix conflict with IntelliJ prefix keybinding.</a></li>
+    </ul>
+
     0.1.6
     <ul>
     <li>Minor UI fix.</li>

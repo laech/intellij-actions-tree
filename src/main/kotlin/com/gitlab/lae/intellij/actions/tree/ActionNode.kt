@@ -1,16 +1,21 @@
 package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ide.DataManager
+import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.JBPopupListener
+import com.intellij.openapi.ui.popup.LightweightWindowEvent
 import com.intellij.openapi.util.AsyncResult
 import com.intellij.ui.components.JBList
 import com.intellij.util.Consumer
 import java.awt.Component
+import java.awt.event.ActionEvent
+import javax.swing.AbstractAction
 import javax.swing.JList
 import javax.swing.KeyStroke
 
@@ -66,7 +71,7 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
     val presentations = items.map { it.toPresentation(e) }
 
     var popup: JBPopup? = null
-    val list = JBList<ActionPresentation>(presentations)
+    val list = ActionList(presentations)
     list.cellRenderer = ActionPresentationRenderer()
 
     // Register our action first before IntelliJ registers the default
@@ -86,6 +91,12 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
             }
             .createPopup()
 
+    val dispatcher = ActionDispatcher(popup, list)
+    popup.addListener(object : JBPopupListener {
+        val pm = IdeEventQueue.getInstance().popupManager
+        override fun beforeShown(event: LightweightWindowEvent) = pm.push(dispatcher)
+        override fun onClosed(event: LightweightWindowEvent) = pm.remove(dispatcher)
+    })
     popup.showInBestPositionFor(e.dataContext)
 }
 
@@ -95,17 +106,20 @@ private fun registerKeys(list: JList<ActionPresentation>, comp: Component?, getP
             return@forEachIndexed
         }
 
-        val shortcuts = CustomShortcutSet(*item.keys.map { KeyboardShortcut(it, null) }.toTypedArray())
-        val action = object : AnAction() {
-            override fun actionPerformed(e: AnActionEvent) {
-                if (!item.presentation.isEnabled) return
-                val popup = getPopup() ?: return
-                list.selectedIndex = i
-                popup.setFinalRunnable { item.action.performAction(comp, e.modifiers) }
-                popup.closeOk(null)
-            }
+        val inputMap = list.inputMap
+        val actionMap = list.actionMap
+        item.keys.forEach { key ->
+            inputMap.put(key, key)
+            actionMap.put(key, object : AbstractAction() {
+                override fun actionPerformed(e: ActionEvent) {
+                    if (!item.presentation.isEnabled) return
+                    val popup = getPopup() ?: return
+                    list.selectedIndex = i
+                    popup.setFinalRunnable { item.action.performAction(comp, e.modifiers) }
+                    popup.closeOk(null)
+                }
+            })
         }
-        action.registerCustomShortcutSet(shortcuts, list)
     }
 }
 

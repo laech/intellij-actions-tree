@@ -8,4 +8,7 @@ class ActionPresentation(
         val presentation: Presentation,
         val keys: List<KeyStroke>,
         val separatorAbove: String?,
-        val action: AnAction)
+        val action: AnAction) {
+
+    override fun toString() = presentation.text ?: ""
+}
