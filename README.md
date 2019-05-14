@@ -109,3 +109,9 @@ The basic structures are:
 The top level actions will be registered as global actions in the keymap (can be seen under *Preferences | Keymap | Plug-ins | Actions Tree*) so they can be invoked anywhere, so be sure to check your keymap to make sure their keys don't conflict with other actions.
 
 Any change to the configuration file can be reloaded via *Tools | Actions Tree | Reload*.
+
+
+## Building
+
+To build the plugin, run `./gradlew clean build`, then build/distributions/actions-tree-xxx.zip will be created. It can be installed by going to the IntelliJ's plugins settings, and choose install from disk.
+
