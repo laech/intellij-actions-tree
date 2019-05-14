@@ -22,6 +22,7 @@ private fun JsonElement.toActionNode(seq: () -> Int): ActionNode {
     val id = o.remove("id")?.asString ?: "ActionsTree${seq()}"
     val sep = o.remove("separator-above")?.asString
     val name = o.remove("name")?.asString ?: "Unnamed"
+    val sticky = o.remove("sticky")?.asBoolean ?: false
     val keys = o.remove("keys")?.asJsonArray
             ?.map { it.toKeyStroke() }
             ?: emptyList()
@@ -32,7 +33,7 @@ private fun JsonElement.toActionNode(seq: () -> Int): ActionNode {
     if (!o.keySet().isEmpty()) {
         throw IllegalArgumentException("Invalid elements: ${o.keySet()}")
     }
-    return ActionNode(id, name, sep, keys, items)
+    return ActionNode(id, name, sep, sticky, keys, items)
 }
 
 private fun JsonElement.toKeyStroke() = KeyStroke.getKeyStroke(asString)

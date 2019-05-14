@@ -7,16 +7,16 @@ class JsonTest : LightPlatformCodeInsightFixtureTestCase() {
 
     fun testDeserialization() {
         val expected = listOf(
-                ActionNode("ActionsTree1", "Unnamed", null, listOf(getKeyStroke("ctrl C")), listOf(
-                        ActionNode("ActionsTree2", "Unnamed", null, listOf(getKeyStroke("P")), listOf(
-                                ActionNode("CloseProject", "Unnamed", null,
+                ActionNode("ActionsTree1", "Unnamed", null, false, listOf(getKeyStroke("ctrl C")), listOf(
+                        ActionNode("ActionsTree2", "Unnamed", null, false, listOf(getKeyStroke("P")), listOf(
+                                ActionNode("CloseProject", "Unnamed", null, false,
                                         listOf(getKeyStroke("K"), getKeyStroke("ctrl K")), emptyList()),
-                                ActionNode("OpenProjectGroup", "Unnamed", "SEP",
+                                ActionNode("OpenProjectGroup", "Unnamed", "SEP", false,
                                         listOf(getKeyStroke("P")), emptyList())
                         ))
                 )),
-                ActionNode("ActionsTree3", "b", null, listOf(getKeyStroke("ctrl X")), listOf(
-                        ActionNode("EditorSwapSelectionBoundaries", "Unnamed", null,
+                ActionNode("ActionsTree3", "b", null, false, listOf(getKeyStroke("ctrl X")), listOf(
+                        ActionNode("EditorSwapSelectionBoundaries", "Unnamed", null, true,
                                 listOf(getKeyStroke("ctrl X")), emptyList())
                 ))
         )
