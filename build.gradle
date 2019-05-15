@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.gitlab.lae.intellij.actions.tree'
-version '0.1.8-SNAPSHOT'
+version '0.2-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -30,9 +30,4 @@ test {
 intellij {
     version '2018.1'
     updateSinceUntilBuild = false
-}
-
-publishPlugin {
-    username intellijPublishUsername
-    password intellijPublishPassword
 }
