@@ -3,9 +3,11 @@ package com.gitlab.lae.intellij.actions.tree
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR
 import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupListener
@@ -16,6 +18,7 @@ import com.intellij.util.Consumer
 import java.awt.Component
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
+import javax.swing.JComponent
 import javax.swing.JList
 import javax.swing.KeyStroke
 
@@ -23,6 +26,7 @@ data class ActionNode(
         val id: String,
         val name: String?,
         val separatorAbove: String?,
+        val sticky: Boolean,
         val keys: List<KeyStroke>,
         val items: List<ActionNode>)
 
@@ -49,7 +53,7 @@ private fun ActionNode.toPresentation(e: AnActionEvent): ActionPresentation {
     event.setInjectedContext(action.isInInjectedContext)
 
     ActionUtil.performDumbAwareUpdate(true, action, event, false)
-    return ActionPresentation(presentation, keys, separatorAbove, action)
+    return ActionPresentation(presentation, keys, separatorAbove, sticky, action)
 }
 
 fun ActionNode.toAction(mgr: ActionManager) = if (items.isEmpty()) {
@@ -77,7 +81,7 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
     // Register our action first before IntelliJ registers the default
     // actions (e.g. com.intellij.ui.ScrollingUtil) so that in case of
     // conflict our action will be executed
-    registerKeys(list, component) { popup }
+    registerKeys(list, component, e.getData(EDITOR)) { popup }
     registerIdeAction(list, ACTION_EDITOR_ESCAPE, e.actionManager) { popup?.cancel() }
 
     popup = JBPopupFactory.getInstance()
@@ -100,7 +104,12 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
     popup.showInBestPositionFor(e.dataContext)
 }
 
-private fun registerKeys(list: JList<ActionPresentation>, comp: Component?, getPopup: () -> JBPopup?) {
+private fun registerKeys(
+        list: JList<ActionPresentation>,
+        component: Component?,
+        editor: Editor?,
+        getPopup: () -> JBPopup?
+) {
     (0 until list.model.size).map(list.model::getElementAt).forEachIndexed { i, item ->
         if (item.keys.isEmpty()) {
             return@forEachIndexed
@@ -115,8 +124,28 @@ private fun registerKeys(list: JList<ActionPresentation>, comp: Component?, getP
                     if (!item.presentation.isEnabled) return
                     val popup = getPopup() ?: return
                     list.selectedIndex = i
-                    popup.setFinalRunnable { item.action.performAction(comp, e.modifiers) }
-                    popup.closeOk(null)
+
+                    val runnable = Runnable {
+                        item.action.performAction(component, e.modifiers)
+                    }
+                    if (!item.sticky) {
+                        popup.setFinalRunnable(runnable)
+                        popup.closeOk(null)
+                        return
+                    }
+
+                    runnable.run()
+                    if (editor != null) {
+                        editor.scrollingModel.runActionOnScrollingFinished {
+                            popup.setLocation(JBPopupFactory.getInstance()
+                                    .guessBestPopupLocation(editor)
+                                    .screenPoint)
+                        }
+                    } else if (component is JComponent) {
+                        popup.setLocation(JBPopupFactory.getInstance()
+                                .guessBestPopupLocation(component)
+                                .screenPoint)
+                    }
                 }
             })
         }

@@ -16,7 +16,7 @@
       "name": "b",
       "keys": ["ctrl X"],
       "items": [
-        {"keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries"}
+        {"keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries", "sticky": true}
       ]
     }
   ]

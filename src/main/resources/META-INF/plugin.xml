@@ -5,18 +5,22 @@
 
     <description><![CDATA[
     <p>
-    Like the built-in IntelliJ Quick Lists, for defining a list of actions to show in a popup,
-    an action in the list can be other action list to show when invoked.
-    The main difference between this plugin and Quick Lists is that this plugin allows each action
-    in the list to be assigned a keyboard shortcut that is local to the list,
-    doesn't conflict with other global shortcuts.
-    This allows simulation of Emacs like prefix keys (n-level deep), so you are not restricted to
-    IntelliJ keymap's maximum of two key strokes.
+    This plugin allows you to define a list of actions to show in a popup, an
+    action in the list can be a further action list to show when invoked, or an
+    ordinary IDE action. Each action in the list can be assigned a keyboard
+    shortcut that is local to the list, doesn't conflict with other global
+    shortcuts. This allows simulation of Emacs like prefix keys (n-level deep), so
+    you are not restricted to IntelliJ keymap's maximum of two key strokes.
     </p>
     Configuration is done via a JSON file, see <a href="https://gitlab.com/lae/intellij-actions-tree">here</a> for more details.
     ]]></description>
 
     <change-notes><![CDATA[
+    0.2
+    <ul>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/6">Add "sticky" actions.</a></li>
+    </ul>
+
     0.1.7
     <ul>
     <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/4">Fix conflict with IntelliJ prefix keybinding.</a></li>
