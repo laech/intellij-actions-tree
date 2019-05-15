@@ -1,12 +1,11 @@
 # Actions Tree
 
-Like the built-in IntelliJ Quick Lists, for defining a list of actions to show
-in a popup, an action in the list can be other action list to show when invoked.
-The main difference between this plugin and Quick Lists is that this plugin
-allows each action in the list to be assigned a keyboard shortcut that is local
-to the list, doesn't conflict with other global shortcuts. This allows
-simulation of Emacs like prefix keys (n-level deep), so you are not restricted
-to IntelliJ keymap's maximum of two key strokes.
+This plugin allows you to define a list of actions to show in a popup, an
+action in the list can be a further action list to show when invoked, or an
+ordinary IDE action. Each action in the list can be assigned a keyboard 
+shortcut that is local to the list, doesn't conflict with other global
+shortcuts. This allows simulation of Emacs like prefix keys (n-level deep), so
+you are not restricted to IntelliJ keymap's maximum of two key strokes.
 
 ## Configuration
 
@@ -45,8 +44,8 @@ The following is an example Emacs like configuration:
           "name": "Highlight...",
           "items": [
             {"keys": ["typed ."], "id": "HighlightUsagesInFile"},
-            {"keys": ["N"], "id": "GotoNextElementUnderCaretUsage"},
-            {"keys": ["P"], "id": "GotoPrevElementUnderCaretUsage"}
+            {"keys": ["N"], "id": "GotoNextElementUnderCaretUsage", "sticky": true},
+            {"keys": ["P"], "id": "GotoPrevElementUnderCaretUsage", "sticky": true}
           ]
         }
       ]
@@ -99,11 +98,13 @@ The basic structures are:
     {
       "keys": [...],
       "separator-above": "...",
+      "sticky": ...,
       "id": "..."
     }
     ```
     - `keys`: same as above
     - `separator-above`: same as above
+    - `stick`: if an action is sticky, invoking it will not dismiss the popup, allowing you to repeat the action again or invoke other actions on the popup.
     - `id`: (required) the ID of an existing action to invoke. To find the ID of an action, use *Tools | Actions Tree | Export IDE Actions* to export the ID to name mappings of all your IDE actions.
 
 The top level actions will be registered as global actions in the keymap (can be seen under *Preferences | Keymap | Plug-ins | Actions Tree*) so they can be invoked anywhere, so be sure to check your keymap to make sure their keys don't conflict with other actions.
