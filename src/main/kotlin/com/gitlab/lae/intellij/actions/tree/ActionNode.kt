@@ -18,6 +18,7 @@ import com.intellij.util.Consumer
 import java.awt.Component
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
+import javax.swing.JComponent
 import javax.swing.JList
 import javax.swing.KeyStroke
 
@@ -103,7 +104,12 @@ private fun ActionNode.showPopup(e: AnActionEvent) {
     popup.showInBestPositionFor(e.dataContext)
 }
 
-private fun registerKeys(list: JList<ActionPresentation>, comp: Component?, editor: Editor?, getPopup: () -> JBPopup?) {
+private fun registerKeys(
+        list: JList<ActionPresentation>,
+        component: Component?,
+        editor: Editor?,
+        getPopup: () -> JBPopup?
+) {
     (0 until list.model.size).map(list.model::getElementAt).forEachIndexed { i, item ->
         if (item.keys.isEmpty()) {
             return@forEachIndexed
@@ -119,7 +125,9 @@ private fun registerKeys(list: JList<ActionPresentation>, comp: Component?, edit
                     val popup = getPopup() ?: return
                     list.selectedIndex = i
 
-                    val runnable = Runnable { item.action.performAction(comp, e.modifiers) }
+                    val runnable = Runnable {
+                        item.action.performAction(component, e.modifiers)
+                    }
                     if (!item.sticky) {
                         popup.setFinalRunnable(runnable)
                         popup.closeOk(null)
@@ -128,8 +136,14 @@ private fun registerKeys(list: JList<ActionPresentation>, comp: Component?, edit
 
                     runnable.run()
                     if (editor != null) {
+                        editor.scrollingModel.runActionOnScrollingFinished {
+                            popup.setLocation(JBPopupFactory.getInstance()
+                                    .guessBestPopupLocation(editor)
+                                    .screenPoint)
+                        }
+                    } else if (component is JComponent) {
                         popup.setLocation(JBPopupFactory.getInstance()
-                                .guessBestPopupLocation(editor)
+                                .guessBestPopupLocation(component)
                                 .screenPoint)
                     }
                 }
