@@ -1,5 +1,10 @@
 package com.gitlab.lae.intellij.actions.tree;
 
+import com.gitlab.lae.intellij.actions.tree.ui.ActionList;
+import com.gitlab.lae.intellij.actions.tree.ui.ActionPopupEventDispatcher;
+import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation;
+import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentationRenderer;
+import com.gitlab.lae.intellij.actions.tree.util.ListModels;
 import com.google.auto.value.AutoValue;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
@@ -14,9 +19,9 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.gitlab.lae.intellij.actions.tree.Actions.ACTION_PLACE;
-import static com.gitlab.lae.intellij.actions.tree.Actions.performAction;
-import static com.gitlab.lae.intellij.actions.tree.JBPopups.setBestLocation;
+import static com.gitlab.lae.intellij.actions.tree.util.Actions.ACTION_PLACE;
+import static com.gitlab.lae.intellij.actions.tree.util.Actions.performAction;
+import static com.gitlab.lae.intellij.actions.tree.util.JBPopups.setBestLocation;
 import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
 import static com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE;
 import static com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT;
@@ -24,11 +29,11 @@ import static com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUp
 import static java.util.stream.Collectors.toList;
 
 @AutoValue
-abstract class ActionNode {
+public abstract class ActionNode {
     ActionNode() {
     }
 
-    static ActionNode create(
+    public static ActionNode create(
             String id,
             String name,
             String separatorAbove,
@@ -46,7 +51,7 @@ abstract class ActionNode {
         );
     }
 
-    abstract String id();
+    public abstract String id();
 
     @Nullable
     abstract String name();
@@ -56,9 +61,9 @@ abstract class ActionNode {
 
     abstract boolean sticky();
 
-    abstract List<KeyStroke> keys();
+    public abstract List<KeyStroke> keys();
 
-    abstract List<ActionNode> items();
+    public abstract List<ActionNode> items();
 
     private ActionPresentation toPresentation(AnActionEvent e) {
         AnAction action = toAction(e.getActionManager());
@@ -83,12 +88,12 @@ abstract class ActionNode {
         );
     }
 
-    AnAction toAction(ActionManager mgr) {
+    public AnAction toAction(ActionManager mgr) {
         if (!items().isEmpty()) {
             return toPopupAction();
         }
         AnAction action = mgr.getAction(id());
-        if (action != null) {
+        if (action == null) {
             action = toUnknownAction();
         }
         return action;

@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.util;
 
 import javax.swing.*;
 import java.util.AbstractList;

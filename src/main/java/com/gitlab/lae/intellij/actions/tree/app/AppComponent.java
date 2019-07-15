@@ -1,5 +1,6 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.app;
 
+import com.gitlab.lae.intellij.actions.tree.ActionNode;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -18,7 +19,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gitlab.lae.intellij.actions.tree.Json.parseJsonActions;
+import static com.gitlab.lae.intellij.actions.tree.json.ActionNodeParser.parseJsonActions;
 import static java.util.Collections.emptyList;
 
 public final class AppComponent implements ApplicationComponent {
@@ -33,7 +34,7 @@ public final class AppComponent implements ApplicationComponent {
         reload(ActionManager.getInstance());
     }
 
-    void reload(ActionManager actionManager) {
+    public void reload(ActionManager actionManager) {
         List<ActionNode> newActions = loadActions();
         Keymap[] keymaps = KeymapManagerEx.getInstanceEx().getAllKeymaps();
 

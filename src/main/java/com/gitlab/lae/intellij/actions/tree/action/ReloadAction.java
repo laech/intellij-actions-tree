@@ -1,5 +1,6 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.action;
 
+import com.gitlab.lae.intellij.actions.tree.app.AppComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;

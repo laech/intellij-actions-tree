@@ -1,5 +1,6 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.json;
 
+import com.gitlab.lae.intellij.actions.tree.ActionNode;
 import org.junit.Rule;
 import org.junit.Test;
 import stack.source.junit4.ErrorDecorator;
@@ -16,7 +17,7 @@ import static java.util.Collections.singletonList;
 import static javax.swing.KeyStroke.getKeyStroke;
 import static org.junit.Assert.assertEquals;
 
-public final class JsonTest {
+public final class ActionNodeParserTest {
 
     @Rule
     public final ErrorDecorator errorDecorator = new ErrorDecorator();
@@ -39,9 +40,9 @@ public final class JsonTest {
         );
 
         List<ActionNode> actual;
-        try (InputStream stream = JsonTest.class.getResourceAsStream("test.json");
+        try (InputStream stream = ActionNodeParserTest.class.getResourceAsStream("test.json");
              Reader reader = new InputStreamReader(stream, UTF_8)) {
-            actual = Json.parseJsonActions(reader);
+            actual = ActionNodeParser.parseJsonActions(reader);
         }
 
         assertEquals(expected, actual);

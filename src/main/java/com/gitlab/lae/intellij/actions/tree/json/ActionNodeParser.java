@@ -1,5 +1,6 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.json;
 
+import com.gitlab.lae.intellij.actions.tree.ActionNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,21 +21,25 @@ import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
-final class Json {
-    private Json() {
+public final class ActionNodeParser {
+    private ActionNodeParser() {
     }
 
     private static final Gson gson = new Gson();
 
-    static List<ActionNode> parseJsonActions(Path path) throws IOException {
+    public static List<ActionNode> parseJsonActions(Path path)
+            throws IOException {
         try (Reader reader = Files.newBufferedReader(path)) {
             return parseJsonActions(reader);
         }
     }
 
-    static List<ActionNode> parseJsonActions(Reader reader) {
+    public static List<ActionNode> parseJsonActions(Reader reader) {
         JsonElement element = gson.fromJson(reader, JsonElement.class);
-        return toActionNode(element, new AtomicInteger()::getAndIncrement).items();
+        return toActionNode(
+                element,
+                new AtomicInteger()::getAndIncrement
+        ).items();
     }
 
     private static String removeString(
@@ -70,14 +75,22 @@ final class Json {
                 .collect(toList());
     }
 
-    private static ActionNode toActionNode(JsonElement element, IntSupplier seq) {
+    private static ActionNode toActionNode(
+            JsonElement element,
+            IntSupplier seq
+    ) {
         JsonObject o = element.getAsJsonObject();
         String id = removeString(o, "id", () -> "ActionsTree" + seq.getAsInt());
         String sep = removeString(o, "separator-above", () -> null);
         String name = removeString(o, "name", () -> "Unnamed");
         boolean sticky = removeBoolean(o, "sticky", () -> false);
-        List<KeyStroke> keys = removeArray(o, "keys", Json::toKeyStroke);
-        List<ActionNode> items = removeArray(o, "items", it -> toActionNode(it, seq));
+
+        List<KeyStroke> keys =
+                removeArray(o, "keys", ActionNodeParser::toKeyStroke);
+
+        List<ActionNode> items =
+                removeArray(o, "items", it -> toActionNode(it, seq));
+
         if (!o.keySet().isEmpty()) {
             throw new IllegalArgumentException(
                     "Invalid elements: " + o.keySet());

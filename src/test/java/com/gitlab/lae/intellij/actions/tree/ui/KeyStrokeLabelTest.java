@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.ui;
 
 import org.junit.Rule;
 import org.junit.Test;

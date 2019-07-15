@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.ui.SeparatorWithText;
@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-final class ActionPresentationRenderer
+public final class ActionPresentationRenderer
         implements ListCellRenderer<ActionPresentation> {
 
     private final SeparatorWithText separator = new SeparatorWithText();
@@ -95,7 +95,8 @@ final class ActionPresentationRenderer
             if (icon == null) continue;
             emptyIcon = EmptyIcon.create(
                     icon.getIconWidth(),
-                    icon.getIconHeight());
+                    icon.getIconHeight()
+            );
             break;
         }
     }

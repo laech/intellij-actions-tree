@@ -1,13 +1,13 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.intellij.ui.components.JBList;
 
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 
-final class ActionList<E> extends JBList<E> {
+public final class ActionList<E> extends JBList<E> {
 
-    ActionList(Collection<E> items) {
+    public ActionList(Collection<E> items) {
         super(items);
     }
 

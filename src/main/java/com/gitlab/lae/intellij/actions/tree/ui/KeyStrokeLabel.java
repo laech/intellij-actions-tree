@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.util.ui.JBUI;
@@ -21,7 +21,9 @@ import static java.awt.event.KeyEvent.*;
  */
 final class KeyStrokeLabel {
 
-    private JPanel panel = new JPanel(new FlowLayout(FlowLayout.TRAILING, 0, 0));
+    private JPanel panel =
+            new JPanel(new FlowLayout(FlowLayout.TRAILING, 0, 0));
+
     private JLabel first = new JLabel((String) null, SwingConstants.TRAILING);
     private JLabel second = new JLabel((String) null, SwingConstants.CENTER);
 

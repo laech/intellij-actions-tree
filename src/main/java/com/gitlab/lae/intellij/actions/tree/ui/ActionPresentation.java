@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.google.auto.value.AutoValue;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -9,11 +9,11 @@ import javax.swing.*;
 import java.util.List;
 
 @AutoValue
-abstract class ActionPresentation {
+public abstract class ActionPresentation {
     ActionPresentation() {
     }
 
-    static ActionPresentation create(
+    public static ActionPresentation create(
             Presentation presentation,
             List<KeyStroke> keys,
             String separatorAbove,
@@ -29,16 +29,16 @@ abstract class ActionPresentation {
         );
     }
 
-    abstract Presentation presentation();
+    public abstract Presentation presentation();
 
-    abstract List<KeyStroke> keys();
+    public abstract List<KeyStroke> keys();
 
     @Nullable
     abstract String separatorAbove();
 
-    abstract Boolean sticky();
+    public abstract Boolean sticky();
 
-    abstract AnAction action();
+    public abstract AnAction action();
 
     @Override
     public String toString() {

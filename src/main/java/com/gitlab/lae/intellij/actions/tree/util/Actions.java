@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.util;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
@@ -12,7 +12,7 @@ import static com.intellij.openapi.actionSystem.ex.ActionUtil.lastUpdateAndCheck
 import static com.intellij.openapi.actionSystem.ex.ActionUtil.performActionDumbAware;
 import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.NUMBERING;
 
-final class Actions {
+public final class Actions {
     private Actions() {
     }
 
@@ -23,10 +23,10 @@ final class Actions {
      *
      * 'Exit' actions works (doesn't work if place is MAIN_MENU)
      */
-    static final String ACTION_PLACE =
+    public static final String ACTION_PLACE =
             ActionPlaces.ACTION_SEARCH;
 
-    static void performAction(
+    public static void performAction(
             AnAction action,
             Component component,
             int modifiers
@@ -39,7 +39,7 @@ final class Actions {
                         performAction(action, dataContext, modifiers));
     }
 
-    static void performAction(
+    public static void performAction(
             AnAction action,
             DataContext dataContext,
             int modifiers

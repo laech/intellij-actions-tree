@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.IdePopupManager;
@@ -27,14 +27,14 @@ import static java.util.Objects.requireNonNull;
  * as a prefix key. We want the entry in the popup to be execute
  * when "Ctrl+D" is pressed.
  */
-final class ActionPopupEventDispatcher
+public final class ActionPopupEventDispatcher
         implements IdePopupEventDispatcher, JBPopupListener {
 
     private final IdePopupManager popupManager;
     private final JBPopup popup;
     private final ActionList<?> list;
 
-    ActionPopupEventDispatcher(JBPopup popup, ActionList<?> list) {
+    public ActionPopupEventDispatcher(JBPopup popup, ActionList<?> list) {
         this.popup = requireNonNull(popup);
         this.list = requireNonNull(list);
         this.popupManager = IdeEventQueue.getInstance().getPopupManager();

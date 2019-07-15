@@ -1,4 +1,4 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree.action;
 
 import com.google.gson.stream.JsonWriter;
 import com.intellij.openapi.actionSystem.ActionManager;
