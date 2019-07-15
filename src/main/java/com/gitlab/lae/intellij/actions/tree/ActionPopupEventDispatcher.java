@@ -1,7 +1,11 @@
 package com.gitlab.lae.intellij.actions.tree;
 
+import com.intellij.ide.IdeEventQueue;
+import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.ui.popup.IdePopupEventDispatcher;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupListener;
+import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -23,14 +27,17 @@ import static java.util.Objects.requireNonNull;
  * as a prefix key. We want the entry in the popup to be execute
  * when "Ctrl+D" is pressed.
  */
-final class ActionDispatcher implements IdePopupEventDispatcher {
+final class ActionPopupEventDispatcher
+        implements IdePopupEventDispatcher, JBPopupListener {
 
+    private final IdePopupManager popupManager;
     private final JBPopup popup;
     private final ActionList<?> list;
 
-    ActionDispatcher(JBPopup popup, ActionList<?> list) {
+    ActionPopupEventDispatcher(JBPopup popup, ActionList<?> list) {
         this.popup = requireNonNull(popup);
         this.list = requireNonNull(list);
+        this.popupManager = IdeEventQueue.getInstance().getPopupManager();
     }
 
     @Override
@@ -67,5 +74,15 @@ final class ActionDispatcher implements IdePopupEventDispatcher {
 
     @Override
     public void setRestoreFocusSilentely() {
+    }
+
+    @Override
+    public void beforeShown(LightweightWindowEvent event) {
+        popupManager.push(this);
+    }
+
+    @Override
+    public void onClosed(LightweightWindowEvent event) {
+        popupManager.remove(this);
     }
 }

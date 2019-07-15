@@ -18,11 +18,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gitlab.lae.intellij.actions.tree.ActionNode.toAction;
 import static com.gitlab.lae.intellij.actions.tree.Json.parseJsonActions;
 import static java.util.Collections.emptyList;
 
 public final class AppComponent implements ApplicationComponent {
+
+    private static final String PLUGIN_ID =
+            "com.gitlab.lae.intellij.actions.tree";
 
     private final List<ActionNode> actions = new ArrayList<>();
 
@@ -109,9 +111,9 @@ public final class AppComponent implements ApplicationComponent {
             ActionManager actionManager,
             Iterable<ActionNode> actions
     ) {
-        PluginId pluginId = PluginId.getId("com.gitlab.lae.intellij.actions.tree");
+        PluginId pluginId = PluginId.getId(PLUGIN_ID);
         for (ActionNode node : actions) {
-            AnAction action = toAction(node, actionManager);
+            AnAction action = node.toAction(actionManager);
             actionManager.registerAction(node.id(), action, pluginId);
         }
     }
