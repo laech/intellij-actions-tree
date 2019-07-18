@@ -1,6 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.ui.SeparatorWithText;
 import com.intellij.util.ui.EmptyIcon;
 import com.intellij.util.ui.UIUtil;
@@ -8,8 +9,8 @@ import com.intellij.util.ui.UIUtil;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import static java.util.stream.Collectors.joining;
 
 public final class ActionPresentationRenderer
         implements ListCellRenderer<ActionPresentation> {
@@ -19,19 +20,16 @@ public final class ActionPresentationRenderer
     private final JPanel content = new JPanel(new BorderLayout(30, 0));
     private final JLabel nameLabel = new JLabel();
 
-    private final List<KeyStrokeLabel> keyLabels = new ArrayList<>();
-    private final JPanel keyLabelsPanel = new JPanel(
-            new FlowLayout(FlowLayout.TRAILING, 0, 0));
+    private final JLabel keyLabel = new JLabel();
 
     private boolean emptyIconInit;
     private EmptyIcon emptyIcon;
 
     {
         nameLabel.setBackground(null);
-        keyLabelsPanel.setBackground(null);
 
         content.add(nameLabel, BorderLayout.CENTER);
-        content.add(keyLabelsPanel, BorderLayout.LINE_END);
+        content.add(keyLabel, BorderLayout.LINE_END);
         content.setBorder(new EmptyBorder(UIUtil.getListCellPadding()));
 
         root.setBackground(null);
@@ -53,31 +51,31 @@ public final class ActionPresentationRenderer
         separator.setCaption(value.separatorAbove());
         separator.setVisible(value.separatorAbove() != null);
 
-        while (keyLabels.size() < value.keys().size()) {
-            keyLabels.add(new KeyStrokeLabel());
-        }
-
         setColors(list, isSelected);
 
-        Presentation p = value.presentation();
-        nameLabel.setEnabled(p.isEnabled());
-        nameLabel.setText(p.getText());
-        nameLabel.setDisabledIcon(p.getDisabledIcon() != null
-                ? p.getDisabledIcon()
+        Presentation presentation = value.presentation();
+        nameLabel.setEnabled(presentation.isEnabled());
+        nameLabel.setText(presentation.getText());
+        nameLabel.setDisabledIcon(presentation.getDisabledIcon() != null
+                ? presentation.getDisabledIcon()
                 : emptyIcon);
 
-        Icon icon = isSelected ? p.getSelectedIcon() : p.getIcon();
-        if (icon == null) icon = p.getIcon();
-        if (icon == null) icon = emptyIcon;
+        Icon icon = isSelected
+                ? presentation.getSelectedIcon()
+                : presentation.getIcon();
+        if (icon == null) {
+            icon = presentation.getIcon();
+        }
+        if (icon == null) {
+            icon = emptyIcon;
+        }
         nameLabel.setIcon(icon);
 
-        keyLabelsPanel.removeAll();
-        for (int i = 0; i < value.keys().size(); i++) {
-            KeyStrokeLabel label = keyLabels.get(keyLabels.size() - i - 1);
-            label.setEnabled(p.isEnabled());
-            label.setTextFromKeyStroke(value.keys().get(i));
-            keyLabelsPanel.add(label.getComponent());
-        }
+        keyLabel.setEnabled(presentation.isEnabled());
+        keyLabel.setText(value.keys()
+                .stream()
+                .map(KeyStrokeLabel::getKeyText)
+                .collect(joining(", ")));
 
         return root;
     }
@@ -90,9 +88,15 @@ public final class ActionPresentationRenderer
         for (int i = 0; i < list.getModel().getSize(); i++) {
             Presentation p = list.getModel().getElementAt(i).presentation();
             Icon icon = p.getIcon();
-            if (icon == null) icon = p.getDisabledIcon();
-            if (icon == null) icon = p.getSelectedIcon();
-            if (icon == null) continue;
+            if (icon == null) {
+                icon = p.getDisabledIcon();
+            }
+            if (icon == null) {
+                icon = p.getSelectedIcon();
+            }
+            if (icon == null) {
+                continue;
+            }
             emptyIcon = EmptyIcon.create(
                     icon.getIconWidth(),
                     icon.getIconHeight()
@@ -108,13 +112,13 @@ public final class ActionPresentationRenderer
         if (isSelected) {
             content.setBackground(list.getSelectionBackground());
             nameLabel.setForeground(list.getSelectionForeground());
-            keyLabels.forEach(label -> label.setForeground(UIManager.getColor(
-                    "MenuItem.acceleratorSelectionForeground")));
+            keyLabel.setForeground(UIManager.getColor(
+                    "MenuItem.acceleratorSelectionForeground"));
         } else {
             content.setBackground(list.getBackground());
             nameLabel.setForeground(list.getForeground());
-            keyLabels.forEach(it -> it.setForeground(UIManager.getColor(
-                    "MenuItem.acceleratorForeground")));
+            keyLabel.setForeground(UIManager.getColor(
+                    "MenuItem.acceleratorForeground"));
         }
     }
 
