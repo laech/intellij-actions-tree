@@ -6,6 +6,8 @@ import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation;
 import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentationRenderer;
 import com.gitlab.lae.intellij.actions.tree.util.ListModels;
 import com.google.auto.value.AutoValue;
+import com.intellij.ide.DataManager;
+import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -65,8 +67,18 @@ public abstract class ActionNode {
 
     public abstract List<ActionNode> items();
 
-    private ActionPresentation toPresentation(AnActionEvent e) {
-        AnAction action = toAction(e.getActionManager());
+    private ActionPresentation toPresentation(
+            AnActionEvent e,
+            IdePopupManager popupManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager
+    ) {
+        AnAction action = toAction(
+                e.getActionManager(),
+                popupManager,
+                popupFactory,
+                dataManager
+        );
         Presentation presentation = action.getTemplatePresentation().clone();
         AnActionEvent event = new AnActionEvent(
                 null,
@@ -88,9 +100,14 @@ public abstract class ActionNode {
         );
     }
 
-    public AnAction toAction(ActionManager mgr) {
+    public AnAction toAction(
+            ActionManager mgr,
+            IdePopupManager popupManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager
+    ) {
         if (!items().isEmpty()) {
-            return toPopupAction();
+            return toPopupAction(popupManager, popupFactory, dataManager);
         }
         AnAction action = mgr.getAction(id());
         if (action == null) {
@@ -113,7 +130,11 @@ public abstract class ActionNode {
         };
     }
 
-    private AnAction toPopupAction() {
+    private AnAction toPopupAction(
+            IdePopupManager popupManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager
+    ) {
         return new AnAction(name()) {
 
             @Override
@@ -123,15 +144,26 @@ public abstract class ActionNode {
 
             @Override
             public void actionPerformed(AnActionEvent e) {
-                showPopup(e);
+                showPopup(e, popupManager, popupFactory, dataManager);
             }
         };
     }
 
-    private void showPopup(AnActionEvent e) {
+    private void showPopup(
+            AnActionEvent e,
+            IdePopupManager popupManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager
+    ) {
+        ActionManager actionManager = e.getActionManager();
         Component component = e.getData(CONTEXT_COMPONENT);
         List<ActionPresentation> presentations = items().stream()
-                .map(it -> it.toPresentation(e))
+                .map(it -> it.toPresentation(
+                        e,
+                        popupManager,
+                        popupFactory,
+                        dataManager
+                ))
                 .collect(toList());
 
         JBPopup[] popupHolder = {null};
@@ -141,33 +173,54 @@ public abstract class ActionNode {
         // Register our action first before IntelliJ registers the default
         // actions (e.g. com.intellij.ui.ScrollingUtil) so that in case of
         // conflict our action will be executed
-        registerKeys(list, component, e.getData(EDITOR), () -> popupHolder[0]);
-        registerIdeAction(list, ACTION_EDITOR_ESCAPE, e.getActionManager(),
-                () -> {
-                    JBPopup popup = popupHolder[0];
-                    if (popup != null) {
-                        popup.cancel();
-                    }
-                }
+        registerKeys(list, component, e.getData(EDITOR), () -> popupHolder[0],
+                actionManager,
+                popupFactory,
+                dataManager
         );
+        registerIdeAction(list, ACTION_EDITOR_ESCAPE, actionManager, () -> {
+            JBPopup popup = popupHolder[0];
+            if (popup != null) {
+                popup.cancel();
+            }
+        });
 
-        JBPopup popup = createPopup(component, list);
-        popup.addListener(new ActionPopupEventDispatcher(popup, list));
+        JBPopup popup = createPopup(
+                component,
+                list,
+                actionManager,
+                popupFactory,
+                dataManager
+        );
+        popup.addListener(new ActionPopupEventDispatcher(
+                popup,
+                list,
+                popupManager
+        ));
         popup.showInBestPositionFor(e.getDataContext());
         popupHolder[0] = popup;
     }
 
     private JBPopup createPopup(
             Component component,
-            ActionList<ActionPresentation> list
+            ActionList<ActionPresentation> list,
+            ActionManager actionManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager
     ) {
-        return JBPopupFactory.getInstance()
-                .createListPopupBuilder(list)
+        return popupFactory.createListPopupBuilder(list)
                 .setModalContext(true)
                 .setItemChoosenCallback(() -> {
                     ActionPresentation value = list.getSelectedValue();
                     if (value != null && value.presentation().isEnabled()) {
-                        performAction(value.action(), component, 0);
+                        performAction(
+                                value.action(),
+                                0,
+                                actionManager,
+                                popupFactory,
+                                dataManager,
+                                component
+                        );
                     }
                 })
                 .createPopup();
@@ -177,7 +230,10 @@ public abstract class ActionNode {
             JList<ActionPresentation> list,
             Component component,
             Editor editor,
-            Supplier<JBPopup> getPopup
+            Supplier<JBPopup> getPopup,
+            ActionManager actionManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager
     ) {
         ListModels.stream(list.getModel())
                 .filter(it -> !it.keys().isEmpty())
@@ -186,7 +242,10 @@ public abstract class ActionNode {
                         component,
                         editor,
                         getPopup,
-                        item
+                        item,
+                        actionManager,
+                        popupFactory,
+                        dataManager
                 ));
     }
 
@@ -195,16 +254,25 @@ public abstract class ActionNode {
             Component component,
             Editor editor,
             Supplier<JBPopup> getPopup,
-            ActionPresentation item
+            ActionPresentation item,
+            ActionManager actionManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager
     ) {
         InputMap inputMap = list.getInputMap();
         ActionMap actionMap = list.getActionMap();
         for (KeyStroke key : item.keys()) {
             inputMap.put(key, key);
-            actionMap.put(
-                    key,
-                    new InvokeAction(item, getPopup, list, component, editor)
-            );
+            actionMap.put(key, new InvokeAction(
+                    item,
+                    getPopup,
+                    list,
+                    component,
+                    editor,
+                    actionManager,
+                    popupFactory,
+                    dataManager
+            ));
         }
     }
 
@@ -236,19 +304,28 @@ public abstract class ActionNode {
         private final JList<ActionPresentation> list;
         private final Component component;
         private final Editor editor;
+        private final ActionManager actionManager;
+        private final JBPopupFactory popupFactory;
+        private final DataManager dataManager;
 
         InvokeAction(
                 ActionPresentation item,
                 Supplier<JBPopup> getPopup,
                 JList<ActionPresentation> list,
                 Component component,
-                Editor editor
+                Editor editor,
+                ActionManager actionManager,
+                JBPopupFactory popupFactory,
+                DataManager dataManager
         ) {
             this.item = item;
             this.getPopup = getPopup;
             this.list = list;
             this.component = component;
             this.editor = editor;
+            this.actionManager = actionManager;
+            this.popupFactory = popupFactory;
+            this.dataManager = dataManager;
         }
 
         @Override
@@ -267,8 +344,11 @@ public abstract class ActionNode {
 
             Runnable runnable = () -> performAction(
                     item.action(),
-                    component,
-                    e.getModifiers()
+                    e.getModifiers(),
+                    actionManager,
+                    popupFactory,
+                    dataManager,
+                    component
             );
 
             if (!item.sticky()) {
@@ -279,9 +359,9 @@ public abstract class ActionNode {
 
             runnable.run();
             if (editor != null) {
-                setBestLocation(popup, editor);
+                setBestLocation(popup, popupFactory, editor);
             } else if (component instanceof JComponent) {
-                setBestLocation(popup, (JComponent) component);
+                setBestLocation(popup, popupFactory, (JComponent) component);
             }
         }
     }

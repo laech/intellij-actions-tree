@@ -28,41 +28,55 @@ public final class Actions {
 
     public static void performAction(
             AnAction action,
-            Component component,
-            int modifiers
+            int modifiers,
+            ActionManager actionManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager,
+            Component component
     ) {
-        DataManager dataManager = DataManager.getInstance();
         (component == null
                 ? dataManager.getDataContextFromFocus()
-                : AsyncResult.done(dataManager.getDataContext(component)))
-                .doWhenDone((Consumer<DataContext>) dataContext ->
-                        performAction(action, dataContext, modifiers));
+                : AsyncResult.done(dataManager.getDataContext(component))
+        ).doWhenDone((Consumer<DataContext>) dataContext -> performAction(
+                action,
+                modifiers,
+                actionManager,
+                popupFactory,
+                dataContext
+        ));
     }
 
     public static void performAction(
             AnAction action,
-            DataContext dataContext,
-            int modifiers
+            int modifiers,
+            ActionManager actionManager,
+            JBPopupFactory popupFactory,
+            DataContext dataContext
     ) {
-        ActionManager actions = ActionManager.getInstance();
         Presentation presentation = action.getTemplatePresentation().clone();
         AnActionEvent event = new AnActionEvent(
                 null,
                 dataContext,
                 ACTION_PLACE,
                 presentation,
-                actions,
+                actionManager,
                 modifiers
         );
         event.setInjectedContext(action.isInInjectedContext());
 
-        if (showPopupIfGroup(action, event)) return;
+        if (showPopupIfGroup(action, event, popupFactory)) {
+            return;
+        }
         if (lastUpdateAndCheckDumb(action, event, false)) {
             performActionDumbAware(action, event);
         }
     }
 
-    private static boolean showPopupIfGroup(AnAction action, AnActionEvent e) {
+    private static boolean showPopupIfGroup(
+            AnAction action,
+            AnActionEvent e,
+            JBPopupFactory popupFactory
+    ) {
         if (!(action instanceof ActionGroup)) {
             return false;
         }
@@ -70,15 +84,13 @@ public final class Actions {
         if (group.canBePerformed(e.getDataContext())) {
             return false;
         }
-        JBPopupFactory.getInstance()
-                .createActionGroupPopup(
-                        e.getPresentation().getText(),
-                        group,
-                        e.getDataContext(),
-                        NUMBERING,
-                        true
-                )
-                .showInBestPositionFor(e.getDataContext());
+        popupFactory.createActionGroupPopup(
+                e.getPresentation().getText(),
+                group,
+                e.getDataContext(),
+                NUMBERING,
+                true
+        ).showInBestPositionFor(e.getDataContext());
         return true;
     }
 }

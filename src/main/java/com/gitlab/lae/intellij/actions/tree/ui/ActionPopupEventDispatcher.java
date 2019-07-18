@@ -1,6 +1,5 @@
 package com.gitlab.lae.intellij.actions.tree.ui;
 
-import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.ui.popup.IdePopupEventDispatcher;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -34,10 +33,14 @@ public final class ActionPopupEventDispatcher
     private final JBPopup popup;
     private final ActionList<?> list;
 
-    public ActionPopupEventDispatcher(JBPopup popup, ActionList<?> list) {
+    public ActionPopupEventDispatcher(
+            JBPopup popup,
+            ActionList<?> list,
+            IdePopupManager popupManager
+    ) {
         this.popup = requireNonNull(popup);
         this.list = requireNonNull(list);
-        this.popupManager = IdeEventQueue.getInstance().getPopupManager();
+        this.popupManager = requireNonNull(popupManager);
     }
 
     @Override

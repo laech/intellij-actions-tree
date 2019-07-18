@@ -1,9 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree.app;
 
 import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -11,6 +9,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.*;
 import java.awt.*;
+
+import static com.intellij.openapi.fileChooser.FileChooser.chooseFile;
 
 public final class AppConfigurable implements Configurable {
 
@@ -38,7 +38,7 @@ public final class AppConfigurable implements Configurable {
         ApplicationManager
                 .getApplication()
                 .getComponent(AppComponent.class)
-                .reload(ActionManager.getInstance());
+                .reload();
     }
 
     @Override
@@ -53,10 +53,14 @@ public final class AppConfigurable implements Configurable {
         JPanel row = new JPanel(new BorderLayout());
         row.add(new JLabel("Configuration File: "), BorderLayout.LINE_START);
         row.add(new TextFieldWithBrowseButton(confLocation, __ -> {
-            VirtualFile file = FileChooser.chooseFile(
-                    new FileChooserDescriptor(
-                            true, false, false, false, false, false),
-                    null, null);
+            VirtualFile file = chooseFile(new FileChooserDescriptor(
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+            ), null, null);
             if (file != null) {
                 confLocation.setText(file.getPath());
             }

@@ -21,11 +21,14 @@ import static java.awt.event.KeyEvent.*;
  */
 final class KeyStrokeLabel {
 
-    private JPanel panel =
+    private final JPanel panel =
             new JPanel(new FlowLayout(FlowLayout.TRAILING, 0, 0));
 
-    private JLabel first = new JLabel((String) null, SwingConstants.TRAILING);
-    private JLabel second = new JLabel((String) null, SwingConstants.CENTER);
+    private final JLabel first =
+            new JLabel((String) null, SwingConstants.TRAILING);
+
+    private final JLabel second =
+            new JLabel((String) null, SwingConstants.CENTER);
 
     {
         first.setBackground(null);

@@ -10,15 +10,23 @@ public final class JBPopups {
     private JBPopups() {
     }
 
-    public static void setBestLocation(JBPopup popup, Editor editor) {
+    public static void setBestLocation(
+            JBPopup popup,
+            JBPopupFactory popupFactory,
+            Editor editor
+    ) {
         editor.getScrollingModel().runActionOnScrollingFinished(() ->
-                popup.setLocation(JBPopupFactory.getInstance()
+                popup.setLocation(popupFactory
                         .guessBestPopupLocation(editor)
                         .getScreenPoint()));
     }
 
-    public static void setBestLocation(JBPopup popup, JComponent component) {
-        popup.setLocation(JBPopupFactory.getInstance()
+    public static void setBestLocation(
+            JBPopup popup,
+            JBPopupFactory popupFactory,
+            JComponent component
+    ) {
+        popup.setLocation(popupFactory
                 .guessBestPopupLocation(component)
                 .getScreenPoint());
     }

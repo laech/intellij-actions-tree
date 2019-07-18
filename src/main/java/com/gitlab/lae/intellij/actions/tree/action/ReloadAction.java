@@ -13,7 +13,7 @@ public final class ReloadAction extends AnAction implements DumbAware {
         ApplicationManager
                 .getApplication()
                 .getComponent(AppComponent.class)
-                .reload(e.getActionManager());
+                .reload();
     }
 
 }

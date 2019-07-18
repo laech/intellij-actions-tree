@@ -17,17 +17,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
+
+import static java.nio.file.Files.newBufferedWriter;
 
 public final class ExportIdeActions extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
 
+        FileSaverDescriptor descriptor =
+                new FileSaverDescriptor("Export IDE Actions", "");
+
         VirtualFileWrapper result = FileChooserFactory.getInstance()
-                .createSaveFileDialog(new FileSaverDescriptor(
-                        "Export IDE Actions", ""), (Project) null)
+                .createSaveFileDialog(descriptor, (Project) null)
                 .save(null, "actions.json");
+
         if (result == null) {
             return;
         }
@@ -40,11 +44,12 @@ public final class ExportIdeActions extends AnAction implements DumbAware {
         if (project == null || virtualFile == null) {
             return;
         }
+
         new OpenFileDescriptor(project, virtualFile).navigate(true);
     }
 
     private void export(File file, ActionManager mgr) {
-        try (BufferedWriter fileWriter = Files.newBufferedWriter(file.toPath());
+        try (BufferedWriter fileWriter = newBufferedWriter(file.toPath());
              JsonWriter writer = new JsonWriter(fileWriter)) {
 
             writer.setIndent("  ");

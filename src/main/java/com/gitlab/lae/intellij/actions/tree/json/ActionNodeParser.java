@@ -17,9 +17,9 @@ import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 
 public final class ActionNodeParser {
     private ActionNodeParser() {
@@ -69,7 +69,7 @@ public final class ActionNodeParser {
     ) {
         return Optional.ofNullable(element.remove(field))
                 .map(JsonElement::getAsJsonArray)
-                .map(it -> StreamSupport.stream(it.spliterator(), false))
+                .map(it -> stream(it.spliterator(), false))
                 .orElse(Stream.empty())
                 .map(mapper)
                 .collect(toList());

@@ -1,6 +1,9 @@
 package com.gitlab.lae.intellij.actions.tree.app;
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode;
+import com.intellij.ide.DataManager;
+import com.intellij.ide.IdeEventQueue;
+import com.intellij.ide.IdePopupManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -13,6 +16,7 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.keymap.Keymap;
 import com.intellij.openapi.keymap.ex.KeymapManagerEx;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 
 import javax.swing.*;
 import java.nio.file.Paths;
@@ -31,26 +35,49 @@ public final class AppComponent implements ApplicationComponent {
 
     @Override
     public void initComponent() {
-        reload(ActionManager.getInstance());
+        reload();
     }
 
-    public void reload(ActionManager actionManager) {
-        List<ActionNode> newActions = loadActions();
-        Keymap[] keymaps = KeymapManagerEx.getInstanceEx().getAllKeymaps();
+    public void reload() {
+        reload(
+                ActionManager.getInstance(),
+                IdeEventQueue.getInstance().getPopupManager(),
+                JBPopupFactory.getInstance(),
+                DataManager.getInstance(),
+                KeymapManagerEx.getInstanceEx(),
+                PropertiesComponent.getInstance()
+        );
+    }
+
+    private void reload(
+            ActionManager actionManager,
+            IdePopupManager popupManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager,
+            KeymapManagerEx keymapManager,
+            PropertiesComponent properties
+    ) {
+        List<ActionNode> newActions = loadActions(properties);
+        Keymap[] keymaps = keymapManager.getAllKeymaps();
 
         removeShortcuts(keymaps, actions);
         unregisterActions(actionManager, actions);
         actions.clear();
 
         actions.addAll(newActions);
-        registerActions(actionManager, actions);
+        registerActions(
+                actionManager,
+                popupManager,
+                popupFactory,
+                dataManager,
+                actions
+        );
         setShortcuts(keymaps, actions);
     }
 
-    private List<ActionNode> loadActions() {
+    private List<ActionNode> loadActions(PropertiesComponent properties) {
 
-        String conf = PropertiesComponent.getInstance()
-                .getValue(AppConfigurable.CONF_KEY);
+        String conf = properties.getValue(AppConfigurable.CONF_KEY);
 
         if (conf != null) {
             conf = conf.trim();
@@ -110,11 +137,19 @@ public final class AppComponent implements ApplicationComponent {
 
     private static void registerActions(
             ActionManager actionManager,
+            IdePopupManager popupManager,
+            JBPopupFactory popupFactory,
+            DataManager dataManager,
             Iterable<ActionNode> actions
     ) {
         PluginId pluginId = PluginId.getId(PLUGIN_ID);
         for (ActionNode node : actions) {
-            AnAction action = node.toAction(actionManager);
+            AnAction action = node.toAction(
+                    actionManager,
+                    popupManager,
+                    popupFactory,
+                    dataManager
+            );
             actionManager.registerAction(node.id(), action, pluginId);
         }
     }
