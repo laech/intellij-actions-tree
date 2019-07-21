@@ -6,7 +6,9 @@ import com.intellij.openapi.actionSystem.Presentation;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 @AutoValue
 public abstract class ActionPresentation {
@@ -49,4 +51,23 @@ public abstract class ActionPresentation {
         return text;
     }
 
+    public void registerShortcuts(
+            JList<?> list,
+            BiConsumer<ActionPresentation, ActionEvent> consumer
+    ) {
+        if (keys().isEmpty()) {
+            return;
+        }
+        InputMap inputMap = list.getInputMap();
+        ActionMap actionMap = list.getActionMap();
+        for (KeyStroke key : keys()) {
+            inputMap.put(key, key);
+            actionMap.put(key, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    consumer.accept(ActionPresentation.this, e);
+                }
+            });
+        }
+    }
 }

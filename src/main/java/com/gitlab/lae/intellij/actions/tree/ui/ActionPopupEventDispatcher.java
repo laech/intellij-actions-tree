@@ -31,11 +31,11 @@ public final class ActionPopupEventDispatcher
 
     private final IdePopupManager popupManager;
     private final JBPopup popup;
-    private final ActionList<?> list;
+    private final ActionList list;
 
     public ActionPopupEventDispatcher(
             JBPopup popup,
-            ActionList<?> list,
+            ActionList list,
             IdePopupManager popupManager
     ) {
         this.popup = requireNonNull(popup);

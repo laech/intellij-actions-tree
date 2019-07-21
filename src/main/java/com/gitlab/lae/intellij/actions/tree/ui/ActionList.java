@@ -5,10 +5,11 @@ import com.intellij.ui.components.JBList;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 
-public final class ActionList<E> extends JBList<E> {
+public final class ActionList extends JBList<ActionPresentation> {
 
-    public ActionList(Collection<E> items) {
+    public ActionList(Collection<ActionPresentation> items) {
         super(items);
+        setCellRenderer(new ActionPresentationRenderer());
     }
 
     @Override
