@@ -8,18 +8,13 @@ import com.google.gson.JsonObject;
 import javax.swing.*;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.function.IntSupplier;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
+import static com.gitlab.lae.intellij.actions.tree.json.JsonObjects.*;
+import static java.nio.file.Files.newBufferedReader;
 
 public final class ActionNodeParser {
     private ActionNodeParser() {
@@ -29,50 +24,18 @@ public final class ActionNodeParser {
 
     public static List<ActionNode> parseJsonActions(Path path)
             throws IOException {
-        try (Reader reader = Files.newBufferedReader(path)) {
+        try (Reader reader = newBufferedReader(path)) {
             return parseJsonActions(reader);
         }
     }
 
     public static List<ActionNode> parseJsonActions(Reader reader) {
         JsonElement element = gson.fromJson(reader, JsonElement.class);
-        return toActionNode(
+        ActionNode action = toActionNode(
                 element,
                 new AtomicInteger()::getAndIncrement
-        ).items();
-    }
-
-    private static String removeString(
-            JsonObject element,
-            String field,
-            Supplier<String> defaultValue
-    ) {
-        return Optional.ofNullable(element.remove(field))
-                .map(JsonElement::getAsString)
-                .orElseGet(defaultValue);
-    }
-
-    private static boolean removeBoolean(
-            JsonObject element,
-            String field,
-            Supplier<Boolean> defaultValue
-    ) {
-        return Optional.ofNullable(element.remove(field))
-                .map(JsonElement::getAsBoolean)
-                .orElseGet(defaultValue);
-    }
-
-    private static <T> List<T> removeArray(
-            JsonObject element,
-            String field,
-            Function<? super JsonElement, ? extends T> mapper
-    ) {
-        return Optional.ofNullable(element.remove(field))
-                .map(JsonElement::getAsJsonArray)
-                .map(it -> stream(it.spliterator(), false))
-                .orElse(Stream.empty())
-                .map(mapper)
-                .collect(toList());
+        );
+        return action.items();
     }
 
     private static ActionNode toActionNode(

@@ -1,7 +1,6 @@
 package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.ui.SeparatorWithText;
 import com.intellij.util.ui.EmptyIcon;
 import com.intellij.util.ui.UIUtil;

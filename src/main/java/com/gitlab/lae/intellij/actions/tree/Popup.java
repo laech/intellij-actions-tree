@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
+import static com.gitlab.lae.intellij.actions.tree.ActionNode.ACTION_PLACE;
 import static com.gitlab.lae.intellij.actions.tree.util.JBPopups.setBestLocation;
 import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
 import static com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE;
@@ -158,16 +159,6 @@ final class Popup {
             );
         }
     }
-
-    /* Use ACTION_SEARCH as the action place seems to work the best.
-     *
-     * 'Run | Stop' menu action works correctly this way by
-     * showing a list of processes to stop
-     *
-     * 'Exit' actions works (doesn't work if place is MAIN_MENU)
-     */
-    private static final String ACTION_PLACE =
-            ActionPlaces.ACTION_SEARCH;
 
     private void performAction(AnAction action, int modifiers) {
         (sourceComponent == null
