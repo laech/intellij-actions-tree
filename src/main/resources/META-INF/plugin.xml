@@ -69,13 +69,13 @@
                 displayName="Actions Tree"
                 id="com.gitlab.lae.intellij.actions.tree"
                 parentId="preferences.keymap"
-                instance="com.gitlab.lae.intellij.actions.tree.AppConfigurable"/>
+                instance="com.gitlab.lae.intellij.actions.tree.app.AppConfigurable"/>
     </extensions>
 
     <application-components>
         <component>
             <implementation-class>
-                com.gitlab.lae.intellij.actions.tree.AppComponent
+                com.gitlab.lae.intellij.actions.tree.app.AppComponent
             </implementation-class>
         </component>
     </application-components>
@@ -88,12 +88,12 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
 
             <action id="com.gitlab.lae.intellij.actions.tree.reload"
-                    class="com.gitlab.lae.intellij.actions.tree.ReloadAction"
+                    class="com.gitlab.lae.intellij.actions.tree.action.ReloadAction"
                     text="Reload"
                     description="Reloads actions from configuration file"/>
 
             <action id="com.gitlab.lae.intellij.actions.tree.ExportIdeActions"
-                    class="com.gitlab.lae.intellij.actions.tree.ExportIdeActions"
+                    class="com.gitlab.lae.intellij.actions.tree.action.ExportIdeActions"
                     text="Export IDE Actions"
                     description="Exports IDE actions to a file containing ID to name mappings"/>
         </group>
