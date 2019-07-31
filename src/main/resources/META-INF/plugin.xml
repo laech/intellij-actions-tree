@@ -16,41 +16,56 @@
     ]]></description>
 
     <change-notes><![CDATA[
+
+    <br/>
+    0.2.1
+    <ul>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/10">Fix double action invocation issue with IntelliJ 2019.2</a></li>
+    </ul>
+
+    <br/>
     0.2
     <ul>
     <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/6">Add "sticky" actions.</a></li>
     </ul>
 
+    <br/>
     0.1.7
     <ul>
     <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/4">Fix conflict with IntelliJ prefix keybinding.</a></li>
     </ul>
 
+    <br/>
     0.1.6
     <ul>
     <li>Minor UI fix.</li>
     </ul>
 
+    <br/>
     0.1.5
     <ul>
     <li>Handle display of symbolic shortcuts.</li>
     </ul>
 
+    <br/>
     0.1.4
     <ul>
     <li>Fix an issue with some actions not working.</li>
     </ul>
 
+    <br/>
     0.1.3
     <ul>
     <li>Show invalid actions defined in config.</li>
     </ul>
 
+    <br/>
     0.1.2
     <ul>
     <li>Fix an issue with some actions not working.</li>
     </ul>
 
+    <br/>
     0.1.1
     <ul>
     <li>Fix an issue with some keyboard shortcuts not working.</li>
