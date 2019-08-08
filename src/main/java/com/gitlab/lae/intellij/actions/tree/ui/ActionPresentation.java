@@ -1,8 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree.ui;
 
 import com.google.auto.value.AutoValue;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.*;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
@@ -10,20 +9,22 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import static com.gitlab.lae.intellij.actions.tree.ActionNode.ACTION_PLACE;
+import static com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUpdate;
+
 @AutoValue
 public abstract class ActionPresentation {
     ActionPresentation() {
     }
 
     public static ActionPresentation create(
-            Presentation presentation,
+            AnAction action,
             List<KeyStroke> keys,
             String separatorAbove,
-            Boolean sticky,
-            AnAction action
+            boolean sticky
     ) {
         return new AutoValue_ActionPresentation(
-                presentation,
+                action.getTemplatePresentation().clone(),
                 keys,
                 separatorAbove,
                 sticky,
@@ -38,7 +39,7 @@ public abstract class ActionPresentation {
     @Nullable
     abstract String separatorAbove();
 
-    public abstract Boolean sticky();
+    public abstract boolean sticky();
 
     public abstract AnAction action();
 
@@ -70,4 +71,21 @@ public abstract class ActionPresentation {
             });
         }
     }
+
+    public void update(
+            ActionManager actionManager,
+            DataContext dataContext
+    ) {
+        AnActionEvent event = new AnActionEvent(
+                null,
+                dataContext,
+                ACTION_PLACE,
+                presentation(),
+                actionManager,
+                0
+        );
+        event.setInjectedContext(action().isInInjectedContext());
+        performDumbAwareUpdate(true, action(), event, false);
+    }
+
 }

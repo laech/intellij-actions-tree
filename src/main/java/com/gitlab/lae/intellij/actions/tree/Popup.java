@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.AsyncResult;
 import com.intellij.util.Consumer;
 
 import javax.swing.*;
@@ -24,7 +25,6 @@ import static com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONE
 import static com.intellij.openapi.actionSystem.ex.ActionUtil.lastUpdateAndCheckDumb;
 import static com.intellij.openapi.actionSystem.ex.ActionUtil.performActionDumbAware;
 import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.NUMBERING;
-import static com.intellij.openapi.util.AsyncResult.done;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -54,7 +54,11 @@ final class Popup {
         this.sourceEditor = e.getData(EDITOR);
 
         List<ActionPresentation> items = action.items().stream()
-                .map(it -> createPresentation(it, e))
+                .map(it -> createPresentation(
+                        it,
+                        e.getActionManager(),
+                        e.getDataContext()
+                ))
                 .collect(toList());
 
         list = new ActionList(items);
@@ -83,10 +87,12 @@ final class Popup {
 
     private ActionPresentation createPresentation(
             ActionNode action,
-            AnActionEvent event
+            ActionManager actionManager,
+            DataContext dataContext
     ) {
         return action.createPresentation(
-                event,
+                actionManager,
+                dataContext,
                 popupManager,
                 popupFactory,
                 dataManager
@@ -142,6 +148,7 @@ final class Popup {
         if (item.sticky()) {
             invocation.run();
             updatePopupLocation();
+            updatePresentations();
         } else {
             popup.setFinalRunnable(invocation);
             popup.closeOk(null);
@@ -160,15 +167,30 @@ final class Popup {
         }
     }
 
-    private void performAction(AnAction action, int modifiers) {
+    /**
+     * Updates list items to show correct information regarding current
+     * state, such as whether an action should be enabled/disabled for
+     * current cursor position.
+     */
+    private void updatePresentations() {
+        getDataContextAsync(dataContext -> {
+            ListModel<ActionPresentation> model = list.getModel();
+            for (int i = 0, l = model.getSize(); i < l; i++) {
+                model.getElementAt(i).update(actionManager, dataContext);
+            }
+        });
+    }
+
+    private void getDataContextAsync(Consumer<DataContext> consumer) {
         (sourceComponent == null
                 ? dataManager.getDataContextFromFocus()
-                : done(dataManager.getDataContext(sourceComponent))
-        ).doWhenDone((Consumer<DataContext>) dataContext -> performAction(
-                action,
-                modifiers,
-                dataContext
-        ));
+                : AsyncResult.done(dataManager.getDataContext(sourceComponent))
+        ).doWhenDone(consumer);
+    }
+
+    private void performAction(AnAction action, int modifiers) {
+        getDataContextAsync(dataContext ->
+                performAction(action, modifiers, dataContext));
     }
 
     private void performAction(

@@ -4,14 +4,15 @@ import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation;
 import com.google.auto.value.AutoValue;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.IdePopupManager;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.List;
-
-import static com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUpdate;
 
 @AutoValue
 public abstract class ActionNode {
@@ -57,40 +58,30 @@ public abstract class ActionNode {
      *
      * 'Exit' actions works (doesn't work if place is MAIN_MENU)
      */
-    static final String ACTION_PLACE =
+    public static final String ACTION_PLACE =
             ActionPlaces.ACTION_SEARCH;
 
     ActionPresentation createPresentation(
-            AnActionEvent e,
+            ActionManager actionManager,
+            DataContext dataContext,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
             DataManager dataManager
     ) {
         AnAction action = toAction(
-                e.getActionManager(),
+                actionManager,
                 popupManager,
                 popupFactory,
                 dataManager
         );
-        Presentation presentation = action.getTemplatePresentation().clone();
-        AnActionEvent event = new AnActionEvent(
-                null,
-                e.getDataContext(),
-                ACTION_PLACE,
-                presentation,
-                e.getActionManager(),
-                e.getModifiers()
-        );
-        event.setInjectedContext(action.isInInjectedContext());
-
-        performDumbAwareUpdate(true, action, event, false);
-        return ActionPresentation.create(
-                presentation,
+        ActionPresentation presentation = ActionPresentation.create(
+                action,
                 keys(),
                 separatorAbove(),
-                sticky(),
-                action
+                sticky()
         );
+        presentation.update(actionManager, dataContext);
+        return presentation;
     }
 
     public AnAction toAction(
