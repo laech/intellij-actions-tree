@@ -1,0 +1,12 @@
+
+- action can be invoked by keyboard shortcut / mouse / enter key
+  https://gitlab.com/lae/intellij-actions-tree/issues/11
+
+- sticky action keeps popup open when invoked by keyboard shortcut / mouse / enter key
+  https://gitlab.com/lae/intellij-actions-tree/issues/9
+
+- sticky action after invocation refreshes state of popup actions
+  https://gitlab.com/lae/intellij-actions-tree/issues/7
+
+- if action in popup conflicts with IDE prefix key, action in popup takes priority
+  https://gitlab.com/lae/intellij-actions-tree/issues/4
