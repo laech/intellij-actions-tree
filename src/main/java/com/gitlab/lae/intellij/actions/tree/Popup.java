@@ -103,6 +103,7 @@ final class Popup {
         return popupFactory
                 .createListPopupBuilder(list)
                 .setModalContext(true)
+                .setCloseOnEnter(false)
                 .setItemChoosenCallback(() -> {
                     ActionPresentation item = list.getSelectedValue();
                     if (item != null) {

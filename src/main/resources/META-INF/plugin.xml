@@ -18,6 +18,13 @@
     <change-notes><![CDATA[
 
     <br/>
+    0.2.2
+    <ul>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/9">Sticky action not sticky if invoked via mouse or enter key.</a></li>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/1">Mouse or enter key does not invoke actions in the popup</a></li>
+    </ul>
+
+    <br/>
     0.2.1
     <ul>
     <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/10">Fix double action invocation issue with IntelliJ 2019.2</a></li>
