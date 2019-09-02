@@ -62,12 +62,14 @@ The basic structures are:
 
     ```json
     {
+      "id": "...",
       "keys": [...],
       "name": "...",
       "separator-above": "...",
       "items": [...]
     }
     ```
+    - `id`: (optional) specify your own ID for this action group if you want to reference it somewhere, such as from your IdeaVim config.
     - `keys`: (optional) typing any of these key strokes while the parent popup 
        is showing will invoke this action, for the format see
        [JDK's KeyStroke class](https://docs.oracle.com/javase/8/docs/api/javax/swing/KeyStroke.html#getKeyStroke-java.lang.String-).
