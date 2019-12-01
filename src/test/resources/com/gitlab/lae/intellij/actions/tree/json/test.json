@@ -1,6 +1,7 @@
 {
   "items": [
     {
+      "when": "ToolWindow(Project)",
       "keys": ["ctrl C"],
       "items": [
         {
@@ -15,9 +16,19 @@
     {
       "name": "b",
       "keys": ["ctrl X"],
+      "when": "FileExt(java)",
       "items": [
         {"keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries", "sticky": true}
       ]
+    },
+    {
+      "name": "c",
+      "when": {
+        "or": [
+          "FileExt(txt)",
+          {"and": ["ToolWindow(Run)", "FileExt(java)"]}
+        ]
+      }
     }
   ]
 }

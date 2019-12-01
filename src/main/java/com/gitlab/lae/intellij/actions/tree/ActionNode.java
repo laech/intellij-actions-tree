@@ -9,10 +9,13 @@ import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.Pair;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
-import java.util.List;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 @AutoValue
 public abstract class ActionNode {
@@ -24,6 +27,7 @@ public abstract class ActionNode {
             String name,
             String separatorAbove,
             boolean sticky,
+            When when,
             List<KeyStroke> keys,
             List<ActionNode> items
     ) {
@@ -32,6 +36,7 @@ public abstract class ActionNode {
                 name,
                 separatorAbove,
                 sticky,
+                when,
                 keys,
                 items
         );
@@ -46,6 +51,8 @@ public abstract class ActionNode {
     abstract String separatorAbove();
 
     abstract boolean sticky();
+
+    abstract When when();
 
     public abstract List<KeyStroke> keys();
 
@@ -66,7 +73,8 @@ public abstract class ActionNode {
             DataContext dataContext,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
-            DataManager dataManager
+            DataManager dataManager,
+            List<KeyStroke> keysOverride
     ) {
         AnAction action = toAction(
                 actionManager,
@@ -76,7 +84,7 @@ public abstract class ActionNode {
         );
         ActionPresentation presentation = ActionPresentation.create(
                 action,
-                keys(),
+                keysOverride,
                 separatorAbove(),
                 sticky()
         );
@@ -102,6 +110,33 @@ public abstract class ActionNode {
                 popupFactory,
                 dataManager
         );
+    }
+
+    public List<Pair<List<KeyStroke>, ActionNode>> prepare(DataContext context) {
+        Set<KeyStroke> registered = new HashSet<>();
+        List<Pair<List<KeyStroke>, ActionNode>> result = new ArrayList<>();
+        List<ActionNode> items = new ArrayList<>(items());
+        Collections.reverse(items);
+
+        for (ActionNode item : items) {
+            if (!item.when().test(context)) {
+                continue;
+            }
+
+            List<KeyStroke> keys = item.keys()
+                    .stream()
+                    .filter(registered::add)
+                    .collect(toList());
+
+            if (keys.isEmpty()) {
+                continue;
+            }
+
+            result.add(Pair.create(keys, item));
+        }
+
+        Collections.reverse(result);
+        return result;
     }
 
 }
