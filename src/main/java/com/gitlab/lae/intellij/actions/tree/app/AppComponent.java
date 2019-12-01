@@ -98,13 +98,17 @@ public final class AppComponent implements ApplicationComponent {
         }
     }
 
+    private static String wrappedId(ActionNode action) {
+        return "ActionsTree." + action.id();
+    }
+
     private static void removeShortcuts(
             Keymap[] keymaps,
             Iterable<ActionNode> actions
     ) {
         for (Keymap keymap : keymaps) {
             for (ActionNode action : actions) {
-                keymap.removeAllActionShortcuts(action.id());
+                keymap.removeAllActionShortcuts(wrappedId(action));
             }
         }
     }
@@ -126,10 +130,10 @@ public final class AppComponent implements ApplicationComponent {
         // clear it and make sure 'ctrl X' is added instead.
         for (Keymap keymap : keymaps) {
             for (ActionNode action : actions) {
-                keymap.removeAllActionShortcuts(action.id());
+                keymap.removeAllActionShortcuts(wrappedId(action));
                 for (KeyStroke key : action.keys()) {
                     Shortcut shortcut = new KeyboardShortcut(key, null);
-                    keymap.addShortcut(action.id(), shortcut);
+                    keymap.addShortcut(wrappedId(action), shortcut);
                 }
             }
         }
@@ -148,9 +152,10 @@ public final class AppComponent implements ApplicationComponent {
                     actionManager,
                     popupManager,
                     popupFactory,
-                    dataManager
+                    dataManager,
+                    true
             );
-            actionManager.registerAction(node.id(), action, pluginId);
+            actionManager.registerAction(wrappedId(node), action, pluginId);
         }
     }
 
@@ -159,7 +164,7 @@ public final class AppComponent implements ApplicationComponent {
             Iterable<ActionNode> actions
     ) {
         for (ActionNode action : actions) {
-            actionManager.unregisterAction(action.id());
+            actionManager.unregisterAction(wrappedId(action));
         }
     }
 }

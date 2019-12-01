@@ -72,7 +72,8 @@ public abstract class ActionNode {
                 actionManager,
                 popupManager,
                 popupFactory,
-                dataManager
+                dataManager,
+                false
         );
         ActionPresentation presentation = ActionPresentation.create(
                 action,
@@ -88,12 +89,13 @@ public abstract class ActionNode {
             ActionManager mgr,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
-            DataManager dataManager
+            DataManager dataManager,
+            boolean wrapIdeAction
     ) {
         if (items().isEmpty()) {
             AnAction action = mgr.getAction(id());
             return action != null
-                    ? action
+                    ? (wrapIdeAction ? new RefAction(action) : action)
                     : new UnknownAction(this);
         }
         return new PopupAction(

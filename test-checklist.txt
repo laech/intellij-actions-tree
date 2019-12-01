@@ -10,3 +10,6 @@
 
 - if action in popup conflicts with IDE prefix key, action in popup takes priority
   https://gitlab.com/lae/intellij-actions-tree/issues/4
+
+- root actions can be references to ordinary IDE actions
+  https://gitlab.com/lae/intellij-actions-tree/issues/15
