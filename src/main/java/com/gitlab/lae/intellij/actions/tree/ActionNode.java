@@ -52,7 +52,7 @@ public abstract class ActionNode {
 
     abstract boolean sticky();
 
-    abstract When when();
+    public abstract When when();
 
     public abstract List<KeyStroke> keys();
 
@@ -80,8 +80,7 @@ public abstract class ActionNode {
                 actionManager,
                 popupManager,
                 popupFactory,
-                dataManager,
-                false
+                dataManager
         );
         ActionPresentation presentation = ActionPresentation.create(
                 action,
@@ -94,16 +93,15 @@ public abstract class ActionNode {
     }
 
     public AnAction toAction(
-            ActionManager mgr,
+            ActionManager actionManager,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
-            DataManager dataManager,
-            boolean wrapIdeAction
+            DataManager dataManager
     ) {
         if (items().isEmpty()) {
-            AnAction action = mgr.getAction(id());
+            AnAction action = actionManager.getAction(id());
             return action != null
-                    ? (wrapIdeAction ? new RefAction(action) : action)
+                    ? action
                     : new UnknownAction(this);
         }
         return new PopupAction(
