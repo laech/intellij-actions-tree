@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE;
 import static com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
@@ -27,6 +28,18 @@ public abstract class When implements Predicate<DataContext> {
         @Override
         public String toString() {
             return "When.ALWAYS";
+        }
+    };
+
+    public static final When NEVER = new When() {
+        @Override
+        public boolean test(DataContext context) {
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return "When.NEVER";
         }
     };
 
@@ -53,12 +66,12 @@ public abstract class When implements Predicate<DataContext> {
         throw new IllegalArgumentException(input);
     }
 
-    public static When or(When... clauses) {
-        return new AutoValue_When_Or(unmodifiableList(asList(clauses)));
+    public static When any(When... clauses) {
+        return new AutoValue_When_Any(unmodifiableList(asList(clauses)));
     }
 
-    public static When and(When... clauses) {
-        return new AutoValue_When_And(unmodifiableList(asList(clauses)));
+    public static When all(When... clauses) {
+        return new AutoValue_When_All(unmodifiableList(asList(clauses)));
     }
 
     public static When toolWindow(String title) {
@@ -66,11 +79,11 @@ public abstract class When implements Predicate<DataContext> {
     }
 
     public static When fileExt(String ext) {
-        return new AutoValue_When_ToolWindow(ext);
+        return new AutoValue_When_FileExt(ext);
     }
 
     @AutoValue
-    static abstract class Or extends When {
+    static abstract class Any extends When {
         abstract List<When> clauses();
 
         @Override
@@ -80,7 +93,7 @@ public abstract class When implements Predicate<DataContext> {
     }
 
     @AutoValue
-    static abstract class And extends When {
+    static abstract class All extends When {
         abstract List<When> clauses();
 
         @Override
@@ -107,7 +120,7 @@ public abstract class When implements Predicate<DataContext> {
 
         @Override
         public boolean test(DataContext context) {
-            VirtualFile file = context.getData(PlatformDataKeys.VIRTUAL_FILE);
+            VirtualFile file = context.getData(VIRTUAL_FILE);
             return file != null && ext().equals(file.getExtension());
         }
     }

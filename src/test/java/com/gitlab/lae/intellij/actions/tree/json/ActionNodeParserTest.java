@@ -95,9 +95,9 @@ public final class ActionNodeParserTest {
                         "c",
                         null,
                         false,
-                        When.or(
+                        When.any(
                                 When.fileExt("txt"),
-                                When.and(
+                                When.all(
                                         When.toolWindow("Run"),
                                         When.fileExt("java")
                                 )
