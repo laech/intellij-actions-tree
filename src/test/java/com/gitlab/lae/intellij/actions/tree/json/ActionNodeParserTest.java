@@ -2,9 +2,7 @@ package com.gitlab.lae.intellij.actions.tree.json;
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode;
 import com.gitlab.lae.intellij.actions.tree.When;
-import org.junit.Rule;
 import org.junit.Test;
-import stack.source.junit4.ErrorDecorator;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,9 +17,6 @@ import static javax.swing.KeyStroke.getKeyStroke;
 import static org.junit.Assert.assertEquals;
 
 public final class ActionNodeParserTest {
-
-    @Rule
-    public final ErrorDecorator errorDecorator = new ErrorDecorator();
 
     @Test
     public void deserialization() throws Exception {
