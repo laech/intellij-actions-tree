@@ -24,9 +24,9 @@
     {
       "name": "c",
       "when": {
-        "or": [
+        "any": [
           "FileExt(txt)",
-          {"and": ["ToolWindow(Run)", "FileExt(java)"]}
+          {"all": ["ToolWindow(Run)", "FileExt(java)"]}
         ]
       }
     }

@@ -85,14 +85,14 @@ public final class ActionNodeParser {
                             "element: " + object);
         }
 
-        JsonElement or = object.remove("or");
-        if (or != null) {
-            return When.any(processWhens(or.getAsJsonArray()));
+        JsonElement any = object.remove("any");
+        if (any != null) {
+            return When.any(processWhens(any.getAsJsonArray()));
         }
 
-        JsonElement and = object.remove("and");
-        if (and != null) {
-            return When.all(processWhens(and.getAsJsonArray()));
+        JsonElement all = object.remove("all");
+        if (all != null) {
+            return When.all(processWhens(all.getAsJsonArray()));
         }
 
         throw new IllegalArgumentException(
