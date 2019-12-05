@@ -41,9 +41,9 @@ public final class RootActionTest {
 
     @Test
     public void mergesRootActions() {
-        AnAction cut = mock(AnAction.class, "cut");
-        AnAction copy = mock(AnAction.class, "copy");
-        AnAction paste = mock(AnAction.class, "paste");
+        AnAction cut = new EmptyAction("cut", null, null);
+        AnAction copy = new EmptyAction("copy", null, null);
+        AnAction paste = new EmptyAction("paste", null, null);
         ActionManager actionManager = mock(ActionManager.class);
         when(actionManager.getAction(ACTION_CUT)).thenReturn(cut);
         when(actionManager.getAction(ACTION_COPY)).thenReturn(copy);
@@ -51,7 +51,11 @@ public final class RootActionTest {
 
         List<RootAction> actual = RootAction.merge(
                 asList(
-                        newActionNode(ACTION_CUT, When.ALWAYS, getKeyStroke('a')),
+                        newActionNode(
+                                ACTION_CUT,
+                                When.ALWAYS,
+                                getKeyStroke('a')
+                        ),
                         newActionNode(
                                 ACTION_COPY,
                                 When.toolWindow("Project"),
@@ -83,7 +87,10 @@ public final class RootActionTest {
                 new RootAction(
                         "ActionsTree.1",
                         singletonList(getKeyStroke('b')),
-                        singletonList(Pair.create(copy, When.toolWindow("Project")))
+                        singletonList(Pair.create(
+                                copy,
+                                When.toolWindow("Project")
+                        ))
                 ),
                 new RootAction(
                         "ActionsTree.2",
