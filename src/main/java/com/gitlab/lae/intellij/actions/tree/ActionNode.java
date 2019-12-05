@@ -112,6 +112,14 @@ public abstract class ActionNode {
         );
     }
 
+    /**
+     * Prepares the child items for the given context.
+     * <p>
+     * Returns a list of key strokes and actions pairs.
+     * If multiple actions were mapped to the same key strokes originally,
+     * then the last action whose {@link ActionNode#when()} evaluates to true
+     * will be chosen.
+     */
     public List<Pair<List<KeyStroke>, ActionNode>> prepare(DataContext context) {
         Set<KeyStroke> registered = new HashSet<>();
         List<Pair<List<KeyStroke>, ActionNode>> result = new ArrayList<>();
