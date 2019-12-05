@@ -2,7 +2,6 @@ package com.gitlab.lae.intellij.actions.tree;
 
 import com.google.auto.value.AutoValue;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.util.List;
@@ -110,7 +109,7 @@ public abstract class When implements Predicate<DataContext> {
         public boolean test(DataContext context) {
             com.intellij.openapi.wm.ToolWindow window =
                     context.getData(TOOL_WINDOW);
-            return window != null && title().equals(window.getTitle());
+            return window != null && title().equals(window.getStripeTitle());
         }
     }
 

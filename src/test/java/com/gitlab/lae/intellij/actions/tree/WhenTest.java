@@ -53,10 +53,10 @@ public final class WhenTest {
         when(context.getData(TOOL_WINDOW)).thenReturn(toolWindow);
 
         When when = When.toolWindow("Project");
-        when(toolWindow.getTitle()).thenReturn("Project");
+        when(toolWindow.getStripeTitle()).thenReturn("Project");
         assertTrue(when.test(context));
 
-        when(toolWindow.getTitle()).thenReturn("Test");
+        when(toolWindow.getStripeTitle()).thenReturn("Test");
         assertFalse(when.test(context));
     }
 }
