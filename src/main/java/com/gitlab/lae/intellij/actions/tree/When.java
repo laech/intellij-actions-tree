@@ -51,6 +51,7 @@ public abstract class When implements Predicate<DataContext> {
         String arg = parts[1];
         switch (type) {
             case "ToolWindow": return toolWindow(arg);
+            case "ToolWindowTab": return toolWindowTab(arg);
             case "FileExt": return fileExt(arg);
         }
         throw new IllegalArgumentException(input);
@@ -66,6 +67,10 @@ public abstract class When implements Predicate<DataContext> {
 
     public static When toolWindow(String titleRegex) {
         return new AutoValue_When_ToolWindow(Pattern.compile(titleRegex));
+    }
+
+    public static When toolWindowTab(String tabTitleRegex) {
+        return new AutoValue_When_ToolWindowTab(Pattern.compile(tabTitleRegex));
     }
 
     public static When fileExt(String extRegex) {
@@ -131,6 +136,16 @@ public abstract class When implements Predicate<DataContext> {
             com.intellij.openapi.wm.ToolWindow window =
                     context.getData(TOOL_WINDOW);
             return window != null ? window.getStripeTitle() : null;
+        }
+    }
+
+    @AutoValue
+    static abstract class ToolWindowTab extends Regex {
+        @Override
+        String value(DataContext context) {
+            com.intellij.openapi.wm.ToolWindow window =
+                    context.getData(TOOL_WINDOW);
+            return window != null ? window.getTitle() : null;
         }
     }
 

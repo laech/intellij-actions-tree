@@ -59,4 +59,18 @@ public final class WhenTest {
         when(toolWindow.getStripeTitle()).thenReturn("Test");
         assertFalse(when.test(context));
     }
+
+    @Test
+    public void toolWindowTab() {
+        ToolWindow toolWindow = mock(ToolWindow.class);
+        DataContext context = mock(DataContext.class);
+        when(context.getData(TOOL_WINDOW)).thenReturn(toolWindow);
+
+        When when = When.toolWindowTab("Project");
+        when(toolWindow.getTitle()).thenReturn("Project");
+        assertTrue(when.test(context));
+
+        when(toolWindow.getTitle()).thenReturn("Test");
+        assertFalse(when.test(context));
+    }
 }
