@@ -38,7 +38,7 @@ public final class WhenTest {
         DataContext context = mock(DataContext.class);
         when(context.getData(VIRTUAL_FILE)).thenReturn(file);
 
-        When when = When.fileExt("txt");
+        When when = When.fileExtension("txt");
         when(file.getExtension()).thenReturn("txt");
         assertTrue(when.test(context));
 
@@ -52,8 +52,12 @@ public final class WhenTest {
         DataContext context = mock(DataContext.class);
         when(context.getData(TOOL_WINDOW)).thenReturn(toolWindow);
 
-        When when = When.toolWindow("Project");
+        When when = When.toolWindowActive("Project");
         when(toolWindow.getStripeTitle()).thenReturn("Project");
+        when(toolWindow.isActive()).thenReturn(false);
+        assertFalse(when.test(context));
+
+        when(toolWindow.isActive()).thenReturn(true);
         assertTrue(when.test(context));
 
         when(toolWindow.getStripeTitle()).thenReturn("Test");
@@ -66,8 +70,12 @@ public final class WhenTest {
         DataContext context = mock(DataContext.class);
         when(context.getData(TOOL_WINDOW)).thenReturn(toolWindow);
 
-        When when = When.toolWindowTab("Project");
+        When when = When.toolWindowTabActive("Project");
         when(toolWindow.getTitle()).thenReturn("Project");
+        when(toolWindow.isActive()).thenReturn(false);
+        assertFalse(when.test(context));
+
+        when(toolWindow.isActive()).thenReturn(true);
         assertTrue(when.test(context));
 
         when(toolWindow.getTitle()).thenReturn("Test");

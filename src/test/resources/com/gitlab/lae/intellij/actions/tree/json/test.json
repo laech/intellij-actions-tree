@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "when": "ToolWindow:Project",
+      "when": "ToolWindowActive:Project",
       "keys": ["ctrl C"],
       "items": [
         {
@@ -16,7 +16,7 @@
     {
       "name": "b",
       "keys": ["ctrl X"],
-      "when": "FileExt:java",
+      "when": "FileExtension:java",
       "items": [
         {"keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries", "sticky": true}
       ]
@@ -25,8 +25,8 @@
       "name": "c",
       "when": {
         "any": [
-          "FileExt:txt",
-          {"all": ["ToolWindow:Run", "FileExt:java"]}
+          "FileExtension:txt",
+          {"all": ["ToolWindowActive:Run", "FileExtension:java"]}
         ]
       }
     }

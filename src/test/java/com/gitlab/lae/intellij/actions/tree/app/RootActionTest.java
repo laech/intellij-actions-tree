@@ -90,13 +90,13 @@ public final class RootActionTest {
                         ),
                         newActionNode(
                                 ACTION_COPY,
-                                When.toolWindow("Project"),
+                                When.toolWindowActive("Project"),
                                 getKeyStroke('a'),
                                 getKeyStroke('b')
                         ),
                         newActionNode(
                                 ACTION_PASTE,
-                                When.fileExt("txt"),
+                                When.fileExtension("txt"),
                                 getKeyStroke('x'),
                                 getKeyStroke('y')
                         )
@@ -112,7 +112,7 @@ public final class RootActionTest {
                         "ActionsTree.0",
                         singletonList(getKeyStroke('a')),
                         asList(
-                                Pair.create(copy, When.toolWindow("Project")),
+                                Pair.create(copy, When.toolWindowActive("Project")),
                                 Pair.create(cut, When.ALWAYS)
                         )
                 ),
@@ -121,13 +121,13 @@ public final class RootActionTest {
                         singletonList(getKeyStroke('b')),
                         singletonList(Pair.create(
                                 copy,
-                                When.toolWindow("Project")
+                                When.toolWindowActive("Project")
                         ))
                 ),
                 new RootAction(
                         "ActionsTree.2",
                         asList(getKeyStroke('x'), getKeyStroke('y')),
-                        singletonList(Pair.create(paste, When.fileExt("txt")))
+                        singletonList(Pair.create(paste, When.fileExtension("txt")))
                 )
         );
 

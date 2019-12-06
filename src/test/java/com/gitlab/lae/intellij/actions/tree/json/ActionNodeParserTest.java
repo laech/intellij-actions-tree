@@ -26,7 +26,7 @@ public final class ActionNodeParserTest {
                         "Unnamed",
                         null,
                         false,
-                        When.toolWindow("Project"),
+                        When.toolWindowActive("Project"),
                         singletonList(getKeyStroke("ctrl C")),
                         singletonList(
                                 ActionNode.create(
@@ -71,7 +71,7 @@ public final class ActionNodeParserTest {
                         "b",
                         null,
                         false,
-                        When.fileExt("java"),
+                        When.fileExtension("java"),
                         singletonList(getKeyStroke("ctrl X")),
                         singletonList(
                                 ActionNode.create(
@@ -91,10 +91,10 @@ public final class ActionNodeParserTest {
                         null,
                         false,
                         When.any(
-                                When.fileExt("txt"),
+                                When.fileExtension("txt"),
                                 When.all(
-                                        When.toolWindow("Run"),
-                                        When.fileExt("java")
+                                        When.toolWindowActive("Run"),
+                                        When.fileExtension("java")
                                 )
                         ),
                         emptyList(),

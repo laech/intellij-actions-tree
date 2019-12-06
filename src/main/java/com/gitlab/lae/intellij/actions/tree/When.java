@@ -3,6 +3,7 @@ package com.gitlab.lae.intellij.actions.tree;
 import com.google.auto.value.AutoValue;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindow;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -50,9 +51,9 @@ public abstract class When implements Predicate<DataContext> {
         String type = parts[0];
         String arg = parts[1];
         switch (type) {
-            case "ToolWindow": return toolWindow(arg);
-            case "ToolWindowTab": return toolWindowTab(arg);
-            case "FileExt": return fileExt(arg);
+            case "ToolWindowActive": return toolWindowActive(arg);
+            case "ToolWindowTabActive": return toolWindowTabActive(arg);
+            case "FileExtension": return fileExtension(arg);
         }
         throw new IllegalArgumentException(input);
     }
@@ -65,16 +66,17 @@ public abstract class When implements Predicate<DataContext> {
         return new AutoValue_When_All(unmodifiableList(asList(clauses)));
     }
 
-    public static When toolWindow(String titleRegex) {
-        return new AutoValue_When_ToolWindow(Pattern.compile(titleRegex));
+    public static When toolWindowActive(String titleRegex) {
+        return new AutoValue_When_ToolWindowActive(Pattern.compile(titleRegex));
     }
 
-    public static When toolWindowTab(String tabTitleRegex) {
-        return new AutoValue_When_ToolWindowTab(Pattern.compile(tabTitleRegex));
+    public static When toolWindowTabActive(String tabTitleRegex) {
+        return new AutoValue_When_ToolWindowTabActive(
+                Pattern.compile(tabTitleRegex));
     }
 
-    public static When fileExt(String extRegex) {
-        return new AutoValue_When_FileExt(Pattern.compile(extRegex));
+    public static When fileExtension(String extRegex) {
+        return new AutoValue_When_FileExtension(Pattern.compile(extRegex));
     }
 
     @AutoValue
@@ -130,27 +132,29 @@ public abstract class When implements Predicate<DataContext> {
     }
 
     @AutoValue
-    static abstract class ToolWindow extends Regex {
+    static abstract class ToolWindowActive extends Regex {
         @Override
         String value(DataContext context) {
-            com.intellij.openapi.wm.ToolWindow window =
-                    context.getData(TOOL_WINDOW);
-            return window != null ? window.getStripeTitle() : null;
+            ToolWindow window = context.getData(TOOL_WINDOW);
+            return window != null && window.isActive()
+                    ? window.getStripeTitle()
+                    : null;
         }
     }
 
     @AutoValue
-    static abstract class ToolWindowTab extends Regex {
+    static abstract class ToolWindowTabActive extends Regex {
         @Override
         String value(DataContext context) {
-            com.intellij.openapi.wm.ToolWindow window =
-                    context.getData(TOOL_WINDOW);
-            return window != null ? window.getTitle() : null;
+            ToolWindow window = context.getData(TOOL_WINDOW);
+            return window != null && window.isActive()
+                    ? window.getTitle()
+                    : null;
         }
     }
 
     @AutoValue
-    static abstract class FileExt extends Regex {
+    static abstract class FileExtension extends Regex {
         @Override
         String value(DataContext context) {
             VirtualFile file = context.getData(VIRTUAL_FILE);
