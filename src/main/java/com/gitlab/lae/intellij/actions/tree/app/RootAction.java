@@ -108,11 +108,8 @@ final class RootAction extends AnAction {
          * active, disabling the action correctly allows this behaviour.
          */
         Optional<AnAction> action = findAction(e);
-        if (action.isPresent()) {
-            action.get().update(e);
-        } else {
-            e.getPresentation().setEnabled(false);
-        }
+        e.getPresentation().setEnabled(action.isPresent());
+        action.ifPresent(it -> it.update(e));
     }
 
     @Override

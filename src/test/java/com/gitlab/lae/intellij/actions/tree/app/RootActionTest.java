@@ -15,14 +15,35 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static javax.swing.KeyStroke.getKeyStroke;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public final class RootActionTest {
 
+    private static final class EnableAction extends AnAction {
+        boolean enabled;
+
+        @Override
+        public void update(AnActionEvent e) {
+            super.update(e);
+            e.getPresentation().setEnabled(enabled);
+        }
+
+        @Override
+        public void actionPerformed(AnActionEvent e) {
+        }
+    }
+
     @Test
-    public void disablePresentationIfNoSuitableActionFound() {
-        RootAction action = new RootAction("id", emptyList(), emptyList());
+    public void disableOPresentationIfNoSuitableActionFound() {
+        EnableAction enable = new EnableAction();
+        When when = mock(When.class);
+        RootAction action = new RootAction(
+                "id",
+                emptyList(),
+                singletonList(Pair.create(enable, when))
+        );
         Presentation presentation = new Presentation();
         presentation.setEnabled(true);
         AnActionEvent event = new AnActionEvent(
@@ -35,6 +56,17 @@ public final class RootActionTest {
         );
 
         assertTrue(presentation.isEnabled());
+
+        enable.enabled = true;
+        when(when.test(any())).thenReturn(false);
+        action.update(event);
+        assertFalse(presentation.isEnabled());
+
+        when(when.test(any())).thenReturn(true);
+        action.update(event);
+        assertTrue(presentation.isEnabled());
+
+        enable.enabled = false;
         action.update(event);
         assertFalse(presentation.isEnabled());
     }
