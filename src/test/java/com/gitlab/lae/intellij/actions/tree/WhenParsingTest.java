@@ -14,8 +14,8 @@ public final class WhenParsingTest {
     @Parameters(name = "{0}")
     public static Object[][] parameters() {
         return new Object[][]{
-                {"ToolWindow(Project)", When.toolWindow("Project")},
-                {"FileExt(rs)", When.fileExt("rs")},
+                {"ToolWindow:Project", When.toolWindow("Project")},
+                {"FileExt:rs", When.fileExt("rs")},
         };
     }
 

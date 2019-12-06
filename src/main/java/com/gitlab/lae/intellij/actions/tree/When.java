@@ -6,7 +6,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE;
@@ -42,25 +41,17 @@ public abstract class When implements Predicate<DataContext> {
         }
     };
 
-    private static final Pattern PATTERN =
-            Pattern.compile("" +
-                    "^" +
-                    "(?<type>[^(]+)" +
-                    "\\(" +
-                    "(?<arg>[^)]+)" +
-                    "\\)" +
-                    "$"
-            );
-
     public static When parse(String input) {
-        Matcher matcher = PATTERN.matcher(input);
-        if (matcher.matches()) {
-            String type = matcher.group("type");
-            String arg = matcher.group("arg");
-            switch (type) {
-                case "ToolWindow": return toolWindow(arg);
-                case "FileExt": return fileExt(arg);
-            }
+        String[] parts = input.split(":", 2);
+        if (parts.length != 2) {
+            throw new IllegalArgumentException(
+                    "Invalid 'when' pattern: " + input);
+        }
+        String type = parts[0];
+        String arg = parts[1];
+        switch (type) {
+            case "ToolWindow": return toolWindow(arg);
+            case "FileExt": return fileExt(arg);
         }
         throw new IllegalArgumentException(input);
     }
@@ -73,12 +64,12 @@ public abstract class When implements Predicate<DataContext> {
         return new AutoValue_When_All(unmodifiableList(asList(clauses)));
     }
 
-    public static When toolWindow(String title) {
-        return new AutoValue_When_ToolWindow(title);
+    public static When toolWindow(String titleRegex) {
+        return new AutoValue_When_ToolWindow(Pattern.compile(titleRegex));
     }
 
-    public static When fileExt(String ext) {
-        return new AutoValue_When_FileExt(ext);
+    public static When fileExt(String extRegex) {
+        return new AutoValue_When_FileExt(Pattern.compile(extRegex));
     }
 
     @AutoValue
@@ -101,26 +92,54 @@ public abstract class When implements Predicate<DataContext> {
         }
     }
 
-    @AutoValue
-    static abstract class ToolWindow extends When {
-        abstract String title();
+    static abstract class Regex extends When {
+
+        abstract Pattern regex();
+
+        abstract String value(DataContext context);
 
         @Override
         public boolean test(DataContext context) {
-            com.intellij.openapi.wm.ToolWindow window =
-                    context.getData(TOOL_WINDOW);
-            return window != null && title().equals(window.getStripeTitle());
+            String value = value(context);
+            if (value == null) {
+                return false;
+            }
+            return regex().matcher(value).matches();
+        }
+
+        @Override
+        public int hashCode() {
+            return regex().pattern().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (obj.getClass() != getClass()) {
+                return false;
+            }
+            return regex().pattern().equals(((Regex) obj).regex().pattern());
         }
     }
 
     @AutoValue
-    static abstract class FileExt extends When {
-        abstract String ext();
-
+    static abstract class ToolWindow extends Regex {
         @Override
-        public boolean test(DataContext context) {
+        String value(DataContext context) {
+            com.intellij.openapi.wm.ToolWindow window =
+                    context.getData(TOOL_WINDOW);
+            return window != null ? window.getStripeTitle() : null;
+        }
+    }
+
+    @AutoValue
+    static abstract class FileExt extends Regex {
+        @Override
+        String value(DataContext context) {
             VirtualFile file = context.getData(VIRTUAL_FILE);
-            return file != null && ext().equals(file.getExtension());
+            return file != null ? file.getExtension() : null;
         }
     }
 }
