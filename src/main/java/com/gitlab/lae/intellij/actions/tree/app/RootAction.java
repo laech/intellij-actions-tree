@@ -2,6 +2,7 @@ package com.gitlab.lae.intellij.actions.tree.app;
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode;
 import com.gitlab.lae.intellij.actions.tree.When;
+import com.gitlab.lae.intellij.actions.tree.util.Actions;
 import com.google.common.collect.ImmutableList;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.IdePopupManager;
@@ -37,6 +38,9 @@ final class RootAction extends AnAction {
         super.setShortcutSet(new CustomShortcutSet(keyStrokes.stream()
                 .map(it -> new KeyboardShortcut(it, null))
                 .toArray(Shortcut[]::new)));
+
+        setEnabledInModalContext(actions.stream()
+                .anyMatch(it -> it.first.isEnabledInModalContext()));
     }
 
     @Override
@@ -109,7 +113,10 @@ final class RootAction extends AnAction {
          */
         Optional<AnAction> action = findAction(e);
         e.getPresentation().setEnabled(action.isPresent());
-        action.ifPresent(it -> it.update(e));
+        action.ifPresent(it -> {
+            it.update(e);
+            Actions.setEnabledModalContext(e, it);
+        });
     }
 
     @Override

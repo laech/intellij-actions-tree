@@ -36,7 +36,7 @@ public final class RootActionTest {
     }
 
     @Test
-    public void disableOPresentationIfNoSuitableActionFound() {
+    public void disablesPresentationIfNoSuitableActionFound() {
         EnableAction enable = new EnableAction();
         When when = mock(When.class);
         RootAction action = new RootAction(
@@ -112,7 +112,10 @@ public final class RootActionTest {
                         "ActionsTree.0",
                         singletonList(getKeyStroke('a')),
                         asList(
-                                Pair.create(copy, When.toolWindowActive("Project")),
+                                Pair.create(
+                                        copy,
+                                        When.toolWindowActive("Project")
+                                ),
                                 Pair.create(cut, When.ALWAYS)
                         )
                 ),
@@ -127,7 +130,10 @@ public final class RootActionTest {
                 new RootAction(
                         "ActionsTree.2",
                         asList(getKeyStroke('x'), getKeyStroke('y')),
-                        singletonList(Pair.create(paste, When.fileExtension("txt")))
+                        singletonList(Pair.create(
+                                paste,
+                                When.fileExtension("txt")
+                        ))
                 )
         );
 
@@ -148,5 +154,28 @@ public final class RootActionTest {
                 asList(keyStrokes),
                 emptyList()
         );
+    }
+
+    private static final class ModalAction extends AnAction {
+        ModalAction(boolean enableInModalContext) {
+            setEnabledInModalContext(enableInModalContext);
+        }
+
+        @Override
+        public void actionPerformed(AnActionEvent e) {
+        }
+    }
+
+    @Test
+    public void enableInModalIfAnyActionSupportsModal() {
+        assertTrue(new RootAction("id", emptyList(), asList(
+                Pair.create(new ModalAction(true), When.NEVER),
+                Pair.create(new ModalAction(false), When.NEVER)
+        )).isEnabledInModalContext());
+
+        assertFalse(new RootAction("id", emptyList(), asList(
+                Pair.create(new ModalAction(false), When.NEVER),
+                Pair.create(new ModalAction(false), When.NEVER)
+        )).isEnabledInModalContext());
     }
 }

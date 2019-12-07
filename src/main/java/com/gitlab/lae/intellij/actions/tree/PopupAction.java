@@ -27,6 +27,7 @@ final class PopupAction extends AnAction implements DumbAware {
         this.popupManager = requireNonNull(popupManager);
         this.popupFactory = requireNonNull(popupFactory);
         this.dataManager = requireNonNull(dataManager);
+        setEnabledInModalContext(true);
     }
 
     @Override
