@@ -17,6 +17,7 @@ public final class WhenParsingTest {
                 {"ToolWindowActive:Project", When.toolWindowActive("Project")},
                 {"ToolWindowTabActive:Log", When.toolWindowTabActive("Log")},
                 {"FileExtension:rs", When.fileExtension("rs")},
+                {"!FileExtension:rs", When.not(When.fileExtension("rs"))},
         };
     }
 

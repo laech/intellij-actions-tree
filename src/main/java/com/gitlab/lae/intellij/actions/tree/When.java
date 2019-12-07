@@ -3,8 +3,11 @@ package com.gitlab.lae.intellij.actions.tree;
 import com.google.auto.value.AutoValue;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.openapi.wm.ToolWindow;
 
+import javax.swing.text.JTextComponent;
+import java.awt.*;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -42,11 +45,36 @@ public abstract class When implements Predicate<DataContext> {
         }
     };
 
+    static final When INPUT_FOCUSED = new When() {
+        @Override
+        public boolean test(DataContext context) {
+            IdeFocusManager focusManager =
+                    IdeFocusManager.findInstanceByContext(context);
+            Component component = focusManager.getFocusOwner();
+            return component instanceof JTextComponent &&
+                    ((JTextComponent) component).isEditable();
+        }
+
+        @Override
+        public String toString() {
+            return "When.INPUT_FOCUSED";
+        }
+    };
+
     public static When parse(String input) {
+        return input.startsWith("!")
+                ? When.not(doParse(input.substring(1)))
+                : doParse(input);
+    }
+
+    private static When doParse(String input) {
+        if (input.equals("InputFocused")) {
+            return INPUT_FOCUSED;
+        }
         String[] parts = input.split(":", 2);
         if (parts.length != 2) {
             throw new IllegalArgumentException(
-                    "Invalid 'when' pattern: " + input);
+                    "Invalid 'when' pattern: '" + input + "'");
         }
         String type = parts[0];
         String arg = parts[1];
@@ -79,6 +107,10 @@ public abstract class When implements Predicate<DataContext> {
         return new AutoValue_When_FileExtension(Pattern.compile(extRegex));
     }
 
+    public static When not(When when) {
+        return new AutoValue_When_Not(when);
+    }
+
     @AutoValue
     static abstract class Any extends When {
         abstract List<When> clauses();
@@ -96,6 +128,16 @@ public abstract class When implements Predicate<DataContext> {
         @Override
         public boolean test(DataContext context) {
             return clauses().stream().allMatch(p -> p.test(context));
+        }
+    }
+
+    @AutoValue
+    static abstract class Not extends When {
+        abstract When when();
+
+        @Override
+        public boolean test(DataContext context) {
+            return !when().test(context);
         }
     }
 
