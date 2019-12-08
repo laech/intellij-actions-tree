@@ -20,6 +20,11 @@ import static java.nio.file.Files.newBufferedReader;
 import static java.util.stream.StreamSupport.stream;
 
 public final class ActionNodeParser {
+
+    private static final String WHEN = "when";
+    private static final String WHEN_ANY = "any";
+    private static final String WHEN_ALL = "all";
+
     private ActionNodeParser() {
     }
 
@@ -50,7 +55,7 @@ public final class ActionNodeParser {
         String sep = removeString(o, "separator-above", () -> null);
         String name = removeString(o, "name", () -> "Unnamed");
         boolean sticky = removeBoolean(o, "sticky", () -> false);
-        When when = processWhen(o.remove("when"));
+        When when = processWhen(o.remove(WHEN));
 
         List<KeyStroke> keys =
                 removeArray(o, "keys", ActionNodeParser::toKeyStroke);
@@ -76,28 +81,31 @@ public final class ActionNodeParser {
 
         JsonObject object = element.getAsJsonObject();
         if (object.keySet().isEmpty()) {
-            throw new IllegalArgumentException("'when' object is empty");
+            throw new IllegalArgumentException(
+                    "'" + WHEN + "' object is empty");
         }
 
         if (object.keySet().size() != 1) {
-            throw new IllegalArgumentException(
-                    "'when' object must only have either 'or' or 'and' " +
-                            "element: " + object);
+            throw new IllegalArgumentException("" +
+                    "'" + WHEN + "' object must only have either " +
+                    "'" + WHEN_ANY + "' or " +
+                    "'" + WHEN_ALL + "' element: " + object);
         }
 
-        JsonElement any = object.remove("any");
+        JsonElement any = object.remove(WHEN_ANY);
         if (any != null) {
             return When.any(processWhens(any.getAsJsonArray()));
         }
 
-        JsonElement all = object.remove("all");
+        JsonElement all = object.remove(WHEN_ALL);
         if (all != null) {
             return When.all(processWhens(all.getAsJsonArray()));
         }
 
-        throw new IllegalArgumentException(
-                "'when' object must only have either 'or' or 'and' element: " +
-                        object);
+        throw new IllegalArgumentException("" +
+                "'" + WHEN + "' object must only have either " +
+                "'" + WHEN_ANY + "' or " +
+                "'" + WHEN_ALL + "' element: " + object);
     }
 
     private static When[] processWhens(JsonArray clauses) {
