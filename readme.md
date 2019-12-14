@@ -7,6 +7,8 @@ shortcut that is local to the list, doesn't conflict with other global
 shortcuts. This allows simulation of Emacs like prefix keys (n-level deep), so
 you are not restricted to IntelliJ keymap's maximum of two key strokes.
 
+![screenshot](screenshot.png)
+
 ## Configuration
 
 Configuration is done via a JSON file, set it under *Preferences | Keymap | Actions Tree*.
