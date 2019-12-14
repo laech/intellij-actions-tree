@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.AsyncResult;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.util.Consumer;
 
 import javax.swing.*;
@@ -33,6 +34,7 @@ final class Popup {
     private final ActionManager actionManager;
     private final Component sourceComponent;
     private final Editor sourceEditor;
+    private final IdeFocusManager focusManager;
     private final IdePopupManager popupManager;
     private final JBPopupFactory popupFactory;
     private final DataManager dataManager;
@@ -42,10 +44,12 @@ final class Popup {
     Popup(
             ActionNode action,
             AnActionEvent e,
+            IdeFocusManager focusManager,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
             DataManager dataManager
     ) {
+        this.focusManager = requireNonNull(focusManager);
         this.popupManager = requireNonNull(popupManager);
         this.popupFactory = requireNonNull(popupFactory);
         this.dataManager = requireNonNull(dataManager);
@@ -100,6 +104,7 @@ final class Popup {
         return action.createPresentation(
                 actionManager,
                 dataContext,
+                focusManager,
                 popupManager,
                 popupFactory,
                 dataManager,
@@ -198,8 +203,22 @@ final class Popup {
     }
 
     private void performAction(AnAction action, int modifiers) {
+        /*
+         * Wrapping with SwingUtilities.invokeLater()
+         * then IdeFocusManager.doWhenFocusSettlesDown()
+         * is required to get back to the pre-popup focus state
+         * before executing the action, as some action won't
+         * get executed correctly if focus is not restored, such
+         * as 'Goto next Splitter'.
+         */
         getDataContextAsync(dataContext ->
-                performAction(action, modifiers, dataContext));
+                SwingUtilities.invokeLater(() ->
+                        focusManager.doWhenFocusSettlesDown(() ->
+                                performAction(
+                                        action,
+                                        modifiers,
+                                        dataContext
+                                ))));
     }
 
     private void performAction(

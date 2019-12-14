@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.wm.IdeFocusManager;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
@@ -71,6 +72,7 @@ public abstract class ActionNode {
     ActionPresentation createPresentation(
             ActionManager actionManager,
             DataContext dataContext,
+            IdeFocusManager focusManager,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
             DataManager dataManager,
@@ -78,6 +80,7 @@ public abstract class ActionNode {
     ) {
         AnAction action = toAction(
                 actionManager,
+                focusManager,
                 popupManager,
                 popupFactory,
                 dataManager
@@ -94,6 +97,7 @@ public abstract class ActionNode {
 
     public AnAction toAction(
             ActionManager actionManager,
+            IdeFocusManager focusManager,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
             DataManager dataManager
@@ -106,6 +110,7 @@ public abstract class ActionNode {
         }
         return new PopupAction(
                 this,
+                focusManager,
                 popupManager,
                 popupFactory,
                 dataManager

@@ -7,6 +7,7 @@ import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.wm.IdeFocusManager;
 import org.junit.Test;
 
 import javax.swing.*;
@@ -90,6 +91,7 @@ public final class RootActionTest {
                         ))
                 )),
                 mock(ActionManager.class),
+                mock(IdeFocusManager.class),
                 new IdePopupManager(),
                 mock(JBPopupFactory.class),
                 mock(DataManager.class)
@@ -130,6 +132,7 @@ public final class RootActionTest {
                         )
                 ),
                 actionManager,
+                null,
                 null,
                 null,
                 null

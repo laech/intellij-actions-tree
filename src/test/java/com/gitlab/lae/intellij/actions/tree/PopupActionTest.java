@@ -3,6 +3,7 @@ package com.gitlab.lae.intellij.actions.tree;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.wm.IdeFocusManager;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -23,6 +24,7 @@ public final class PopupActionTest {
     private PopupAction newPopupAction() {
         return new PopupAction(
                 mock(ActionNode.class),
+                mock(IdeFocusManager.class),
                 new IdePopupManager(),
                 mock(JBPopupFactory.class),
                 mock(DataManager.class)

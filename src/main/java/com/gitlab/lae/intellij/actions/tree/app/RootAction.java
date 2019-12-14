@@ -9,6 +9,7 @@ import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.wm.IdeFocusManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -143,6 +144,7 @@ final class RootAction extends AnAction {
     static List<RootAction> merge(
             Collection<ActionNode> actions,
             ActionManager actionManager,
+            IdeFocusManager focusManager,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
             DataManager dataManager
@@ -190,6 +192,7 @@ final class RootAction extends AnAction {
                     .map(it -> Pair.create(
                             it.toAction(
                                     actionManager,
+                                    focusManager,
                                     popupManager,
                                     popupFactory,
                                     dataManager
