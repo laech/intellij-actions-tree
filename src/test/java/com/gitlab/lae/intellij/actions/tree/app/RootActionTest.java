@@ -2,7 +2,10 @@ package com.gitlab.lae.intellij.actions.tree.app;
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode;
 import com.gitlab.lae.intellij.actions.tree.When;
+import com.intellij.ide.DataManager;
+import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Pair;
 import org.junit.Test;
 
@@ -72,6 +75,30 @@ public final class RootActionTest {
     }
 
     @Test
+    public void mergingMaintainsCustomActionGroupsIds() {
+        String id = "my-custom-group-id";
+        List<RootAction> actual = RootAction.merge(
+                singletonList(newActionNode(
+                        id,
+                        When.ALWAYS,
+                        singletonList(getKeyStroke("X")),
+                        singletonList(newActionNode(
+                                "bob",
+                                When.ALWAYS,
+                                emptyList(),
+                                emptyList()
+                        ))
+                )),
+                mock(ActionManager.class),
+                new IdePopupManager(),
+                mock(JBPopupFactory.class),
+                mock(DataManager.class)
+        );
+        assertEquals(1, actual.size());
+        assertEquals(id, actual.get(0).getId());
+    }
+
+    @Test
     public void mergesRootActions() {
         AnAction cut = new EmptyAction("cut", null, null);
         AnAction copy = new EmptyAction("copy", null, null);
@@ -86,19 +113,20 @@ public final class RootActionTest {
                         newActionNode(
                                 ACTION_CUT,
                                 When.ALWAYS,
-                                getKeyStroke('a')
+                                singletonList(getKeyStroke('a')),
+                                emptyList()
                         ),
                         newActionNode(
                                 ACTION_COPY,
                                 When.toolWindowActive("Project"),
-                                getKeyStroke('a'),
-                                getKeyStroke('b')
+                                asList(getKeyStroke('a'), getKeyStroke('b')),
+                                emptyList()
                         ),
                         newActionNode(
                                 ACTION_PASTE,
                                 When.fileExtension("txt"),
-                                getKeyStroke('x'),
-                                getKeyStroke('y')
+                                asList(getKeyStroke('x'), getKeyStroke('y')),
+                                emptyList()
                         )
                 ),
                 actionManager,
@@ -109,7 +137,7 @@ public final class RootActionTest {
 
         List<RootAction> expected = asList(
                 new RootAction(
-                        "ActionsTree.0",
+                        "ActionsTree.Root.0",
                         singletonList(getKeyStroke('a')),
                         asList(
                                 Pair.create(
@@ -120,7 +148,7 @@ public final class RootActionTest {
                         )
                 ),
                 new RootAction(
-                        "ActionsTree.1",
+                        "ActionsTree.Root.1",
                         singletonList(getKeyStroke('b')),
                         singletonList(Pair.create(
                                 copy,
@@ -128,7 +156,7 @@ public final class RootActionTest {
                         ))
                 ),
                 new RootAction(
-                        "ActionsTree.2",
+                        "ActionsTree.Root.2",
                         asList(getKeyStroke('x'), getKeyStroke('y')),
                         singletonList(Pair.create(
                                 paste,
@@ -143,7 +171,8 @@ public final class RootActionTest {
     private static ActionNode newActionNode(
             String id,
             When when,
-            KeyStroke... keyStrokes
+            List<KeyStroke> keyStrokes,
+            List<ActionNode> items
     ) {
         return ActionNode.create(
                 id,
@@ -151,8 +180,8 @@ public final class RootActionTest {
                 null,
                 false,
                 when,
-                asList(keyStrokes),
-                emptyList()
+                keyStrokes,
+                items
         );
     }
 

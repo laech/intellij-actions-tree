@@ -51,7 +51,7 @@ public final class ActionNodeParser {
             IntSupplier seq
     ) {
         JsonObject o = element.getAsJsonObject();
-        String id = removeString(o, "id", () -> "ActionsTree" + seq.getAsInt());
+        String id = removeString(o, "id", () -> "ActionsTree.Node." + seq.getAsInt());
         String sep = removeString(o, "separator-above", () -> null);
         String name = removeString(o, "name", () -> "Unnamed");
         boolean sticky = removeBoolean(o, "sticky", () -> false);

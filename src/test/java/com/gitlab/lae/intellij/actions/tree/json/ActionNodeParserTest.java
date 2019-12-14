@@ -22,7 +22,7 @@ public final class ActionNodeParserTest {
     public void deserialization() throws Exception {
         List<ActionNode> expected = asList(
                 ActionNode.create(
-                        "ActionsTree1",
+                        "ActionsTree.Node.1",
                         "Unnamed",
                         null,
                         false,
@@ -30,7 +30,7 @@ public final class ActionNodeParserTest {
                         singletonList(getKeyStroke("ctrl C")),
                         singletonList(
                                 ActionNode.create(
-                                        "ActionsTree2",
+                                        "ActionsTree.Node.2",
                                         "Unnamed",
                                         null,
                                         false,
@@ -67,7 +67,7 @@ public final class ActionNodeParserTest {
                         )
                 ),
                 ActionNode.create(
-                        "ActionsTree3",
+                        "ActionsTree.Node.3",
                         "b",
                         null,
                         false,
@@ -86,7 +86,7 @@ public final class ActionNodeParserTest {
                         )
                 ),
                 ActionNode.create(
-                        "ActionsTree4",
+                        "ActionsTree.Node.4",
                         "c",
                         null,
                         false,

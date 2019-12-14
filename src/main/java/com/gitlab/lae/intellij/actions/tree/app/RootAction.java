@@ -15,7 +15,6 @@ import javax.swing.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static com.gitlab.lae.intellij.actions.tree.app.AppComponent.ACTION_ID_PREFIX;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.*;
 
@@ -170,27 +169,40 @@ final class RootAction extends AnAction {
         for (Entry<List<ActionNode>, List<KeyStroke>> entry :
                 byActions.entrySet()) {
 
-            result.add(new RootAction(
-                    ACTION_ID_PREFIX + counter,
-                    entry.getValue(),
-                    entry.getKey()
-                            .stream()
-                            .map(it -> Pair.create(
-                                    it.toAction(
-                                            actionManager,
-                                            popupManager,
-                                            popupFactory,
-                                            dataManager
-                                    ),
-                                    it.when()
-                            ))
-                            .collect(collectingAndThen(
-                                    toCollection(ArrayList::new),
-                                    list -> {
-                                        Collections.reverse(list);
-                                        return list;
-                                    }
-                            ))
+            List<KeyStroke> keys = entry.getValue();
+            List<ActionNode> nodes = entry.getKey();
+
+            /*
+             * If list contains a single action group, use that group's
+             * ID as the action ID, this allows user specified IDs to be
+             * maintained and referenced in other plugins such as IdeaVim's
+             * :action command if they wish.
+             *
+             * We only do this for custom action groups and not for references
+             * to existing action items because it will result in duplicate
+             * ID error when registering later.
+             */
+            String id = nodes.size() == 1 && !nodes.get(0).items().isEmpty()
+                    ? nodes.get(0).id()
+                    : "ActionsTree.Root." + counter;
+
+            result.add(new RootAction(id, keys, nodes.stream()
+                    .map(it -> Pair.create(
+                            it.toAction(
+                                    actionManager,
+                                    popupManager,
+                                    popupFactory,
+                                    dataManager
+                            ),
+                            it.when()
+                    ))
+                    .collect(collectingAndThen(
+                            toCollection(ArrayList::new),
+                            list -> {
+                                Collections.reverse(list);
+                                return list;
+                            }
+                    ))
             ));
 
             counter++;

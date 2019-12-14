@@ -17,7 +17,9 @@ import com.intellij.openapi.keymap.ex.KeymapManagerEx;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.gitlab.lae.intellij.actions.tree.json.ActionNodeParser.parseJsonActions;
 import static java.util.Collections.emptyList;
@@ -25,10 +27,10 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 public final class AppComponent implements ApplicationComponent {
 
-    static final String ACTION_ID_PREFIX = "ActionsTree.";
-
     private static final String PLUGIN_ID =
             "com.gitlab.lae.intellij.actions.tree";
+
+    private final Set<String> actionIds = new HashSet<>();
 
     @Override
     public void initComponent() {
@@ -63,11 +65,15 @@ public final class AppComponent implements ApplicationComponent {
         );
 
         Keymap[] keymaps = keymapManager.getAllKeymaps();
-        removeShortcuts(actionManager, keymaps);
-        unregisterActions(actionManager);
+        for (Keymap keymap : keymaps) {
+            actionIds.forEach(keymap::removeAllActionShortcuts);
+        }
+        actionIds.forEach(actionManager::unregisterAction);
+        actionIds.clear();
 
         PluginId pluginId = PluginId.getId(PLUGIN_ID);
         for (RootAction action : actions) {
+            actionIds.add(action.getId());
             actionManager.registerAction(action.getId(), action, pluginId);
         }
 
@@ -97,17 +103,6 @@ public final class AppComponent implements ApplicationComponent {
         }
     }
 
-    private static void removeShortcuts(
-            ActionManager actionManager,
-            Keymap[] keymaps
-    ) {
-        for (String actionId : actionManager.getActionIds(ACTION_ID_PREFIX)) {
-            for (Keymap keymap : keymaps) {
-                keymap.removeAllActionShortcuts(actionId);
-            }
-        }
-    }
-
     private static void setShortcuts(
             Keymap[] keymaps,
             Iterable<RootAction> actions
@@ -134,9 +129,4 @@ public final class AppComponent implements ApplicationComponent {
         }
     }
 
-    private static void unregisterActions(ActionManager actionManager) {
-        for (String actionId : actionManager.getActionIds(ACTION_ID_PREFIX)) {
-            actionManager.unregisterAction(actionId);
-        }
-    }
 }
