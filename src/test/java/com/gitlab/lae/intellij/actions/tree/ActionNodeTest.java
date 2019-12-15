@@ -18,7 +18,7 @@ public final class ActionNodeTest {
 
     @Test
     public void preparesChildItemForContext() {
-        ActionNode a = ActionNode.create(
+        var a = ActionNode.create(
                 "a",
                 "a",
                 null,
@@ -27,7 +27,7 @@ public final class ActionNodeTest {
                 singletonList(getKeyStroke('a')),
                 emptyList()
         );
-        ActionNode b = ActionNode.create(
+        var b = ActionNode.create(
                 "b",
                 "b",
                 null,
@@ -36,7 +36,7 @@ public final class ActionNodeTest {
                 asList(getKeyStroke('b'), getKeyStroke('z')),
                 emptyList()
         );
-        ActionNode c = ActionNode.create(
+        var c = ActionNode.create(
                 "c",
                 "c",
                 null,
@@ -45,7 +45,7 @@ public final class ActionNodeTest {
                 singletonList(getKeyStroke('b')),
                 emptyList()
         );
-        ActionNode d = ActionNode.create(
+        var d = ActionNode.create(
                 "d",
                 "d",
                 null,
@@ -55,7 +55,7 @@ public final class ActionNodeTest {
                 emptyList()
         );
 
-        List<Pair<List<KeyStroke>, ActionNode>> actual = ActionNode.create(
+        var actual = ActionNode.create(
                 "id",
                 "name",
                 null,
@@ -65,7 +65,7 @@ public final class ActionNodeTest {
                 asList(a, b, c, d)
         ).prepare(mock(DataContext.class));
 
-        List<Pair<List<KeyStroke>, ActionNode>> expected = asList(
+        var expected = asList(
                 Pair.create(singletonList(getKeyStroke('a')), a),
                 Pair.create(singletonList(getKeyStroke('z')), b),
                 Pair.create(singletonList(getKeyStroke('b')), c)

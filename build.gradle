@@ -9,11 +9,19 @@ repositories {
     mavenCentral()
 }
 
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_13
+}
+
 dependencies {
-    compile "com.google.auto.value:auto-value-annotations:1.6.2"
+    compileOnly "com.google.auto.value:auto-value-annotations:1.6.2"
     annotationProcessor "com.google.auto.value:auto-value:1.6.2"
 
-    testCompile 'org.mockito:mockito-core:3.2.0'
+    testImplementation 'org.mockito:mockito-core:3.2.0'
 }
 
 test {

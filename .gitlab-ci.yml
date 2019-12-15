@@ -1,4 +1,4 @@
-image: java:8-jdk
+image: openjdk:13
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"

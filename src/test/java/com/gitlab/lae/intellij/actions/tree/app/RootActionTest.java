@@ -41,16 +41,16 @@ public final class RootActionTest {
 
     @Test
     public void disablesPresentationIfNoSuitableActionFound() {
-        EnableAction enable = new EnableAction();
-        When when = mock(When.class);
-        RootAction action = new RootAction(
+        var enable = new EnableAction();
+        var when = mock(When.class);
+        var action = new RootAction(
                 "id",
                 emptyList(),
                 singletonList(Pair.create(enable, when))
         );
-        Presentation presentation = new Presentation();
+        var presentation = new Presentation();
         presentation.setEnabled(true);
-        AnActionEvent event = new AnActionEvent(
+        var event = new AnActionEvent(
                 null,
                 mock(DataContext.class),
                 "",
@@ -77,8 +77,8 @@ public final class RootActionTest {
 
     @Test
     public void mergingMaintainsCustomActionGroupsIds() {
-        String id = "my-custom-group-id";
-        List<RootAction> actual = RootAction.merge(
+        var id = "my-custom-group-id";
+        var actual = RootAction.merge(
                 singletonList(newActionNode(
                         id,
                         When.ALWAYS,
@@ -105,12 +105,12 @@ public final class RootActionTest {
         AnAction cut = new EmptyAction("cut", null, null);
         AnAction copy = new EmptyAction("copy", null, null);
         AnAction paste = new EmptyAction("paste", null, null);
-        ActionManager actionManager = mock(ActionManager.class);
+        var actionManager = mock(ActionManager.class);
         when(actionManager.getAction(ACTION_CUT)).thenReturn(cut);
         when(actionManager.getAction(ACTION_COPY)).thenReturn(copy);
         when(actionManager.getAction(ACTION_PASTE)).thenReturn(paste);
 
-        List<RootAction> actual = RootAction.merge(
+        var actual = RootAction.merge(
                 asList(
                         newActionNode(
                                 ACTION_CUT,
@@ -138,7 +138,7 @@ public final class RootActionTest {
                 null
         );
 
-        List<RootAction> expected = asList(
+        var expected = asList(
                 new RootAction(
                         "ActionsTree.Root.0",
                         singletonList(getKeyStroke('a')),

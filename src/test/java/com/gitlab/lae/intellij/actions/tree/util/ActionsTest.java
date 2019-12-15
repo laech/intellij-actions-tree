@@ -22,8 +22,8 @@ public final class ActionsTest {
 
     @Test
     public void disablesPresentationInModalContextIfActionDoesNotSupportIt() {
-        DataContext context = mock(DataContext.class);
-        AnActionEvent event = new AnActionEvent(
+        var context = mock(DataContext.class);
+        var event = new AnActionEvent(
                 null,
                 context,
                 "",
@@ -31,7 +31,7 @@ public final class ActionsTest {
                 mock(ActionManager.class),
                 0
         );
-        AnAction action = new ModalAction(false);
+        var action = new ModalAction(false);
 
         when(context.getData(IS_MODAL_CONTEXT)).thenReturn(true);
         Actions.setEnabledModalContext(event, action);
@@ -44,8 +44,8 @@ public final class ActionsTest {
 
     @Test
     public void doesNotEnablePresentationInModalContextIfPresentationIsAlreadyDisabled() {
-        DataContext context = mock(DataContext.class);
-        AnActionEvent event = new AnActionEvent(
+        var context = mock(DataContext.class);
+        var event = new AnActionEvent(
                 null,
                 context,
                 "",
@@ -53,7 +53,7 @@ public final class ActionsTest {
                 mock(ActionManager.class),
                 0
         );
-        AnAction action = new ModalAction(true);
+        var action = new ModalAction(true);
         event.getPresentation().setEnabled(false);
         when(context.getData(IS_MODAL_CONTEXT)).thenReturn(true);
         Actions.setEnabledModalContext(event, action);

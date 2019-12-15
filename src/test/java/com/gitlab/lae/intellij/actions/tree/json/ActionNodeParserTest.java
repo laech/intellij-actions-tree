@@ -4,7 +4,6 @@ import com.gitlab.lae.intellij.actions.tree.ActionNode;
 import com.gitlab.lae.intellij.actions.tree.When;
 import org.junit.Test;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
@@ -20,7 +19,7 @@ public final class ActionNodeParserTest {
 
     @Test
     public void deserialization() throws Exception {
-        List<ActionNode> expected = asList(
+        var expected = asList(
                 ActionNode.create(
                         "ActionsTree.Node.1",
                         "Unnamed",
@@ -103,7 +102,7 @@ public final class ActionNodeParserTest {
         );
 
         List<ActionNode> actual;
-        try (InputStream stream = ActionNodeParserTest.class
+        try (var stream = ActionNodeParserTest.class
                 .getResourceAsStream("test.json");
              Reader reader = new InputStreamReader(stream, UTF_8)) {
             actual = ActionNodeParser.parseJsonActions(reader);

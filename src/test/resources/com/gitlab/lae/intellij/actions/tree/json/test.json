@@ -7,8 +7,12 @@
         {
           "keys": ["P"],
           "items": [
-            {"keys": ["K", "ctrl K"], "id": "CloseProject"},
-            {"keys": ["P"], "id": "OpenProjectGroup", "separator-above": "SEP"}
+            { "keys": ["K", "ctrl K"], "id": "CloseProject" },
+            {
+              "keys": ["P"],
+              "id": "OpenProjectGroup",
+              "separator-above": "SEP"
+            }
           ]
         }
       ]
@@ -18,7 +22,11 @@
       "keys": ["ctrl X"],
       "when": "FileExtension:java",
       "items": [
-        {"keys": ["ctrl X"], "id": "EditorSwapSelectionBoundaries", "sticky": true}
+        {
+          "keys": ["ctrl X"],
+          "id": "EditorSwapSelectionBoundaries",
+          "sticky": true
+        }
       ]
     },
     {
@@ -26,7 +34,7 @@
       "when": {
         "any": [
           "FileExtension:txt",
-          {"all": ["ToolWindowActive:Run", "FileExtension:java"]}
+          { "all": ["ToolWindowActive:Run", "FileExtension:java"] }
         ]
       }
     }

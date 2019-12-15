@@ -5,7 +5,7 @@ import com.intellij.ui.components.JBList;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 
-public final class ActionList extends JBList<ActionPresentation> {
+public class ActionList extends JBList<ActionPresentation> {
 
     public ActionList(Collection<ActionPresentation> items) {
         super(items);
