@@ -13,3 +13,12 @@
 
 - root actions can be references to ordinary IDE actions
   https://gitlab.com/lae/intellij-actions-tree/issues/15
+
+- popup appears in modal dialogs
+  https://gitlab.com/lae/intellij-actions-tree/issues/17
+
+- focus restores properly / 'Go to Next Splitter' works
+  https://gitlab.com/lae/intellij-actions-tree/issues/16
+
+- Support conditional execution of keybindings
+  https://gitlab.com/lae/intellij-actions-tree/issues/14
