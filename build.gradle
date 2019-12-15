@@ -11,6 +11,8 @@ repositories {
 
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    options.compilerArgs.addAll(['--release', '8'])
 }
 
 compileTestJava {
