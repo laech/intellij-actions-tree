@@ -44,11 +44,11 @@ public final class WhenTest {
 
     @Test
     public void fileExtension() {
-        VirtualFile file = mock(VirtualFile.class);
-        DataContext context = mock(DataContext.class);
+        var file = mock(VirtualFile.class);
+        var context = mock(DataContext.class);
         when(context.getData(VIRTUAL_FILE)).thenReturn(file);
 
-        When when = When.fileExtension("txt");
+        var when = When.fileExtension("txt");
         when(file.getExtension()).thenReturn("txt");
         assertTrue(when.test(context));
 
@@ -58,11 +58,11 @@ public final class WhenTest {
 
     @Test
     public void toolWindowActive() {
-        ToolWindow toolWindow = mock(ToolWindow.class);
-        DataContext context = mock(DataContext.class);
+        var toolWindow = mock(ToolWindow.class);
+        var context = mock(DataContext.class);
         when(context.getData(TOOL_WINDOW)).thenReturn(toolWindow);
 
-        When when = When.toolWindowActive("Project");
+        var when = When.toolWindowActive("Project");
         when(toolWindow.getStripeTitle()).thenReturn("Project");
         when(toolWindow.isActive()).thenReturn(false);
         assertFalse(when.test(context));
@@ -76,11 +76,11 @@ public final class WhenTest {
 
     @Test
     public void toolWindowTabActive() {
-        ToolWindow toolWindow = mock(ToolWindow.class);
-        DataContext context = mock(DataContext.class);
+        var toolWindow = mock(ToolWindow.class);
+        var context = mock(DataContext.class);
         when(context.getData(TOOL_WINDOW)).thenReturn(toolWindow);
 
-        When when = When.toolWindowTabActive("Project");
+        var when = When.toolWindowTabActive("Project");
         when(toolWindow.getTitle()).thenReturn("Project");
         when(toolWindow.isActive()).thenReturn(false);
         assertFalse(when.test(context));
@@ -95,17 +95,17 @@ public final class WhenTest {
     @Test
     public void inputFocused() {
 
-        When inputFocused = When.INPUT_FOCUSED;
-        JTextComponent component = mock(JTextComponent.class);
+        var inputFocused = When.INPUT_FOCUSED;
+        var component = mock(JTextComponent.class);
 
-        IdeFocusManager focusManager = mock(IdeFocusManager.class);
+        var focusManager = mock(IdeFocusManager.class);
         when(focusManager.getFocusOwner()).thenReturn(component);
 
-        Project project = mock(Project.class);
+        var project = mock(Project.class);
         when(project.isInitialized()).thenReturn(true);
         when(project.getComponent(IdeFocusManager.class)).thenReturn(focusManager);
 
-        DataContext context = mock(DataContext.class);
+        var context = mock(DataContext.class);
         when(context.getData(PROJECT.getName())).thenReturn(project);
 
         inputFocused.test(context);

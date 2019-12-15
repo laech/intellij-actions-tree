@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.Field;
 import java.util.List;
 
 import static java.awt.event.KeyEvent.CHAR_UNDEFINED;
@@ -20,15 +19,13 @@ public final class ActionPopupEventDispatcherTest {
 
     @Test
     public void forwardsKeyEvent() {
-        ActionList list = mock(ActionList.class);
-        ActionPopupEventDispatcher dispatcher =
-                new ActionPopupEventDispatcher(
-                        mock(JBPopup.class),
-                        list,
-                        new IdePopupManager()
-                );
-
-        KeyEvent event = new KeyEvent(
+        var list = mock(ActionList.class);
+        var dispatcher = new ActionPopupEventDispatcher(
+                mock(JBPopup.class),
+                list,
+                new IdePopupManager()
+        );
+        var event = new KeyEvent(
                 new JLabel(), 0, 0, 0, VK_A, CHAR_UNDEFINED
         );
         dispatcher.dispatch(event);
@@ -37,15 +34,14 @@ public final class ActionPopupEventDispatcherTest {
 
     @Test
     public void informsIdePopupManagerOfPopupState() throws Exception {
-        IdePopupManager idePopupManager = new IdePopupManager();
-        ActionPopupEventDispatcher dispatcher =
-                new ActionPopupEventDispatcher(
-                        mock(JBPopup.class),
-                        mock(ActionList.class),
-                        idePopupManager
-                );
+        var idePopupManager = new IdePopupManager();
+        var dispatcher = new ActionPopupEventDispatcher(
+                mock(JBPopup.class),
+                mock(ActionList.class),
+                idePopupManager
+        );
 
-        List<?> myDispatchStack = getDispatchStack(idePopupManager);
+        var myDispatchStack = getDispatchStack(idePopupManager);
 
         assertFalse(myDispatchStack.contains(dispatcher));
         dispatcher.beforeShown(null);
@@ -56,7 +52,7 @@ public final class ActionPopupEventDispatcherTest {
 
     private List<?> getDispatchStack(IdePopupManager manager)
             throws ReflectiveOperationException {
-        Field myDispatchStackField =
+        var myDispatchStackField =
                 IdePopupManager.class.getDeclaredField("myDispatchStack");
         myDispatchStackField.setAccessible(true);
         return (List<?>) myDispatchStackField.get(manager);
