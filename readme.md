@@ -204,7 +204,7 @@ Actions Tree | Reload*.
 
 JDK 8 is required for runtime.
 
-JDK 11 is required to build and run the tests of this project.
+JDK 13 is required to build and run the tests of this project.
 
 To build the plugin, run `./gradlew clean build`, then
 build/distributions/actions-tree-xxx.zip will be created. It can be
