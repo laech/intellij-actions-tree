@@ -15,6 +15,7 @@ import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.keymap.Keymap;
 import com.intellij.openapi.keymap.ex.KeymapManagerEx;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.wm.IdeFocusManager;
 
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ public final class AppComponent implements ApplicationComponent {
     public void reload() {
         reload(
                 ActionManager.getInstance(),
+                IdeFocusManager.findInstance(),
                 IdeEventQueue.getInstance().getPopupManager(),
                 JBPopupFactory.getInstance(),
                 DataManager.getInstance(),
@@ -50,6 +52,7 @@ public final class AppComponent implements ApplicationComponent {
 
     private void reload(
             ActionManager actionManager,
+            IdeFocusManager focusManager,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
             DataManager dataManager,
@@ -59,6 +62,7 @@ public final class AppComponent implements ApplicationComponent {
         List<RootAction> actions = RootAction.merge(
                 loadActions(properties),
                 actionManager,
+                focusManager,
                 popupManager,
                 popupFactory,
                 dataManager
