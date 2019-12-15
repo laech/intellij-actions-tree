@@ -9,8 +9,6 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.KeyboardShortcut;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.extensions.PluginId;
@@ -18,20 +16,21 @@ import com.intellij.openapi.keymap.Keymap;
 import com.intellij.openapi.keymap.ex.KeymapManagerEx;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 
-import javax.swing.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.gitlab.lae.intellij.actions.tree.json.ActionNodeParser.parseJsonActions;
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 public final class AppComponent implements ApplicationComponent {
 
     private static final String PLUGIN_ID =
             "com.gitlab.lae.intellij.actions.tree";
 
-    private final List<ActionNode> actions = new ArrayList<>();
+    private final Set<String> actionIds = new HashSet<>();
 
     @Override
     public void initComponent() {
@@ -57,21 +56,27 @@ public final class AppComponent implements ApplicationComponent {
             KeymapManagerEx keymapManager,
             PropertiesComponent properties
     ) {
-        List<ActionNode> newActions = loadActions(properties);
-        Keymap[] keymaps = keymapManager.getAllKeymaps();
-
-        removeShortcuts(keymaps, actions);
-        unregisterActions(actionManager, actions);
-        actions.clear();
-
-        actions.addAll(newActions);
-        registerActions(
+        List<RootAction> actions = RootAction.merge(
+                loadActions(properties),
                 actionManager,
                 popupManager,
                 popupFactory,
-                dataManager,
-                actions
+                dataManager
         );
+
+        Keymap[] keymaps = keymapManager.getAllKeymaps();
+        for (Keymap keymap : keymaps) {
+            actionIds.forEach(keymap::removeAllActionShortcuts);
+        }
+        actionIds.forEach(actionManager::unregisterAction);
+        actionIds.clear();
+
+        PluginId pluginId = PluginId.getId(PLUGIN_ID);
+        for (RootAction action : actions) {
+            actionIds.add(action.getId());
+            actionManager.registerAction(action.getId(), action, pluginId);
+        }
+
         setShortcuts(keymaps, actions);
     }
 
@@ -91,31 +96,16 @@ public final class AppComponent implements ApplicationComponent {
             Notifications.Bus.notify(new Notification(
                     "ActionsTree",
                     "Failed to load keymap",
-                    "Failed to load keymap: $conf\n${getStackTrace(e)}",
+                    "Failed to load keymap: " + conf + "\n" + getStackTrace(e),
                     NotificationType.ERROR
             ));
             return emptyList();
         }
     }
 
-    private static String wrappedId(ActionNode action) {
-        return "ActionsTree." + action.id();
-    }
-
-    private static void removeShortcuts(
-            Keymap[] keymaps,
-            Iterable<ActionNode> actions
-    ) {
-        for (Keymap keymap : keymaps) {
-            for (ActionNode action : actions) {
-                keymap.removeAllActionShortcuts(wrappedId(action));
-            }
-        }
-    }
-
     private static void setShortcuts(
             Keymap[] keymaps,
-            Iterable<ActionNode> actions
+            Iterable<RootAction> actions
     ) {
         // Adding a shortcut this way will have it appear as default
         // when viewing the Keymap preferences tree, which is good,
@@ -129,42 +119,14 @@ public final class AppComponent implements ApplicationComponent {
         // cause the Mac keymaps to inherit 'meta X', this is undesirable,
         // clear it and make sure 'ctrl X' is added instead.
         for (Keymap keymap : keymaps) {
-            for (ActionNode action : actions) {
-                keymap.removeAllActionShortcuts(wrappedId(action));
-                for (KeyStroke key : action.keys()) {
-                    Shortcut shortcut = new KeyboardShortcut(key, null);
-                    keymap.addShortcut(wrappedId(action), shortcut);
+            for (RootAction action : actions) {
+                keymap.removeAllActionShortcuts(action.getId());
+                for (Shortcut shortcut :
+                        action.getShortcutSet().getShortcuts()) {
+                    keymap.addShortcut(action.getId(), shortcut);
                 }
             }
         }
     }
 
-    private static void registerActions(
-            ActionManager actionManager,
-            IdePopupManager popupManager,
-            JBPopupFactory popupFactory,
-            DataManager dataManager,
-            Iterable<ActionNode> actions
-    ) {
-        PluginId pluginId = PluginId.getId(PLUGIN_ID);
-        for (ActionNode node : actions) {
-            AnAction action = node.toAction(
-                    actionManager,
-                    popupManager,
-                    popupFactory,
-                    dataManager,
-                    true
-            );
-            actionManager.registerAction(wrappedId(node), action, pluginId);
-        }
-    }
-
-    private static void unregisterActions(
-            ActionManager actionManager,
-            Iterable<ActionNode> actions
-    ) {
-        for (ActionNode action : actions) {
-            actionManager.unregisterAction(wrappedId(action));
-        }
-    }
 }

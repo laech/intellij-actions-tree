@@ -1,11 +1,9 @@
 package com.gitlab.lae.intellij.actions.tree.ui;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import stack.source.junit4.ErrorDecorator;
 
 import javax.swing.*;
 
@@ -15,9 +13,6 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public final class KeyStrokeLabelTest {
-
-    @Rule
-    public final ErrorDecorator errorDecorator = new ErrorDecorator();
 
     private final String expected;
     private final KeyStroke keyStroke;

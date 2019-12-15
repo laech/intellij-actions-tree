@@ -53,12 +53,18 @@ final class Popup {
         this.sourceComponent = e.getData(CONTEXT_COMPONENT);
         this.sourceEditor = e.getData(EDITOR);
 
-        List<ActionPresentation> items = action.items().stream()
-                .map(it -> createPresentation(
-                        it,
-                        e.getActionManager(),
-                        e.getDataContext()
-                ))
+        List<ActionPresentation> items = action.prepare(e.getDataContext())
+                .stream()
+                .map(pair -> {
+                    List<KeyStroke> keys = pair.first;
+                    ActionNode item = pair.second;
+                    return createPresentation(
+                            item,
+                            e.getActionManager(),
+                            e.getDataContext(),
+                            keys
+                    );
+                })
                 .collect(toList());
 
         list = new ActionList(items);
@@ -88,14 +94,16 @@ final class Popup {
     private ActionPresentation createPresentation(
             ActionNode action,
             ActionManager actionManager,
-            DataContext dataContext
+            DataContext dataContext,
+            List<KeyStroke> keysOverride
     ) {
         return action.createPresentation(
                 actionManager,
                 dataContext,
                 popupManager,
                 popupFactory,
-                dataManager
+                dataManager,
+                keysOverride
         );
     }
 

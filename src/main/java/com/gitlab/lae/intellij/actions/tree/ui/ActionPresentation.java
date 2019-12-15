@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import static com.gitlab.lae.intellij.actions.tree.ActionNode.ACTION_PLACE;
+import static com.gitlab.lae.intellij.actions.tree.util.Actions.setEnabledModalContext;
+import static com.intellij.openapi.actionSystem.PlatformDataKeys.IS_MODAL_CONTEXT;
 import static com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUpdate;
 
 @AutoValue
@@ -85,7 +87,12 @@ public abstract class ActionPresentation {
                 0
         );
         event.setInjectedContext(action().isInInjectedContext());
-        performDumbAwareUpdate(true, action(), event, false);
+        Boolean isModal = dataContext.getData(IS_MODAL_CONTEXT);
+        if (isModal == null) {
+            isModal = false;
+        }
+        performDumbAwareUpdate(isModal, action(), event, false);
+        setEnabledModalContext(event, action());
     }
 
 }

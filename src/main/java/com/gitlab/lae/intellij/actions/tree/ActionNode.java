@@ -9,10 +9,13 @@ import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.Pair;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
-import java.util.List;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 @AutoValue
 public abstract class ActionNode {
@@ -24,6 +27,7 @@ public abstract class ActionNode {
             String name,
             String separatorAbove,
             boolean sticky,
+            When when,
             List<KeyStroke> keys,
             List<ActionNode> items
     ) {
@@ -32,6 +36,7 @@ public abstract class ActionNode {
                 name,
                 separatorAbove,
                 sticky,
+                when,
                 keys,
                 items
         );
@@ -46,6 +51,8 @@ public abstract class ActionNode {
     abstract String separatorAbove();
 
     abstract boolean sticky();
+
+    public abstract When when();
 
     public abstract List<KeyStroke> keys();
 
@@ -66,18 +73,18 @@ public abstract class ActionNode {
             DataContext dataContext,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
-            DataManager dataManager
+            DataManager dataManager,
+            List<KeyStroke> keysOverride
     ) {
         AnAction action = toAction(
                 actionManager,
                 popupManager,
                 popupFactory,
-                dataManager,
-                false
+                dataManager
         );
         ActionPresentation presentation = ActionPresentation.create(
                 action,
-                keys(),
+                keysOverride,
                 separatorAbove(),
                 sticky()
         );
@@ -86,16 +93,15 @@ public abstract class ActionNode {
     }
 
     public AnAction toAction(
-            ActionManager mgr,
+            ActionManager actionManager,
             IdePopupManager popupManager,
             JBPopupFactory popupFactory,
-            DataManager dataManager,
-            boolean wrapIdeAction
+            DataManager dataManager
     ) {
         if (items().isEmpty()) {
-            AnAction action = mgr.getAction(id());
+            AnAction action = actionManager.getAction(id());
             return action != null
-                    ? (wrapIdeAction ? new RefAction(action) : action)
+                    ? action
                     : new UnknownAction(this);
         }
         return new PopupAction(
@@ -104,6 +110,41 @@ public abstract class ActionNode {
                 popupFactory,
                 dataManager
         );
+    }
+
+    /**
+     * Prepares the child items for the given context.
+     * <p>
+     * Returns a list of key strokes and actions pairs.
+     * If multiple actions were mapped to the same key strokes originally,
+     * then the last action whose {@link ActionNode#when()} evaluates to true
+     * will be chosen.
+     */
+    public List<Pair<List<KeyStroke>, ActionNode>> prepare(DataContext context) {
+        Set<KeyStroke> registered = new HashSet<>();
+        List<Pair<List<KeyStroke>, ActionNode>> result = new ArrayList<>();
+        List<ActionNode> items = new ArrayList<>(items());
+        Collections.reverse(items);
+
+        for (ActionNode item : items) {
+            if (!item.when().test(context)) {
+                continue;
+            }
+
+            List<KeyStroke> keys = item.keys()
+                    .stream()
+                    .filter(registered::add)
+                    .collect(toList());
+
+            if (keys.isEmpty()) {
+                continue;
+            }
+
+            result.add(Pair.create(keys, item));
+        }
+
+        Collections.reverse(result);
+        return result;
     }
 
 }
