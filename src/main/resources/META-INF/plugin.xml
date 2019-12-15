@@ -18,6 +18,15 @@
     <change-notes><![CDATA[
 
     <br/>
+    0.3
+    <ul>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/14">Support condition actions.</a></li>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/17">Popup now works in modal dialogs.</a></li>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/15">Root actions can now be action references.</a></li>
+    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/16">Fix focus issue causing some actions such as 'Goto Next Splitter' to not work.</a></li>
+    </ul>
+
+    <br/>
     0.2.2
     <ul>
     <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/9">Sticky action not sticky if invoked via mouse or enter key.</a></li>
