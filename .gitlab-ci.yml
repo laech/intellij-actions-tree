@@ -7,3 +7,4 @@ build:
   stage: build
   script:
     - ./gradlew clean build
+    - ./gradlew clean build -PintellijVersion=2019.3
