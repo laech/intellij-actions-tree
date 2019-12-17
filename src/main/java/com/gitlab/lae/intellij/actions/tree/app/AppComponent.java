@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.gitlab.lae.intellij.actions.tree.json.ActionNodeParser.parseJsonActions;
+import static com.google.common.base.Throwables.getStackTraceAsString;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 public final class AppComponent implements ApplicationComponent {
 
@@ -100,7 +100,8 @@ public final class AppComponent implements ApplicationComponent {
             Notifications.Bus.notify(new Notification(
                     "ActionsTree",
                     "Failed to load keymap",
-                    "Failed to load keymap: " + conf + "\n" + getStackTrace(e),
+                    "Failed to load keymap: " + conf +
+                            "\n" + getStackTraceAsString(e),
                     NotificationType.ERROR
             ));
             return emptyList();

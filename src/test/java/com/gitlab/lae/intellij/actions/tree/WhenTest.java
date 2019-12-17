@@ -1,20 +1,16 @@
 package com.gitlab.lae.intellij.actions.tree;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.openapi.wm.ToolWindow;
 import org.junit.Test;
 
-import javax.swing.text.JTextComponent;
-
-import static com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT;
 import static com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE;
 import static com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public final class WhenTest {
 
@@ -92,35 +88,4 @@ public final class WhenTest {
         assertFalse(when.test(context));
     }
 
-    @Test
-    public void inputFocused() {
-
-        var inputFocused = When.INPUT_FOCUSED;
-        var component = mock(JTextComponent.class);
-
-        var focusManager = mock(IdeFocusManager.class);
-        when(focusManager.getFocusOwner()).thenReturn(component);
-
-        var project = mock(Project.class);
-        when(project.isInitialized()).thenReturn(true);
-        when(project.getComponent(IdeFocusManager.class)).thenReturn(focusManager);
-
-        var context = mock(DataContext.class);
-        when(context.getData(PROJECT.getName())).thenReturn(project);
-
-        inputFocused.test(context);
-        verify(context).getData(PROJECT.getName());
-        verify(project).getComponent(IdeFocusManager.class);
-        verify(focusManager).getFocusOwner();
-        verify(component).isEditable();
-
-        when(component.isEditable()).thenReturn(true);
-        assertTrue(inputFocused.test(context));
-
-        when(component.isEditable()).thenReturn(false);
-        assertFalse(inputFocused.test(context));
-
-        when(focusManager.getFocusOwner()).thenReturn(null);
-        assertFalse(inputFocused.test(context));
-    }
 }
