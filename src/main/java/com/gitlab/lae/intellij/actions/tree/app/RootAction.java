@@ -16,6 +16,7 @@ import javax.swing.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.*;
 
@@ -150,9 +151,15 @@ final class RootAction extends AnAction {
             DataManager dataManager
     ) {
 
+        List<ActionNode> noKeys = new ArrayList<>(0);
         Map<KeyStroke, List<ActionNode>> byKeys = new LinkedHashMap<>();
         for (ActionNode action : actions) {
-            for (KeyStroke key : action.keys()) {
+            List<KeyStroke> keys = action.keys();
+            if (keys.isEmpty()) {
+                noKeys.add(action);
+                continue;
+            }
+            for (KeyStroke key : keys) {
                 byKeys.computeIfAbsent(key, __ -> new ArrayList<>(1))
                         .add(action);
             }
@@ -164,6 +171,9 @@ final class RootAction extends AnAction {
             byActions
                     .computeIfAbsent(entry.getValue(), __ -> new ArrayList<>(1))
                     .add(entry.getKey());
+        }
+        if (!noKeys.isEmpty()) {
+            byActions.put(noKeys, emptyList());
         }
 
         int counter = 0;

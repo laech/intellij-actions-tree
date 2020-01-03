@@ -141,10 +141,6 @@ public abstract class ActionNode {
                     .filter(registered::add)
                     .collect(toList());
 
-            if (keys.isEmpty()) {
-                continue;
-            }
-
             result.add(Pair.create(keys, item));
         }
 

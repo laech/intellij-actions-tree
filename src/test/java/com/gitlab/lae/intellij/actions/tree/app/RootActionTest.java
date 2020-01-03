@@ -171,6 +171,63 @@ public final class RootActionTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void mergingMaintainsActionWithNoKeyStrokes() {
+        var cut = new EmptyAction("cut", null, null);
+        var copy = new EmptyAction("copy", null, null);
+        var paste = new EmptyAction("paste", null, null);
+        var actionManager = mock(ActionManager.class);
+        when(actionManager.getAction(ACTION_CUT)).thenReturn(cut);
+        when(actionManager.getAction(ACTION_COPY)).thenReturn(copy);
+        when(actionManager.getAction(ACTION_PASTE)).thenReturn(paste);
+
+        var actual = RootAction.merge(
+                asList(
+                        newActionNode(
+                                ACTION_CUT,
+                                When.ALWAYS,
+                                emptyList(),
+                                emptyList()
+                        ),
+                        newActionNode(
+                                ACTION_COPY,
+                                When.ALWAYS,
+                                singletonList(getKeyStroke('b')),
+                                emptyList()
+                        ),
+                        newActionNode(
+                                ACTION_PASTE,
+                                When.ALWAYS,
+                                emptyList(),
+                                emptyList()
+                        )
+                ),
+                actionManager,
+                null,
+                null,
+                null,
+                null
+        );
+
+        var expected = asList(
+                new RootAction(
+                        "ActionsTree.Root.0",
+                        singletonList(getKeyStroke('b')),
+                        singletonList(Pair.create(copy, When.ALWAYS))
+                ),
+                new RootAction(
+                        "ActionsTree.Root.1",
+                        emptyList(),
+                        asList(
+                                Pair.create(paste, When.ALWAYS),
+                                Pair.create(cut, When.ALWAYS)
+                        )
+                )
+        );
+
+        assertEquals(expected, actual);
+    }
+
     private static ActionNode newActionNode(
             String id,
             When when,
