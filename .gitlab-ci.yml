@@ -8,7 +8,7 @@ build:
   script:
     - ./gradlew clean build
 
-build-intellij-2019.3:
+build-intellij-2020.1:
   stage: build
   script:
-    - ./gradlew clean build -PintellijVersion=2019.3
+    - ./gradlew clean build -PintellijVersion=2020.1

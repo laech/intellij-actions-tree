@@ -32,7 +32,7 @@ test {
     }
 }
 
-ext.intellijVersion = project.properties['intellijVersion'] ?: '2018.1'
+ext.intellijVersion = project.properties['intellijVersion'] ?: '2019.1'
 
 intellij {
     version intellijVersion
