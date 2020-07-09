@@ -43,7 +43,7 @@ public final class ActionNodeParser {
                 element,
                 new AtomicInteger()::getAndIncrement
         );
-        return action.items();
+        return action.getItems();
     }
 
     private static ActionNode toActionNode(
@@ -67,7 +67,7 @@ public final class ActionNodeParser {
             throw new IllegalArgumentException(
                     "Invalid elements: " + o.keySet());
         }
-        return ActionNode.create(id, name, sep, sticky, when, keys, items);
+        return new ActionNode(id, name, sep, sticky, when, keys, items);
     }
 
     private static When processWhen(JsonElement element) {

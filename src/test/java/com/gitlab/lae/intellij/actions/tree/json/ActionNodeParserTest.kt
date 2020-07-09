@@ -1,114 +1,99 @@
-package com.gitlab.lae.intellij.actions.tree.json;
+package com.gitlab.lae.intellij.actions.tree.json
 
-import com.gitlab.lae.intellij.actions.tree.ActionNode;
-import com.gitlab.lae.intellij.actions.tree.When;
-import org.junit.Test;
+import com.gitlab.lae.intellij.actions.tree.ActionNode
+import com.gitlab.lae.intellij.actions.tree.When
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import javax.swing.KeyStroke.getKeyStroke
+import kotlin.text.Charsets.UTF_8
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.List;
+class ActionNodeParserTest {
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static javax.swing.KeyStroke.getKeyStroke;
-import static org.junit.Assert.assertEquals;
-
-public final class ActionNodeParserTest {
-
-    @Test
-    public void deserialization() throws Exception {
-        var expected = asList(
-                ActionNode.create(
-                        "ActionsTree.Node.1",
-                        "Unnamed",
-                        null,
-                        false,
-                        When.toolWindowActive("Project"),
-                        singletonList(getKeyStroke("ctrl C")),
-                        singletonList(
-                                ActionNode.create(
-                                        "ActionsTree.Node.2",
-                                        "Unnamed",
-                                        null,
-                                        false,
-                                        When.ALWAYS,
-                                        singletonList(getKeyStroke("P")),
-                                        asList(
-                                                ActionNode.create(
-                                                        "CloseProject",
-                                                        "Unnamed",
-                                                        null,
-                                                        false,
-                                                        When.ALWAYS,
-                                                        asList(
-                                                                getKeyStroke(
-                                                                        "K"),
-                                                                getKeyStroke(
-                                                                        "ctrl K")
-                                                        ),
-                                                        emptyList()
-                                                ),
-                                                ActionNode.create(
-                                                        "OpenProjectGroup",
-                                                        "Unnamed",
-                                                        "SEP",
-                                                        false,
-                                                        When.ALWAYS,
-                                                        singletonList(
-                                                                getKeyStroke(
-                                                                        "P")),
-                                                        emptyList()
-                                                )
-                                        )
-                                )
-                        )
+  @Test
+  fun deserialization() {
+    val expected = listOf(
+      ActionNode(
+        "ActionsTree.Node.1",
+        "Unnamed",
+        null,
+        false,
+        When.toolWindowActive("Project"),
+        listOf(getKeyStroke("ctrl C")),
+        listOf(
+          ActionNode(
+            "ActionsTree.Node.2",
+            "Unnamed",
+            null,
+            false,
+            When.ALWAYS,
+            listOf(getKeyStroke("P")),
+            listOf(
+              ActionNode(
+                "CloseProject",
+                "Unnamed",
+                null,
+                false,
+                When.ALWAYS,
+                listOf(
+                  getKeyStroke("K"),
+                  getKeyStroke("ctrl K")
                 ),
-                ActionNode.create(
-                        "ActionsTree.Node.3",
-                        "b",
-                        null,
-                        false,
-                        When.fileExtension("java"),
-                        singletonList(getKeyStroke("ctrl X")),
-                        singletonList(
-                                ActionNode.create(
-                                        "EditorSwapSelectionBoundaries",
-                                        "Unnamed",
-                                        null,
-                                        true,
-                                        When.ALWAYS,
-                                        singletonList(getKeyStroke("ctrl X")),
-                                        emptyList()
-                                )
-                        )
-                ),
-                ActionNode.create(
-                        "ActionsTree.Node.4",
-                        "c",
-                        null,
-                        false,
-                        When.any(
-                                When.fileExtension("txt"),
-                                When.all(
-                                        When.toolWindowActive("Run"),
-                                        When.fileExtension("java")
-                                )
-                        ),
-                        emptyList(),
-                        emptyList()
-                )
-        );
+                emptyList()
+              ),
+              ActionNode(
+                "OpenProjectGroup",
+                "Unnamed",
+                "SEP",
+                false,
+                When.ALWAYS,
+                listOf(getKeyStroke("P")),
+                emptyList()
+              )
+            )
+          )
+        )
+      ),
+      ActionNode(
+        "ActionsTree.Node.3",
+        "b",
+        null,
+        false,
+        When.fileExtension("java"),
+        listOf(getKeyStroke("ctrl X")),
+        listOf(
+          ActionNode(
+            "EditorSwapSelectionBoundaries",
+            "Unnamed",
+            null,
+            true,
+            When.ALWAYS,
+            listOf(getKeyStroke("ctrl X")),
+            emptyList()
+          )
+        )
+      ),
+      ActionNode(
+        "ActionsTree.Node.4",
+        "c",
+        null,
+        false,
+        When.any(
+          When.fileExtension("txt"),
+          When.all(
+            When.toolWindowActive("Run"),
+            When.fileExtension("java")
+          )
+        ),
+        emptyList(),
+        emptyList()
+      )
+    )
 
-        List<ActionNode> actual;
-        try (var stream = ActionNodeParserTest.class
-                .getResourceAsStream("test.json");
-             Reader reader = new InputStreamReader(stream, UTF_8)) {
-            actual = ActionNodeParser.parseJsonActions(reader);
-        }
+    val actual = ActionNodeParserTest::class.java
+      .getResourceAsStream("test.json").use {
+        ActionNodeParser.parseJsonActions(it.reader(UTF_8))
+      }
 
-        assertEquals(expected, actual);
-    }
-
+    assertEquals(expected, actual)
+  }
 }

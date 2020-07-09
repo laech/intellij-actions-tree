@@ -60,8 +60,8 @@ final class Popup {
         List<ActionPresentation> items = action.prepare(e.getDataContext())
                 .stream()
                 .map(pair -> {
-                    List<KeyStroke> keys = pair.first;
-                    ActionNode item = pair.second;
+                    List<KeyStroke> keys = pair.getFirst();
+                    ActionNode item = pair.getSecond();
                     return createPresentation(
                             item,
                             e.getActionManager(),

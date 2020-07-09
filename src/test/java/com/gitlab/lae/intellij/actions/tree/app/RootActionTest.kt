@@ -1,270 +1,258 @@
-package com.gitlab.lae.intellij.actions.tree.app;
+package com.gitlab.lae.intellij.actions.tree.app
 
-import com.gitlab.lae.intellij.actions.tree.ActionNode;
-import com.gitlab.lae.intellij.actions.tree.When;
-import com.intellij.ide.DataManager;
-import com.intellij.ide.IdePopupManager;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.wm.IdeFocusManager;
-import org.junit.Test;
+import com.gitlab.lae.intellij.actions.tree.ActionNode
+import com.gitlab.lae.intellij.actions.tree.When
+import com.intellij.ide.DataManager
+import com.intellij.ide.IdePopupManager
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.IdeActions.*
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.wm.IdeFocusManager
+import org.junit.Assert.*
+import org.junit.Test
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
+import javax.swing.KeyStroke
+import javax.swing.KeyStroke.getKeyStroke
 
-import javax.swing.*;
-import java.util.List;
+class RootActionTest {
 
-import static com.intellij.openapi.actionSystem.IdeActions.*;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static javax.swing.KeyStroke.getKeyStroke;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-public final class RootActionTest {
-
-    private static final class EnableAction extends AnAction {
-        boolean enabled;
-
-        @Override
-        public void update(AnActionEvent e) {
-            super.update(e);
-            e.getPresentation().setEnabled(enabled);
-        }
-
-        @Override
-        public void actionPerformed(AnActionEvent e) {
-        }
+  private class EnableAction : AnAction() {
+    var enabled = false
+    override fun actionPerformed(e: AnActionEvent) {}
+    override fun update(e: AnActionEvent) {
+      super.update(e)
+      e.presentation.isEnabled = enabled
     }
+  }
 
-    @Test
-    public void disablesPresentationIfNoSuitableActionFound() {
-        var enable = new EnableAction();
-        var when = mock(When.class);
-        var action = new RootAction(
-                "id",
-                emptyList(),
-                singletonList(Pair.create(enable, when))
-        );
-        var presentation = new Presentation();
-        presentation.setEnabled(true);
-        var event = new AnActionEvent(
-                null,
-                mock(DataContext.class),
-                "",
-                presentation,
-                mock(ActionManager.class),
-                0
-        );
+  @Test
+  fun `disables presentation if no suitable action found`() {
+    val enable = EnableAction()
+    val condition = mock(When::class.java)
+    val action = RootAction(
+      "id",
+      emptyList(),
+      listOf(enable to condition)
+    )
 
-        assertTrue(presentation.isEnabled());
+    val presentation = Presentation()
+    presentation.isEnabled = true
+    val event = AnActionEvent(
+      null,
+      mock(DataContext::class.java),
+      "",
+      presentation,
+      mock(ActionManager::class.java),
+      0
+    )
+    assertTrue(presentation.isEnabled)
 
-        enable.enabled = true;
-        when(when.test(any())).thenReturn(false);
-        action.update(event);
-        assertFalse(presentation.isEnabled());
+    enable.enabled = true
+    `when`(condition.test(any())).thenReturn(false)
+    action.update(event)
+    assertFalse(presentation.isEnabled)
 
-        when(when.test(any())).thenReturn(true);
-        action.update(event);
-        assertTrue(presentation.isEnabled());
+    `when`(condition.test(any())).thenReturn(true)
+    action.update(event)
+    assertTrue(presentation.isEnabled)
 
-        enable.enabled = false;
-        action.update(event);
-        assertFalse(presentation.isEnabled());
+    enable.enabled = false
+    action.update(event)
+    assertFalse(presentation.isEnabled)
+  }
+
+  @Test
+  fun `merging maintains custom action groups ids`() {
+    val id = "my-custom-group-id"
+    val actual = RootAction.merge(
+      listOf(
+        newActionNode(
+          id,
+          When.ALWAYS,
+          listOf(getKeyStroke("X")),
+          listOf(
+            newActionNode(
+              "bob",
+              When.ALWAYS,
+              emptyList(),
+              emptyList()
+            )
+          )
+        )
+      ),
+      mock(ActionManager::class.java),
+      mock(IdeFocusManager::class.java),
+      IdePopupManager(),
+      mock(JBPopupFactory::class.java),
+      mock(DataManager::class.java)
+    )
+    assertEquals(1, actual.size.toLong())
+    assertEquals(id, actual[0].id)
+  }
+
+  @Test
+  fun `merges root actions`() {
+    val cut = EmptyAction("cut", null, null)
+    val copy = EmptyAction("copy", null, null)
+    val paste = EmptyAction("paste", null, null)
+    val actionManager = mock(ActionManager::class.java)
+    `when`(actionManager.getAction(ACTION_CUT)).thenReturn(cut)
+    `when`(actionManager.getAction(ACTION_COPY)).thenReturn(copy)
+    `when`(actionManager.getAction(ACTION_PASTE)).thenReturn(paste)
+    val actual = RootAction.merge(
+      listOf(
+        newActionNode(
+          ACTION_CUT,
+          When.ALWAYS,
+          listOf(getKeyStroke('a')),
+          emptyList()
+        ),
+        newActionNode(
+          ACTION_COPY,
+          When.toolWindowActive("Project"),
+          listOf(getKeyStroke('a'), getKeyStroke('b')),
+          emptyList()
+        ),
+        newActionNode(
+          ACTION_PASTE,
+          When.fileExtension("txt"),
+          listOf(getKeyStroke('x'), getKeyStroke('y')),
+          emptyList()
+        )
+      ),
+      actionManager,
+      mock(IdeFocusManager::class.java),
+      IdePopupManager(),
+      mock(JBPopupFactory::class.java),
+      mock(DataManager::class.java)
+    )
+
+    val expected = listOf(
+      RootAction(
+        "ActionsTree.Root.0",
+        listOf(getKeyStroke('a')),
+        listOf(
+          copy to When.toolWindowActive("Project"),
+          cut to When.ALWAYS
+        )
+      ),
+      RootAction(
+        "ActionsTree.Root.1",
+        listOf(getKeyStroke('b')),
+        listOf(copy to When.toolWindowActive("Project"))
+      ),
+      RootAction(
+        "ActionsTree.Root.2",
+        listOf(getKeyStroke('x'), getKeyStroke('y')),
+        listOf(paste to When.fileExtension("txt"))
+      )
+    )
+    assertEquals(expected, actual)
+  }
+
+  @Test
+  fun `merging maintains action with no key strokes`() {
+    val cut = EmptyAction("cut", null, null)
+    val copy = EmptyAction("copy", null, null)
+    val paste = EmptyAction("paste", null, null)
+    val actionManager = mock(ActionManager::class.java)
+    `when`(actionManager.getAction(ACTION_CUT)).thenReturn(cut)
+    `when`(actionManager.getAction(ACTION_COPY)).thenReturn(copy)
+    `when`(actionManager.getAction(ACTION_PASTE)).thenReturn(paste)
+
+    val actual = RootAction.merge(
+      listOf(
+        newActionNode(
+          ACTION_CUT,
+          When.ALWAYS,
+          emptyList(),
+          emptyList()
+        ),
+        newActionNode(
+          ACTION_COPY,
+          When.ALWAYS,
+          listOf(getKeyStroke('b')),
+          emptyList()
+        ),
+        newActionNode(
+          ACTION_PASTE,
+          When.ALWAYS,
+          emptyList(),
+          emptyList()
+        )
+      ),
+      actionManager,
+      mock(IdeFocusManager::class.java),
+      IdePopupManager(),
+      mock(JBPopupFactory::class.java),
+      mock(DataManager::class.java)
+    )
+
+    val expected = listOf(
+      RootAction(
+        "ActionsTree.Root.0",
+        listOf(getKeyStroke('b')),
+        listOf(copy to When.ALWAYS)
+      ),
+      RootAction(
+        "ActionsTree.Root.1",
+        emptyList(),
+        listOf(
+          paste to When.ALWAYS,
+          cut to When.ALWAYS
+        )
+      )
+    )
+
+    assertEquals(expected, actual)
+  }
+
+  private class ModalAction(enableInModalContext: Boolean) : AnAction() {
+    override fun actionPerformed(e: AnActionEvent) {}
+
+    init {
+      isEnabledInModalContext = enableInModalContext
     }
+  }
 
-    @Test
-    public void mergingMaintainsCustomActionGroupsIds() {
-        var id = "my-custom-group-id";
-        var actual = RootAction.merge(
-                singletonList(newActionNode(
-                        id,
-                        When.ALWAYS,
-                        singletonList(getKeyStroke("X")),
-                        singletonList(newActionNode(
-                                "bob",
-                                When.ALWAYS,
-                                emptyList(),
-                                emptyList()
-                        ))
-                )),
-                mock(ActionManager.class),
-                mock(IdeFocusManager.class),
-                new IdePopupManager(),
-                mock(JBPopupFactory.class),
-                mock(DataManager.class)
-        );
-        assertEquals(1, actual.size());
-        assertEquals(id, actual.get(0).getId());
-    }
+  @Test
+  fun `enable in modal if any action supports modal`() {
+    assertTrue(
+      RootAction(
+        "id",
+        emptyList(),
+        listOf(
+          ModalAction(true) to When.NEVER,
+          ModalAction(false) to When.NEVER
+        )
+      ).isEnabledInModalContext
+    )
+    assertFalse(
+      RootAction(
+        "id",
+        emptyList(),
+        listOf(
+          ModalAction(false) to When.NEVER,
+          ModalAction(false) to When.NEVER
+        )
+      ).isEnabledInModalContext
+    )
+  }
 
-    @Test
-    public void mergesRootActions() {
-        AnAction cut = new EmptyAction("cut", null, null);
-        AnAction copy = new EmptyAction("copy", null, null);
-        AnAction paste = new EmptyAction("paste", null, null);
-        var actionManager = mock(ActionManager.class);
-        when(actionManager.getAction(ACTION_CUT)).thenReturn(cut);
-        when(actionManager.getAction(ACTION_COPY)).thenReturn(copy);
-        when(actionManager.getAction(ACTION_PASTE)).thenReturn(paste);
-
-        var actual = RootAction.merge(
-                asList(
-                        newActionNode(
-                                ACTION_CUT,
-                                When.ALWAYS,
-                                singletonList(getKeyStroke('a')),
-                                emptyList()
-                        ),
-                        newActionNode(
-                                ACTION_COPY,
-                                When.toolWindowActive("Project"),
-                                asList(getKeyStroke('a'), getKeyStroke('b')),
-                                emptyList()
-                        ),
-                        newActionNode(
-                                ACTION_PASTE,
-                                When.fileExtension("txt"),
-                                asList(getKeyStroke('x'), getKeyStroke('y')),
-                                emptyList()
-                        )
-                ),
-                actionManager,
-                null,
-                null,
-                null,
-                null
-        );
-
-        var expected = asList(
-                new RootAction(
-                        "ActionsTree.Root.0",
-                        singletonList(getKeyStroke('a')),
-                        asList(
-                                Pair.create(
-                                        copy,
-                                        When.toolWindowActive("Project")
-                                ),
-                                Pair.create(cut, When.ALWAYS)
-                        )
-                ),
-                new RootAction(
-                        "ActionsTree.Root.1",
-                        singletonList(getKeyStroke('b')),
-                        singletonList(Pair.create(
-                                copy,
-                                When.toolWindowActive("Project")
-                        ))
-                ),
-                new RootAction(
-                        "ActionsTree.Root.2",
-                        asList(getKeyStroke('x'), getKeyStroke('y')),
-                        singletonList(Pair.create(
-                                paste,
-                                When.fileExtension("txt")
-                        ))
-                )
-        );
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void mergingMaintainsActionWithNoKeyStrokes() {
-        var cut = new EmptyAction("cut", null, null);
-        var copy = new EmptyAction("copy", null, null);
-        var paste = new EmptyAction("paste", null, null);
-        var actionManager = mock(ActionManager.class);
-        when(actionManager.getAction(ACTION_CUT)).thenReturn(cut);
-        when(actionManager.getAction(ACTION_COPY)).thenReturn(copy);
-        when(actionManager.getAction(ACTION_PASTE)).thenReturn(paste);
-
-        var actual = RootAction.merge(
-                asList(
-                        newActionNode(
-                                ACTION_CUT,
-                                When.ALWAYS,
-                                emptyList(),
-                                emptyList()
-                        ),
-                        newActionNode(
-                                ACTION_COPY,
-                                When.ALWAYS,
-                                singletonList(getKeyStroke('b')),
-                                emptyList()
-                        ),
-                        newActionNode(
-                                ACTION_PASTE,
-                                When.ALWAYS,
-                                emptyList(),
-                                emptyList()
-                        )
-                ),
-                actionManager,
-                null,
-                null,
-                null,
-                null
-        );
-
-        var expected = asList(
-                new RootAction(
-                        "ActionsTree.Root.0",
-                        singletonList(getKeyStroke('b')),
-                        singletonList(Pair.create(copy, When.ALWAYS))
-                ),
-                new RootAction(
-                        "ActionsTree.Root.1",
-                        emptyList(),
-                        asList(
-                                Pair.create(paste, When.ALWAYS),
-                                Pair.create(cut, When.ALWAYS)
-                        )
-                )
-        );
-
-        assertEquals(expected, actual);
-    }
-
-    private static ActionNode newActionNode(
-            String id,
-            When when,
-            List<KeyStroke> keyStrokes,
-            List<ActionNode> items
-    ) {
-        return ActionNode.create(
-                id,
-                null,
-                null,
-                false,
-                when,
-                keyStrokes,
-                items
-        );
-    }
-
-    private static final class ModalAction extends AnAction {
-        ModalAction(boolean enableInModalContext) {
-            setEnabledInModalContext(enableInModalContext);
-        }
-
-        @Override
-        public void actionPerformed(AnActionEvent e) {
-        }
-    }
-
-    @Test
-    public void enableInModalIfAnyActionSupportsModal() {
-        assertTrue(new RootAction("id", emptyList(), asList(
-                Pair.create(new ModalAction(true), When.NEVER),
-                Pair.create(new ModalAction(false), When.NEVER)
-        )).isEnabledInModalContext());
-
-        assertFalse(new RootAction("id", emptyList(), asList(
-                Pair.create(new ModalAction(false), When.NEVER),
-                Pair.create(new ModalAction(false), When.NEVER)
-        )).isEnabledInModalContext());
-    }
+  private fun newActionNode(
+    id: String,
+    condition: When,
+    keyStrokes: List<KeyStroke>,
+    items: List<ActionNode>
+  ) = ActionNode(
+    id,
+    null,
+    null,
+    false,
+    condition,
+    keyStrokes,
+    items
+  )
 }

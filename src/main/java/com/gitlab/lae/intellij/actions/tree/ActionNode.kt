@@ -1,63 +1,91 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree
 
-import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation;
-import com.google.auto.value.AutoValue;
-import com.intellij.ide.DataManager;
-import com.intellij.ide.IdePopupManager;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.wm.IdeFocusManager;
+import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation
+import com.intellij.ide.DataManager
+import com.intellij.ide.IdePopupManager
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.wm.IdeFocusManager
+import java.util.*
+import javax.swing.KeyStroke
 
-import javax.annotation.Nullable;
-import javax.swing.*;
-import java.util.*;
+data class ActionNode(
+  val id: String,
+  val name: String?,
+  val separatorAbove: String?,
+  val isSticky: Boolean,
+  val condition: When,
+  val keys: List<KeyStroke>,
+  val items: List<ActionNode>
+) {
 
-import static java.util.stream.Collectors.toList;
+  fun createPresentation(
+    actionManager: ActionManager,
+    dataContext: DataContext,
+    focusManager: IdeFocusManager,
+    popupManager: IdePopupManager,
+    popupFactory: JBPopupFactory,
+    dataManager: DataManager,
+    keysOverride: List<KeyStroke>
+  ): ActionPresentation {
 
-@AutoValue
-public abstract class ActionNode {
-    ActionNode() {
-    }
+    val action = toAction(
+      actionManager,
+      focusManager,
+      popupManager,
+      popupFactory,
+      dataManager
+    )
+    val presentation = ActionPresentation.create(
+      action,
+      keysOverride,
+      separatorAbove,
+      isSticky
+    )
+    presentation.update(actionManager, dataContext)
+    return presentation
+  }
 
-    public static ActionNode create(
-            String id,
-            String name,
-            String separatorAbove,
-            boolean sticky,
-            When when,
-            List<KeyStroke> keys,
-            List<ActionNode> items
-    ) {
-        return new AutoValue_ActionNode(
-                id,
-                name,
-                separatorAbove,
-                sticky,
-                when,
-                keys,
-                items
-        );
-    }
+  fun toAction(
+    actionManager: ActionManager,
+    focusManager: IdeFocusManager,
+    popupManager: IdePopupManager,
+    popupFactory: JBPopupFactory,
+    dataManager: DataManager
+  ): AnAction = when {
+    items.isEmpty() -> actionManager.getAction(id) ?: UnknownAction(this)
+    else -> PopupAction(
+      this,
+      focusManager,
+      popupManager,
+      popupFactory,
+      dataManager
+    )
+  }
 
-    public abstract String id();
+  /**
+   * Prepares the child items for the given context.
+   *
+   * Returns a list of key strokes and actions pairs.
+   * If multiple actions were mapped to the same key strokes originally,
+   * then the last action whose [ActionNode.when] evaluates to true
+   * will be chosen.
+   */
+  fun prepare(context: DataContext): List<Pair<List<KeyStroke>, ActionNode>> {
+    val registered = HashSet<KeyStroke>()
+    return items
+      .reversed()
+      .asSequence()
+      .filter { it.condition.test(context) }
+      .map { it.keys.filter { k -> registered.add(k) } to it }
+      .toList()
+      .reversed()
+  }
 
-    @Nullable
-    abstract String name();
-
-    @Nullable
-    abstract String separatorAbove();
-
-    abstract boolean sticky();
-
-    public abstract When when();
-
-    public abstract List<KeyStroke> keys();
-
-    public abstract List<ActionNode> items();
+  companion object {
 
     /* Use ACTION_SEARCH as the action place seems to work the best.
      *
@@ -66,86 +94,6 @@ public abstract class ActionNode {
      *
      * 'Exit' actions works (doesn't work if place is MAIN_MENU)
      */
-    public static final String ACTION_PLACE =
-            ActionPlaces.ACTION_SEARCH;
-
-    ActionPresentation createPresentation(
-            ActionManager actionManager,
-            DataContext dataContext,
-            IdeFocusManager focusManager,
-            IdePopupManager popupManager,
-            JBPopupFactory popupFactory,
-            DataManager dataManager,
-            List<KeyStroke> keysOverride
-    ) {
-        AnAction action = toAction(
-                actionManager,
-                focusManager,
-                popupManager,
-                popupFactory,
-                dataManager
-        );
-        ActionPresentation presentation = ActionPresentation.create(
-                action,
-                keysOverride,
-                separatorAbove(),
-                sticky()
-        );
-        presentation.update(actionManager, dataContext);
-        return presentation;
-    }
-
-    public AnAction toAction(
-            ActionManager actionManager,
-            IdeFocusManager focusManager,
-            IdePopupManager popupManager,
-            JBPopupFactory popupFactory,
-            DataManager dataManager
-    ) {
-        if (items().isEmpty()) {
-            AnAction action = actionManager.getAction(id());
-            return action != null
-                    ? action
-                    : new UnknownAction(this);
-        }
-        return new PopupAction(
-                this,
-                focusManager,
-                popupManager,
-                popupFactory,
-                dataManager
-        );
-    }
-
-    /**
-     * Prepares the child items for the given context.
-     * <p>
-     * Returns a list of key strokes and actions pairs.
-     * If multiple actions were mapped to the same key strokes originally,
-     * then the last action whose {@link ActionNode#when()} evaluates to true
-     * will be chosen.
-     */
-    public List<Pair<List<KeyStroke>, ActionNode>> prepare(DataContext context) {
-        Set<KeyStroke> registered = new HashSet<>();
-        List<Pair<List<KeyStroke>, ActionNode>> result = new ArrayList<>();
-        List<ActionNode> items = new ArrayList<>(items());
-        Collections.reverse(items);
-
-        for (ActionNode item : items) {
-            if (!item.when().test(context)) {
-                continue;
-            }
-
-            List<KeyStroke> keys = item.keys()
-                    .stream()
-                    .filter(registered::add)
-                    .collect(toList());
-
-            result.add(Pair.create(keys, item));
-        }
-
-        Collections.reverse(result);
-        return result;
-    }
-
+    const val ACTION_PLACE = ActionPlaces.ACTION_SEARCH
+  }
 }

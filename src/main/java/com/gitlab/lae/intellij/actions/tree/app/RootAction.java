@@ -8,8 +8,8 @@ import com.intellij.ide.DataManager;
 import com.intellij.ide.IdePopupManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.wm.IdeFocusManager;
+import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -31,7 +31,7 @@ final class RootAction extends AnAction {
             List<Pair<AnAction, When>> actions
     ) {
         super(actions.stream()
-                .map(pair -> pair.first.getTemplatePresentation().getText())
+                .map(pair -> pair.getFirst().getTemplatePresentation().getText())
                 .collect(joining(", ")));
 
         this.id = requireNonNull(id);
@@ -41,7 +41,7 @@ final class RootAction extends AnAction {
                 .toArray(Shortcut[]::new)));
 
         setEnabledInModalContext(actions.stream()
-                .anyMatch(it -> it.first.isEnabledInModalContext()));
+                .anyMatch(it -> it.getFirst().isEnabledInModalContext()));
     }
 
     @Override
@@ -81,9 +81,9 @@ final class RootAction extends AnAction {
     @NotNull
     private Optional<AnAction> findAction(AnActionEvent e) {
         return actions.stream()
-                .filter(it -> it.second.test(e.getDataContext()))
+                .filter(it -> it.getSecond().test(e.getDataContext()))
                 .findAny()
-                .map(it -> it.first);
+                .map(Pair<AnAction, When>::getFirst);
     }
 
     @Override
@@ -154,7 +154,7 @@ final class RootAction extends AnAction {
         List<ActionNode> noKeys = new ArrayList<>(0);
         Map<KeyStroke, List<ActionNode>> byKeys = new LinkedHashMap<>();
         for (ActionNode action : actions) {
-            List<KeyStroke> keys = action.keys();
+            List<KeyStroke> keys = action.getKeys();
             if (keys.isEmpty()) {
                 noKeys.add(action);
                 continue;
@@ -194,12 +194,12 @@ final class RootAction extends AnAction {
              * to existing action items because it will result in duplicate
              * ID error when registering later.
              */
-            String id = nodes.size() == 1 && !nodes.get(0).items().isEmpty()
-                    ? nodes.get(0).id()
+            String id = nodes.size() == 1 && !nodes.get(0).getItems().isEmpty()
+                    ? nodes.get(0).getId()
                     : "ActionsTree.Root." + counter;
 
             result.add(new RootAction(id, keys, nodes.stream()
-                    .map(it -> Pair.create(
+                    .map(it -> new Pair<>(
                             it.toAction(
                                     actionManager,
                                     focusManager,
@@ -207,7 +207,7 @@ final class RootAction extends AnAction {
                                     popupFactory,
                                     dataManager
                             ),
-                            it.when()
+                            it.getCondition()
                     ))
                     .collect(collectingAndThen(
                             toCollection(ArrayList::new),

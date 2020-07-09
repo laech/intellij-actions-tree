@@ -1,122 +1,127 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree
 
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.util.Pair;
-import org.junit.Test;
+import com.intellij.openapi.actionSystem.DataContext
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.mockito.Mockito.mock
+import javax.swing.KeyStroke.getKeyStroke
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static javax.swing.KeyStroke.getKeyStroke;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+class ActionNodeTest {
 
-public final class ActionNodeTest {
+  @Test
+  fun `prepares child item for context`() {
 
-    @Test
-    public void preparesChildItemForContext() {
-        var a = ActionNode.create(
-                "a",
-                "a",
-                null,
-                false,
-                When.ALWAYS,
-                singletonList(getKeyStroke('a')),
-                emptyList()
-        );
-        var b = ActionNode.create(
-                "b",
-                "b",
-                null,
-                false,
-                When.ALWAYS,
-                asList(getKeyStroke('b'), getKeyStroke('z')),
-                emptyList()
-        );
-        var c = ActionNode.create(
-                "c",
-                "c",
-                null,
-                false,
-                When.ALWAYS,
-                singletonList(getKeyStroke('b')),
-                emptyList()
-        );
-        var d = ActionNode.create(
-                "d",
-                "d",
-                null,
-                false,
-                When.NEVER,
-                singletonList(getKeyStroke('b')),
-                emptyList()
-        );
+    val a = ActionNode(
+      "a",
+      "a",
+      null,
+      false,
+      When.ALWAYS,
+      listOf(getKeyStroke('a')),
+      emptyList()
+    )
 
-        var actual = ActionNode.create(
-                "id",
-                "name",
-                null,
-                false,
-                When.ALWAYS,
-                emptyList(),
-                asList(a, b, c, d)
-        ).prepare(mock(DataContext.class));
+    val b = ActionNode(
+      "b",
+      "b",
+      null,
+      false,
+      When.ALWAYS,
+      listOf(
+        getKeyStroke('b'),
+        getKeyStroke('z')
+      ),
+      emptyList()
+    )
 
-        var expected = asList(
-                Pair.create(singletonList(getKeyStroke('a')), a),
-                Pair.create(singletonList(getKeyStroke('z')), b),
-                Pair.create(singletonList(getKeyStroke('b')), c)
-        );
+    val c = ActionNode(
+      "c",
+      "c",
+      null,
+      false,
+      When.ALWAYS,
+      listOf(getKeyStroke('b')),
+      emptyList()
+    )
 
-        assertEquals(expected, actual);
-    }
+    val d = ActionNode(
+      "d",
+      "d",
+      null,
+      false,
+      When.NEVER,
+      listOf(getKeyStroke('b')),
+      emptyList()
+    )
 
-    @Test
-    public void preparesChildItemForContextKeepsEmptyKeyStrokes() {
-        var a = ActionNode.create(
-                "a",
-                "a",
-                null,
-                false,
-                When.ALWAYS,
-                emptyList(),
-                emptyList()
-        );
-        var b = ActionNode.create(
-                "b",
-                "b",
-                null,
-                false,
-                When.ALWAYS,
-                singletonList(getKeyStroke('b')),
-                emptyList()
-        );
-        var c = ActionNode.create(
-                "c",
-                "c",
-                null,
-                false,
-                When.ALWAYS,
-                emptyList(),
-                emptyList()
-        );
+    val actual = ActionNode(
+      "id",
+      "name",
+      null,
+      false,
+      When.ALWAYS,
+      emptyList(),
+      listOf(a, b, c, d)
+    ).prepare(mock(DataContext::class.java))
 
-        var actual = ActionNode.create(
-                "id",
-                "name",
-                null,
-                false,
-                When.ALWAYS,
-                emptyList(),
-                asList(a, b, c)
-        ).prepare(mock(DataContext.class));
+    val expected = listOf(
+      listOf(getKeyStroke('a')) to a,
+      listOf(getKeyStroke('z')) to b,
+      listOf(getKeyStroke('b')) to c
+    )
 
-        var expected = asList(
-                Pair.create(emptyList(), a),
-                Pair.create(singletonList(getKeyStroke('b')), b),
-                Pair.create(emptyList(), c)
-        );
+    assertEquals(expected, actual)
+  }
 
-        assertEquals(expected, actual);
-    }
+  @Test
+  fun `prepares child item for context keeps empty key strokes`() {
+
+    val a = ActionNode(
+      "a",
+      "a",
+      null,
+      false,
+      When.ALWAYS,
+      emptyList(),
+      emptyList()
+    )
+
+    val b = ActionNode(
+      "b",
+      "b",
+      null,
+      false,
+      When.ALWAYS,
+      listOf(getKeyStroke('b')),
+      emptyList()
+    )
+
+    val c = ActionNode(
+      "c",
+      "c",
+      null,
+      false,
+      When.ALWAYS,
+      emptyList(),
+      emptyList()
+    )
+
+    val actual = ActionNode(
+      "id",
+      "name",
+      null,
+      false,
+      When.ALWAYS,
+      emptyList(),
+      listOf(a, b, c)
+    ).prepare(mock(DataContext::class.java))
+
+    val expected = listOf(
+      emptyList<Any>() to a,
+      listOf(getKeyStroke('b')) to b,
+      emptyList<Any>() to c
+    )
+
+    assertEquals(expected, actual)
+  }
 }

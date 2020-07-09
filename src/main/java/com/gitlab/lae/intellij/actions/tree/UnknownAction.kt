@@ -1,20 +1,14 @@
-package com.gitlab.lae.intellij.actions.tree;
+package com.gitlab.lae.intellij.actions.tree
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 
-final class UnknownAction extends AnAction {
+internal class UnknownAction(action: ActionNode) :
+  AnAction("?" + action.id + "?") {
 
-    UnknownAction(ActionNode action) {
-        super("?" + action.id() + "?");
-    }
+  override fun actionPerformed(e: AnActionEvent) {}
 
-    @Override
-    public void actionPerformed(AnActionEvent e) {
-    }
-
-    @Override
-    public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(false);
-    }
+  override fun update(e: AnActionEvent) {
+    e.presentation.isEnabled = false
+  }
 }
