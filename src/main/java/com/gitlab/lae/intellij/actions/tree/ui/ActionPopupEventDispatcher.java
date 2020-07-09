@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.stream.Stream;
@@ -80,12 +81,12 @@ public final class ActionPopupEventDispatcher
     }
 
     @Override
-    public void beforeShown(LightweightWindowEvent event) {
+    public void beforeShown(@Nullable LightweightWindowEvent event) {
         popupManager.push(this);
     }
 
     @Override
-    public void onClosed(LightweightWindowEvent event) {
+    public void onClosed(@Nullable LightweightWindowEvent event) {
         popupManager.remove(this);
     }
 }
