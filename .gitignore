@@ -5,4 +5,5 @@
 *.iws
 *~
 #*
-.*
+.idea
+.gradle
