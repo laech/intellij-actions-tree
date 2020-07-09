@@ -1,80 +1,52 @@
-package com.gitlab.lae.intellij.actions.tree.action;
+package com.gitlab.lae.intellij.actions.tree.action
 
-import com.google.gson.stream.JsonWriter;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileChooser.FileChooserFactory;
-import com.intellij.openapi.fileChooser.FileSaverDescriptor;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileWrapper;
+import com.google.gson.stream.JsonWriter
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileChooser.FileChooserFactory
+import com.intellij.openapi.fileChooser.FileSaverDescriptor
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
+import java.io.File
+import kotlin.text.Charsets.UTF_8
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+class ExportIdeActions : AnAction(), DumbAware {
 
-import static java.nio.file.Files.newBufferedWriter;
+  override fun actionPerformed(e: AnActionEvent) {
+    val descriptor = FileSaverDescriptor("Export IDE Actions", "")
+    val result = FileChooserFactory.getInstance()
+      .createSaveFileDialog(descriptor, null as Project?)
+      .save(null, "actions.json")
+      ?: return
 
-public final class ExportIdeActions extends AnAction implements DumbAware {
-
-    @Override
-    public void actionPerformed(AnActionEvent e) {
-
-        FileSaverDescriptor descriptor =
-                new FileSaverDescriptor("Export IDE Actions", "");
-
-        VirtualFileWrapper result = FileChooserFactory.getInstance()
-                .createSaveFileDialog(descriptor, (Project) null)
-                .save(null, "actions.json");
-
-        if (result == null) {
-            return;
-        }
-
-        ApplicationManager.getApplication().runWriteAction(() ->
-                export(result.getFile(), e.getActionManager()));
-
-        Project project = e.getProject();
-        VirtualFile virtualFile = result.getVirtualFile();
-        if (project == null || virtualFile == null) {
-            return;
-        }
-
-        new OpenFileDescriptor(project, virtualFile).navigate(true);
+    ApplicationManager.getApplication().runWriteAction {
+      export(result.file, e.actionManager)
     }
 
-    private void export(File file, ActionManager mgr) {
-        try (BufferedWriter fileWriter = newBufferedWriter(file.toPath());
-             JsonWriter writer = new JsonWriter(fileWriter)) {
+    val project = e.project ?: return
+    val virtualFile = result.virtualFile ?: return
+    OpenFileDescriptor(project, virtualFile).navigate(true)
+  }
 
-            writer.setIndent("  ");
-            writer.beginArray();
-
-            for (String id : mgr.getActionIds("")) {
-                AnAction action = mgr.getActionOrStub(id);
-                if (action == null) {
-                    continue;
-                }
-                String name = action.getTemplatePresentation().getText();
-                if (name == null) {
-                    name = "";
-                }
-                writer.beginObject()
-                        .name("id").value(id)
-                        .name("name").value(name)
-                        .endObject();
-            }
-
-            writer.endArray();
-            writer.flush();
-
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+  private fun export(file: File, mgr: ActionManager) {
+    file.writer(UTF_8).use {
+      JsonWriter(it).use { writer ->
+        writer.setIndent("  ")
+        writer.beginArray()
+        mgr.getActionIds("").forEach { id ->
+          val action = mgr.getActionOrStub(id) ?: return@forEach
+          val name = action.templatePresentation.text ?: ""
+          writer.beginObject()
+            .name("id").value(id)
+            .name("name").value(name)
+            .endObject()
         }
+        writer.endArray()
+        writer.flush()
+      }
     }
+  }
 }
