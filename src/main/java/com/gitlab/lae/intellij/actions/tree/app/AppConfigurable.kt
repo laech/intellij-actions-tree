@@ -1,74 +1,64 @@
-package com.gitlab.lae.intellij.actions.tree.app;
+package com.gitlab.lae.intellij.actions.tree.app
 
-import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.fileChooser.FileChooserDescriptor
+import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import java.awt.BorderLayout
+import java.awt.event.ActionListener
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JTextField
 
-import javax.swing.*;
-import java.awt.*;
+class AppConfigurable : Configurable {
 
-import static com.intellij.openapi.fileChooser.FileChooser.chooseFile;
+  private lateinit var confLocation: JTextField
 
-public final class AppConfigurable implements Configurable {
+  private fun settings() = PropertiesComponent.getInstance()
 
-    static final String CONF_KEY = "com.gitlab.lae.intellij.actions.tree.conf";
+  override fun isModified() =
+    isModified(confLocation, settings().getValue(CONF_KEY, ""))
 
-    private JTextField confLocation;
+  override fun getDisplayName() = "Actions Tree"
 
-    private PropertiesComponent settings() {
-        return PropertiesComponent.getInstance();
+  override fun apply() {
+    settings().setValue(CONF_KEY, confLocation.text.trim())
+    ApplicationManager
+      .getApplication()
+      .getComponent(AppComponent::class.java)
+      .reload()
+  }
+
+  override fun reset() {
+    confLocation.text = settings().getValue(CONF_KEY, "")
+  }
+
+  override fun createComponent(): JComponent? {
+    confLocation = JTextField()
+
+    val row = JPanel(BorderLayout())
+    row.add(JLabel("Configuration File: "), BorderLayout.LINE_START)
+    row.add(TextFieldWithBrowseButton(confLocation, ActionListener {
+      val file = FileChooser.chooseFile(
+        FileChooserDescriptor(true, false, false, false, false, false),
+        null,
+        null
+      )
+      if (file != null) {
+        confLocation.text = file.path
+      }
     }
+    ), BorderLayout.CENTER)
 
-    @Override
-    public boolean isModified() {
-        return isModified(confLocation, settings().getValue(CONF_KEY, ""));
-    }
+    val panel = JPanel(BorderLayout())
+    panel.add(row, BorderLayout.PAGE_START)
+    return panel
+  }
 
-    @Override
-    public String getDisplayName() {
-        return "Actions Tree";
-    }
-
-    @Override
-    public void apply() {
-        settings().setValue(CONF_KEY, confLocation.getText().trim());
-        ApplicationManager
-                .getApplication()
-                .getComponent(AppComponent.class)
-                .reload();
-    }
-
-    @Override
-    public void reset() {
-        confLocation.setText(settings().getValue(CONF_KEY, ""));
-    }
-
-    @Override
-    public JComponent createComponent() {
-        confLocation = new JTextField();
-
-        JPanel row = new JPanel(new BorderLayout());
-        row.add(new JLabel("Configuration File: "), BorderLayout.LINE_START);
-        row.add(new TextFieldWithBrowseButton(confLocation, __ -> {
-            VirtualFile file = chooseFile(new FileChooserDescriptor(
-                    true,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-            ), null, null);
-            if (file != null) {
-                confLocation.setText(file.getPath());
-            }
-        }), BorderLayout.CENTER);
-
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(row, BorderLayout.PAGE_START);
-        return panel;
-    }
-
+  companion object {
+    const val CONF_KEY = "com.gitlab.lae.intellij.actions.tree.conf"
+  }
 }
