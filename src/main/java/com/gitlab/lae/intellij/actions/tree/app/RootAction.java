@@ -20,12 +20,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.*;
 
-final class RootAction extends AnAction {
+public final class RootAction extends AnAction {
 
     private final String id;
     private final List<Pair<AnAction, When>> actions;
 
-    RootAction(
+    public RootAction(
             String id,
             List<KeyStroke> keyStrokes,
             List<Pair<AnAction, When>> actions

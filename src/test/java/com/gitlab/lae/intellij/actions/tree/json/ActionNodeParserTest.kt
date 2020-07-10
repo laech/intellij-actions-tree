@@ -1,10 +1,10 @@
 package com.gitlab.lae.intellij.actions.tree.json
 
-import com.gitlab.lae.intellij.actions.tree.ActionNode
 import com.gitlab.lae.intellij.actions.tree.When
+import com.gitlab.lae.intellij.actions.tree.action
+import com.gitlab.lae.intellij.actions.tree.keys
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import javax.swing.KeyStroke.getKeyStroke
 import kotlin.text.Charsets.UTF_8
 
 class ActionNodeParserTest {
@@ -12,80 +12,56 @@ class ActionNodeParserTest {
   @Test
   fun deserialization() {
     val expected = listOf(
-      ActionNode(
-        "ActionsTree.Node.1",
-        "Unnamed",
-        null,
-        false,
-        When.toolWindowActive("Project"),
-        listOf(getKeyStroke("ctrl C")),
-        listOf(
-          ActionNode(
-            "ActionsTree.Node.2",
-            "Unnamed",
-            null,
-            false,
-            When.ALWAYS,
-            listOf(getKeyStroke("P")),
-            listOf(
-              ActionNode(
-                "CloseProject",
-                "Unnamed",
-                null,
-                false,
-                When.ALWAYS,
-                listOf(
-                  getKeyStroke("K"),
-                  getKeyStroke("ctrl K")
-                ),
-                emptyList()
+      action(
+        id = "ActionsTree.Node.1",
+        name = "Unnamed",
+        condition = When.toolWindowActive("Project"),
+        keys = keys("ctrl C"),
+        items = listOf(
+          action(
+            id = "ActionsTree.Node.2",
+            name = "Unnamed",
+            keys = keys("P"),
+            items = listOf(
+              action(
+                id = "CloseProject",
+                name = "Unnamed",
+                keys = keys("K", "ctrl K")
               ),
-              ActionNode(
-                "OpenProjectGroup",
-                "Unnamed",
-                "SEP",
-                false,
-                When.ALWAYS,
-                listOf(getKeyStroke("P")),
-                emptyList()
+              action(
+                id = "OpenProjectGroup",
+                name = "Unnamed",
+                separatorAbove = "SEP",
+                keys = keys("P")
               )
             )
           )
         )
       ),
-      ActionNode(
-        "ActionsTree.Node.3",
-        "b",
-        null,
-        false,
-        When.fileExtension("java"),
-        listOf(getKeyStroke("ctrl X")),
-        listOf(
-          ActionNode(
-            "EditorSwapSelectionBoundaries",
-            "Unnamed",
-            null,
-            true,
-            When.ALWAYS,
-            listOf(getKeyStroke("ctrl X")),
-            emptyList()
+      action(
+        id = "ActionsTree.Node.3",
+        name = "b",
+        condition = When.fileExtension("java"),
+        keys = keys("ctrl X"),
+        items = listOf(
+          action(
+            id = "EditorSwapSelectionBoundaries",
+            name = "Unnamed",
+            keys = keys("ctrl X"),
+            isSticky = true
           )
         )
       ),
-      ActionNode(
-        "ActionsTree.Node.4",
-        "c",
-        null,
-        false,
-        When.any(
+      action(
+        id = "ActionsTree.Node.4",
+        name = "c",
+        condition = When.any(
           When.fileExtension("txt"),
           When.all(
             When.toolWindowActive("Run"),
             When.fileExtension("java")
           )
-        ),
-        emptyList(),
-        emptyList()
+        )
       )
     )
 

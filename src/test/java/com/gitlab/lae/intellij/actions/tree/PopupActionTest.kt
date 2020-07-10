@@ -1,12 +1,9 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.intellij.ide.DataManager
 import com.intellij.ide.IdePopupManager
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.wm.IdeFocusManager
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.mockito.Mockito.mock
 
 class PopupActionTest {
 
@@ -20,11 +17,6 @@ class PopupActionTest {
     assertTrue(newPopupAction().isDumbAware)
   }
 
-  private fun newPopupAction() = PopupAction(
-    ActionNode("", "", "", false, When.ALWAYS, emptyList(), emptyList()),
-    mock(IdeFocusManager::class.java),
-    IdePopupManager(),
-    mock(JBPopupFactory::class.java),
-    mock(DataManager::class.java)
-  )
+  private fun newPopupAction() =
+    PopupAction(action(), mock(), IdePopupManager(), mock(), mock())
 }

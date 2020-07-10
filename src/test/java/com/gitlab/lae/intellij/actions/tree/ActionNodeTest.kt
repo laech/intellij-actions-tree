@@ -1,127 +1,42 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.intellij.openapi.actionSystem.DataContext
+import com.gitlab.lae.intellij.actions.tree.When.NEVER
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.mockito.Mockito.mock
-import javax.swing.KeyStroke.getKeyStroke
 
 class ActionNodeTest {
 
   @Test
   fun `prepares child item for context`() {
 
-    val a = ActionNode(
-      "a",
-      "a",
-      null,
-      false,
-      When.ALWAYS,
-      listOf(getKeyStroke('a')),
-      emptyList()
-    )
+    val a = action("a", keys = keys("typed a"))
+    val b = action("b", keys = keys("typed b", "typed z"))
+    val c = action("c", keys = keys("typed b"))
+    val d = action("d", keys = keys("typed b"), condition = NEVER)
 
-    val b = ActionNode(
-      "b",
-      "b",
-      null,
-      false,
-      When.ALWAYS,
-      listOf(
-        getKeyStroke('b'),
-        getKeyStroke('z')
-      ),
-      emptyList()
-    )
-
-    val c = ActionNode(
-      "c",
-      "c",
-      null,
-      false,
-      When.ALWAYS,
-      listOf(getKeyStroke('b')),
-      emptyList()
-    )
-
-    val d = ActionNode(
-      "d",
-      "d",
-      null,
-      false,
-      When.NEVER,
-      listOf(getKeyStroke('b')),
-      emptyList()
-    )
-
-    val actual = ActionNode(
-      "id",
-      "name",
-      null,
-      false,
-      When.ALWAYS,
-      emptyList(),
-      listOf(a, b, c, d)
-    ).prepare(mock(DataContext::class.java))
-
+    val actual = action(items = listOf(a, b, c, d)).prepare(mock())
     val expected = listOf(
-      listOf(getKeyStroke('a')) to a,
-      listOf(getKeyStroke('z')) to b,
-      listOf(getKeyStroke('b')) to c
+      keys("typed a") to a,
+      keys("typed z") to b,
+      keys("typed b") to c
     )
-
     assertEquals(expected, actual)
   }
 
   @Test
   fun `prepares child item for context keeps empty key strokes`() {
 
-    val a = ActionNode(
-      "a",
-      "a",
-      null,
-      false,
-      When.ALWAYS,
-      emptyList(),
-      emptyList()
-    )
+    val a = action("a")
+    val b = action("b", keys = keys("typed b"))
+    val c = action("c")
 
-    val b = ActionNode(
-      "b",
-      "b",
-      null,
-      false,
-      When.ALWAYS,
-      listOf(getKeyStroke('b')),
-      emptyList()
-    )
-
-    val c = ActionNode(
-      "c",
-      "c",
-      null,
-      false,
-      When.ALWAYS,
-      emptyList(),
-      emptyList()
-    )
-
-    val actual = ActionNode(
-      "id",
-      "name",
-      null,
-      false,
-      When.ALWAYS,
-      emptyList(),
-      listOf(a, b, c)
-    ).prepare(mock(DataContext::class.java))
-
+    val actual = action(items = listOf(a, b, c)).prepare(mock())
     val expected = listOf(
-      emptyList<Any>() to a,
-      listOf(getKeyStroke('b')) to b,
-      emptyList<Any>() to c
+      keys() to a,
+      keys("typed b") to b,
+      keys() to c
     )
-
     assertEquals(expected, actual)
   }
 }
