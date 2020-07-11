@@ -2,7 +2,7 @@ package com.gitlab.lae.intellij.actions.tree.app
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode
 import com.gitlab.lae.intellij.actions.tree.When
-import com.gitlab.lae.intellij.actions.tree.util.Actions
+import com.gitlab.lae.intellij.actions.tree.util.setEnabledModalContext
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdePopupManager
 import com.intellij.openapi.actionSystem.*
@@ -62,7 +62,7 @@ data class RootAction(
     e.presentation.isEnabled = action != null
     if (action != null) {
       action.update(e)
-      Actions.setEnabledModalContext(e, action)
+      setEnabledModalContext(e, action)
     }
   }
 

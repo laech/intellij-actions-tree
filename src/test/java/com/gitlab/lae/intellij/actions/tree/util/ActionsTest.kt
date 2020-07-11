@@ -1,7 +1,6 @@
 package com.gitlab.lae.intellij.actions.tree.util
 
 import com.gitlab.lae.intellij.actions.tree.actionEvent
-import com.gitlab.lae.intellij.actions.tree.util.Actions.setEnabledModalContext
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext

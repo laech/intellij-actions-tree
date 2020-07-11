@@ -1,6 +1,5 @@
 package com.gitlab.lae.intellij.actions.tree.ui
 
-import com.gitlab.lae.intellij.actions.tree.ui.KeyStrokeLabel.getKeyText
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

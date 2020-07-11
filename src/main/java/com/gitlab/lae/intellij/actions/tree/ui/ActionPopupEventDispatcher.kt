@@ -1,23 +1,20 @@
-package com.gitlab.lae.intellij.actions.tree.ui;
+package com.gitlab.lae.intellij.actions.tree.ui
 
-import com.intellij.ide.IdePopupManager;
-import com.intellij.openapi.ui.popup.IdePopupEventDispatcher;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupListener;
-import com.intellij.openapi.ui.popup.LightweightWindowEvent;
-
-import javax.annotation.Nullable;
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.util.stream.Stream;
-
-import static java.util.Objects.requireNonNull;
+import com.intellij.ide.IdePopupManager
+import com.intellij.openapi.ui.popup.IdePopupEventDispatcher
+import com.intellij.openapi.ui.popup.JBPopup
+import com.intellij.openapi.ui.popup.JBPopupListener
+import com.intellij.openapi.ui.popup.LightweightWindowEvent
+import java.awt.AWTEvent
+import java.awt.Component
+import java.awt.event.KeyEvent
+import java.util.stream.Stream
 
 /**
- * Using an {@link IdePopupEventDispatcher} is required to let IntelliJ
+ * Using an [IdePopupEventDispatcher] is required to let IntelliJ
  * know we have a popup showing, therefore keyboard events should
  * be forward to us for processing first.
- * <p>
+ *
  * For example, without this if the popup has an item in the list
  * with shortcut "Ctrl+D", and there is a global shortcut specified
  * in the IntelliJ keymap for "Ctrl+D Ctrl+X" (2 key strokes),
@@ -27,66 +24,41 @@ import static java.util.Objects.requireNonNull;
  * as a prefix key. We want the entry in the popup to be execute
  * when "Ctrl+D" is pressed.
  */
-public final class ActionPopupEventDispatcher
-        implements IdePopupEventDispatcher, JBPopupListener {
+class ActionPopupEventDispatcher(
+  private val popup: JBPopup,
+  private val list: ActionList,
+  private val popupManager: IdePopupManager
+) : IdePopupEventDispatcher, JBPopupListener {
 
-    private final IdePopupManager popupManager;
-    private final JBPopup popup;
-    private final ActionList list;
+  override fun getPopupStream(): Stream<JBPopup> = Stream.of(popup)
 
-    public ActionPopupEventDispatcher(
-            JBPopup popup,
-            ActionList list,
-            IdePopupManager popupManager
-    ) {
-        this.popup = requireNonNull(popup);
-        this.list = requireNonNull(list);
-        this.popupManager = requireNonNull(popupManager);
+  override fun dispatch(event: AWTEvent): Boolean {
+    if (event !is KeyEvent) {
+      return false
     }
+    list.processKeyEvent(event)
+    return event.isConsumed
+  }
 
-    @Override
-    public Stream<JBPopup> getPopupStream() {
-        return Stream.of(popup);
-    }
+  override fun getComponent(): Component = popup.content
 
-    @Override
-    public boolean dispatch(AWTEvent event) {
-        if (!(event instanceof KeyEvent)) {
-            return false;
-        }
-        KeyEvent keyEvent = (KeyEvent) event;
-        list.processKeyEvent(keyEvent);
-        return keyEvent.isConsumed();
-    }
+  override fun requestFocus(): Boolean {
+    popup.content.requestFocus()
+    return true
+  }
 
-    @Override
-    public Component getComponent() {
-        return popup.getContent();
-    }
+  override fun close(): Boolean {
+    popup.closeOk(null)
+    return true
+  }
 
-    @Override
-    public boolean requestFocus() {
-        popup.getContent().requestFocus();
-        return true;
-    }
+  override fun setRestoreFocusSilentely() {}
 
-    @Override
-    public boolean close() {
-        popup.closeOk(null);
-        return true;
-    }
+  override fun beforeShown(event: LightweightWindowEvent) {
+    popupManager.push(this)
+  }
 
-    @Override
-    public void setRestoreFocusSilentely() {
-    }
-
-    @Override
-    public void beforeShown(@Nullable LightweightWindowEvent event) {
-        popupManager.push(this);
-    }
-
-    @Override
-    public void onClosed(@Nullable LightweightWindowEvent event) {
-        popupManager.remove(this);
-    }
+  override fun onClosed(event: LightweightWindowEvent) {
+    popupManager.remove(this)
+  }
 }

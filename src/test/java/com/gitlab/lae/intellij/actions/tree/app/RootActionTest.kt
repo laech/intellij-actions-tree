@@ -1,8 +1,8 @@
 package com.gitlab.lae.intellij.actions.tree.app
 
 import com.gitlab.lae.intellij.actions.tree.*
-import com.gitlab.lae.intellij.actions.tree.When.ALWAYS
-import com.gitlab.lae.intellij.actions.tree.When.NEVER
+import com.gitlab.lae.intellij.actions.tree.When.Companion.ALWAYS
+import com.gitlab.lae.intellij.actions.tree.When.Companion.NEVER
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdePopupManager
 import com.intellij.openapi.actionSystem.*

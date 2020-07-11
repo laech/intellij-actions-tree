@@ -1,33 +1,30 @@
-package com.gitlab.lae.intellij.actions.tree.ui;
+package com.gitlab.lae.intellij.actions.tree.ui
 
-import com.intellij.openapi.keymap.KeymapUtil;
+import com.intellij.openapi.keymap.KeymapUtil
+import java.awt.event.KeyEvent
+import java.awt.event.KeyEvent.CHAR_UNDEFINED
+import javax.swing.KeyStroke
 
-import javax.swing.*;
+fun getKeyText(key: KeyStroke): String {
+  val copy = KeyStroke.getKeyStroke(
+    KeyEvent.VK_A,
+    key.modifiers,
+    key.isOnKeyRelease
+  )
 
-import static java.awt.event.KeyEvent.*;
+  var prefix = KeymapUtil.getKeystrokeText(copy)
+  prefix = prefix.substring(0, prefix.length - 1)
 
-final class KeyStrokeLabel {
+  val suffix =
+    if (key.keyChar != CHAR_UNDEFINED) key.keyChar.toString()
+    else getKeyText(key.keyCode)
 
-    static String getKeyText(KeyStroke key) {
-        KeyStroke copy = KeyStroke.getKeyStroke(
-                VK_A,
-                key.getModifiers(),
-                key.isOnKeyRelease()
-        );
-        String prefix = KeymapUtil.getKeystrokeText(copy);
-        prefix = prefix.substring(0, prefix.length() - 1);
-        String suffix = key.getKeyChar() != CHAR_UNDEFINED
-                ? String.valueOf(key.getKeyChar())
-                : getKeyText(key.getKeyCode());
-        return prefix + suffix;
-    }
+  return prefix + suffix
+}
 
-    private static String getKeyText(int keyCode) {
-        switch (keyCode) {
-            case VK_MINUS: return "-";
-            case VK_COMMA: return ",";
-            case VK_QUOTE: return "'";
-            default: return KeymapUtil.getKeyText(keyCode);
-        }
-    }
+private fun getKeyText(keyCode: Int): String = when (keyCode) {
+  KeyEvent.VK_MINUS -> "-"
+  KeyEvent.VK_COMMA -> ","
+  KeyEvent.VK_QUOTE -> "'"
+  else -> KeymapUtil.getKeyText(keyCode)
 }

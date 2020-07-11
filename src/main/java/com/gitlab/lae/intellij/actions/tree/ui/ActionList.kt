@@ -1,21 +1,17 @@
-package com.gitlab.lae.intellij.actions.tree.ui;
+package com.gitlab.lae.intellij.actions.tree.ui
 
-import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBList
+import java.awt.event.KeyEvent
 
-import java.awt.event.KeyEvent;
-import java.util.Collection;
+open class ActionList(items: Collection<ActionPresentation>) :
+  JBList<ActionPresentation>(items) {
 
-public class ActionList extends JBList<ActionPresentation> {
+  init {
+    cellRenderer = ActionPresentationRenderer()
+  }
 
-    public ActionList(Collection<ActionPresentation> items) {
-        super(items);
-        setCellRenderer(new ActionPresentationRenderer());
-    }
-
-    @Override
-    protected void processKeyEvent(KeyEvent e) {
-        e.setSource(this);
-        super.processKeyEvent(e);
-    }
-
+  public override fun processKeyEvent(e: KeyEvent) {
+    e.source = this
+    super.processKeyEvent(e)
+  }
 }

@@ -1,98 +1,74 @@
-package com.gitlab.lae.intellij.actions.tree.ui;
+package com.gitlab.lae.intellij.actions.tree.ui
 
-import com.google.auto.value.AutoValue;
-import com.intellij.openapi.actionSystem.*;
+import com.gitlab.lae.intellij.actions.tree.ActionNode.Companion.ACTION_PLACE
+import com.gitlab.lae.intellij.actions.tree.util.setEnabledModalContext
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.PlatformDataKeys.IS_MODAL_CONTEXT
+import com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUpdate
+import java.awt.event.ActionEvent
+import javax.swing.AbstractAction
+import javax.swing.JList
+import javax.swing.KeyStroke
 
-import javax.annotation.Nullable;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.util.List;
-import java.util.function.BiConsumer;
+data class ActionPresentation(
+  val presentation: Presentation,
+  val keys: List<KeyStroke>,
+  val separatorAbove: String?,
+  val sticky: Boolean,
+  val action: AnAction
+) {
 
-import static com.gitlab.lae.intellij.actions.tree.ActionNode.ACTION_PLACE;
-import static com.gitlab.lae.intellij.actions.tree.util.Actions.setEnabledModalContext;
-import static com.intellij.openapi.actionSystem.PlatformDataKeys.IS_MODAL_CONTEXT;
-import static com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUpdate;
+  override fun toString() = presentation.text ?: ""
 
-@AutoValue
-public abstract class ActionPresentation {
-    ActionPresentation() {
+  fun registerShortcuts(
+    list: JList<*>,
+    consumer: (ActionPresentation, ActionEvent) -> Unit
+  ) {
+    if (keys.isEmpty()) {
+      return
     }
-
-    public static ActionPresentation create(
-            AnAction action,
-            List<KeyStroke> keys,
-            String separatorAbove,
-            boolean sticky
-    ) {
-        return new AutoValue_ActionPresentation(
-                action.getTemplatePresentation().clone(),
-                keys,
-                separatorAbove,
-                sticky,
-                action
-        );
-    }
-
-    public abstract Presentation presentation();
-
-    public abstract List<KeyStroke> keys();
-
-    @Nullable
-    abstract String separatorAbove();
-
-    public abstract boolean sticky();
-
-    public abstract AnAction action();
-
-    @Override
-    public String toString() {
-        String text = presentation().getText();
-        if (text == null) {
-            text = "";
+    val inputMap = list.inputMap
+    val actionMap = list.actionMap
+    for (key in keys) {
+      inputMap.put(key, key)
+      actionMap.put(key, object : AbstractAction() {
+        override fun actionPerformed(e: ActionEvent) {
+          consumer(this@ActionPresentation, e)
         }
-        return text;
+      })
     }
+  }
 
-    public void registerShortcuts(
-            JList<?> list,
-            BiConsumer<ActionPresentation, ActionEvent> consumer
-    ) {
-        if (keys().isEmpty()) {
-            return;
-        }
-        InputMap inputMap = list.getInputMap();
-        ActionMap actionMap = list.getActionMap();
-        for (KeyStroke key : keys()) {
-            inputMap.put(key, key);
-            actionMap.put(key, new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    consumer.accept(ActionPresentation.this, e);
-                }
-            });
-        }
-    }
+  fun update(
+    actionManager: ActionManager,
+    dataContext: DataContext
+  ) {
+    val event = AnActionEvent(
+      null,
+      dataContext,
+      ACTION_PLACE,
+      presentation,
+      actionManager,
+      0
+    )
+    event.setInjectedContext(action.isInInjectedContext)
+    val isModal = dataContext.getData(IS_MODAL_CONTEXT) ?: false
+    performDumbAwareUpdate(isModal, action, event, false)
+    setEnabledModalContext(event, action)
+  }
 
-    public void update(
-            ActionManager actionManager,
-            DataContext dataContext
-    ) {
-        AnActionEvent event = new AnActionEvent(
-                null,
-                dataContext,
-                ACTION_PLACE,
-                presentation(),
-                actionManager,
-                0
-        );
-        event.setInjectedContext(action().isInInjectedContext());
-        Boolean isModal = dataContext.getData(IS_MODAL_CONTEXT);
-        if (isModal == null) {
-            isModal = false;
-        }
-        performDumbAwareUpdate(isModal, action(), event, false);
-        setEnabledModalContext(event, action());
-    }
-
+  companion object {
+    fun create(
+      action: AnAction,
+      keys: List<KeyStroke>,
+      separatorAbove: String?,
+      sticky: Boolean
+    ) = ActionPresentation(
+      action.templatePresentation.clone(),
+      keys,
+      separatorAbove,
+      sticky,
+      action
+    )
+  }
 }

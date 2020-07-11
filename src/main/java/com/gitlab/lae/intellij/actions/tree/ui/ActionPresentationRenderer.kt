@@ -1,124 +1,101 @@
-package com.gitlab.lae.intellij.actions.tree.ui;
+package com.gitlab.lae.intellij.actions.tree.ui
 
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.ui.SeparatorWithText;
-import com.intellij.util.ui.EmptyIcon;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.ui.SeparatorWithText
+import com.intellij.util.ui.EmptyIcon
+import com.intellij.util.ui.UIUtil
+import java.awt.BorderLayout
+import java.awt.Component
+import javax.swing.*
+import javax.swing.border.EmptyBorder
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
 
-import static java.util.stream.Collectors.joining;
+  private val separator = SeparatorWithText()
+  private val root = JPanel(BorderLayout())
+  private val content = JPanel(BorderLayout(30, 0))
+  private val nameLabel = JLabel()
+  private val keyLabel = JLabel()
+  private var emptyIconInit = false
+  private var emptyIcon: EmptyIcon? = null
 
-public final class ActionPresentationRenderer
-        implements ListCellRenderer<ActionPresentation> {
+  init {
+    nameLabel.background = null
+    content.add(nameLabel, BorderLayout.CENTER)
+    content.add(keyLabel, BorderLayout.LINE_END)
+    content.border = EmptyBorder(UIUtil.getListCellPadding())
+    root.background = null
+    root.add(separator, BorderLayout.PAGE_START)
+    root.add(content, BorderLayout.CENTER)
+  }
 
-    private final SeparatorWithText separator = new SeparatorWithText();
-    private final JPanel root = new JPanel(new BorderLayout());
-    private final JPanel content = new JPanel(new BorderLayout(30, 0));
-    private final JLabel nameLabel = new JLabel();
+  override fun getListCellRendererComponent(
+    list: JList<out ActionPresentation>,
+    value: ActionPresentation,
+    index: Int,
+    isSelected: Boolean,
+    cellHasFocus: Boolean
+  ): Component {
 
-    private final JLabel keyLabel = new JLabel();
+    initEmptyIcon(list)
+    separator.caption = value.separatorAbove
+    separator.isVisible = value.separatorAbove != null
 
-    private boolean emptyIconInit;
-    private EmptyIcon emptyIcon;
+    setColors(list, isSelected)
 
-    {
-        nameLabel.setBackground(null);
+    val presentation = value.presentation
+    nameLabel.isEnabled = presentation.isEnabled
+    nameLabel.text = presentation.text
+    nameLabel.disabledIcon =
+      if (presentation.disabledIcon != null) presentation.disabledIcon
+      else emptyIcon
 
-        content.add(nameLabel, BorderLayout.CENTER);
-        content.add(keyLabel, BorderLayout.LINE_END);
-        content.setBorder(new EmptyBorder(UIUtil.getListCellPadding()));
+    val icon =
+      (if (isSelected) presentation.selectedIcon else presentation.icon)
+        ?: presentation.icon
+        ?: emptyIcon
 
-        root.setBackground(null);
-        root.add(separator, BorderLayout.PAGE_START);
-        root.add(content, BorderLayout.CENTER);
+    nameLabel.icon = icon
+    keyLabel.isEnabled = presentation.isEnabled
+    keyLabel.text = value.keys.joinToString(", ") { getKeyText(it) }
+    return root
+  }
+
+  private fun initEmptyIcon(list: JList<out ActionPresentation>) {
+    if (emptyIconInit) {
+      return
     }
+    emptyIconInit = true
 
-    @Override
-    public Component getListCellRendererComponent(
-            JList<? extends ActionPresentation> list,
-            ActionPresentation value,
-            int index,
-            boolean isSelected,
-            boolean cellHasFocus
-    ) {
+    emptyIcon = generateSequence(0, Int::inc)
+      .take(list.model.size)
+      .map {
+        val p = list.model.getElementAt(it).presentation
+        val icon = p.icon ?: p.disabledIcon ?: p.selectedIcon ?: return@map null
+        EmptyIcon.create(
+          icon.iconWidth,
+          icon.iconHeight
+        )
+      }
+      .filterNotNull()
+      .firstOrNull()
+  }
 
-        initEmptyIcon(list);
-
-        separator.setCaption(value.separatorAbove());
-        separator.setVisible(value.separatorAbove() != null);
-
-        setColors(list, isSelected);
-
-        Presentation presentation = value.presentation();
-        nameLabel.setEnabled(presentation.isEnabled());
-        nameLabel.setText(presentation.getText());
-        nameLabel.setDisabledIcon(presentation.getDisabledIcon() != null
-                ? presentation.getDisabledIcon()
-                : emptyIcon);
-
-        Icon icon = isSelected
-                ? presentation.getSelectedIcon()
-                : presentation.getIcon();
-        if (icon == null) {
-            icon = presentation.getIcon();
-        }
-        if (icon == null) {
-            icon = emptyIcon;
-        }
-        nameLabel.setIcon(icon);
-
-        keyLabel.setEnabled(presentation.isEnabled());
-        keyLabel.setText(value.keys()
-                .stream()
-                .map(KeyStrokeLabel::getKeyText)
-                .collect(joining(", ")));
-
-        return root;
+  private fun setColors(
+    list: JList<out ActionPresentation>,
+    isSelected: Boolean
+  ) {
+    if (isSelected) {
+      content.background = list.selectionBackground
+      nameLabel.foreground = list.selectionForeground
+      keyLabel.foreground = UIManager.getColor(
+        "MenuItem.acceleratorSelectionForeground"
+      )
+    } else {
+      content.background = list.background
+      nameLabel.foreground = list.foreground
+      keyLabel.foreground = UIManager.getColor(
+        "MenuItem.acceleratorForeground"
+      )
     }
-
-    private void initEmptyIcon(JList<? extends ActionPresentation> list) {
-        if (emptyIconInit) {
-            return;
-        }
-        emptyIconInit = true;
-        for (int i = 0; i < list.getModel().getSize(); i++) {
-            Presentation p = list.getModel().getElementAt(i).presentation();
-            Icon icon = p.getIcon();
-            if (icon == null) {
-                icon = p.getDisabledIcon();
-            }
-            if (icon == null) {
-                icon = p.getSelectedIcon();
-            }
-            if (icon == null) {
-                continue;
-            }
-            emptyIcon = EmptyIcon.create(
-                    icon.getIconWidth(),
-                    icon.getIconHeight()
-            );
-            break;
-        }
-    }
-
-    private void setColors(
-            JList<? extends ActionPresentation> list,
-            boolean isSelected
-    ) {
-        if (isSelected) {
-            content.setBackground(list.getSelectionBackground());
-            nameLabel.setForeground(list.getSelectionForeground());
-            keyLabel.setForeground(UIManager.getColor(
-                    "MenuItem.acceleratorSelectionForeground"));
-        } else {
-            content.setBackground(list.getBackground());
-            nameLabel.setForeground(list.getForeground());
-            keyLabel.setForeground(UIManager.getColor(
-                    "MenuItem.acceleratorForeground"));
-        }
-    }
-
+  }
 }

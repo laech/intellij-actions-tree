@@ -1,7 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.gitlab.lae.intellij.actions.tree.When.ALWAYS
-import com.gitlab.lae.intellij.actions.tree.When.NEVER
+import com.gitlab.lae.intellij.actions.tree.When.Companion.ALWAYS
+import com.gitlab.lae.intellij.actions.tree.When.Companion.NEVER
 import com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW
@@ -17,26 +17,26 @@ class WhenTest {
 
   @Test
   fun any() {
-    assertFalse(When.any().test(null))
-    assertTrue(When.any(ALWAYS).test(null))
-    assertFalse(When.any(NEVER).test(null))
-    assertTrue(When.any(ALWAYS, NEVER).test(null))
-    assertTrue(When.any(ALWAYS, ALWAYS).test(null))
+    assertFalse(When.any().test(mock()))
+    assertTrue(When.any(ALWAYS).test(mock()))
+    assertFalse(When.any(NEVER).test(mock()))
+    assertTrue(When.any(ALWAYS, NEVER).test(mock()))
+    assertTrue(When.any(ALWAYS, ALWAYS).test(mock()))
   }
 
   @Test
   fun all() {
-    assertTrue(When.all().test(null))
-    assertTrue(When.all(ALWAYS).test(null))
-    assertFalse(When.all(NEVER).test(null))
-    assertTrue(When.all(ALWAYS, ALWAYS).test(null))
-    assertFalse(When.all(ALWAYS, NEVER).test(null))
+    assertTrue(When.all().test(mock()))
+    assertTrue(When.all(ALWAYS).test(mock()))
+    assertFalse(When.all(NEVER).test(mock()))
+    assertTrue(When.all(ALWAYS, ALWAYS).test(mock()))
+    assertFalse(When.all(ALWAYS, NEVER).test(mock()))
   }
 
   @Test
   fun not() {
-    assertFalse(When.not(ALWAYS).test(null))
-    assertTrue(When.not(When.not(ALWAYS)).test(null))
+    assertFalse(When.not(ALWAYS).test(mock()))
+    assertTrue(When.not(When.not(ALWAYS)).test(mock()))
   }
 
   @Test

@@ -29,10 +29,10 @@ class ActionPopupEventDispatcherTest {
     val myDispatchStack = getDispatchStack(idePopupManager)
     assertFalse(myDispatchStack.contains(dispatcher))
 
-    dispatcher.beforeShown(null)
+    dispatcher.beforeShown(mock())
     assertTrue(myDispatchStack.contains(dispatcher))
 
-    dispatcher.onClosed(null)
+    dispatcher.onClosed(mock())
     assertFalse(myDispatchStack.contains(dispatcher))
   }
 
