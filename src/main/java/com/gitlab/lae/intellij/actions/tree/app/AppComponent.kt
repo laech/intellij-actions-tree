@@ -1,7 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree.app
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode
-import com.gitlab.lae.intellij.actions.tree.json.ActionNodeParser
+import com.gitlab.lae.intellij.actions.tree.json.parseJsonActions
 import com.google.common.base.Throwables.getStackTraceAsString
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdeEventQueue
@@ -87,7 +87,7 @@ class AppComponent : BaseComponent {
       ?: return emptyList()
 
     return try {
-      ActionNodeParser.parseJsonActions(Paths.get(conf))
+      parseJsonActions(Paths.get(conf))
     } catch (e: Exception) {
       Notifications.Bus.notify(
         Notification(

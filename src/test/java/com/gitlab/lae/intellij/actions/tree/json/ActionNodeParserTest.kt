@@ -67,7 +67,7 @@ class ActionNodeParserTest {
 
     val actual = ActionNodeParserTest::class.java
       .getResourceAsStream("test.json").use {
-        ActionNodeParser.parseJsonActions(it.reader(UTF_8))
+        parseJsonActions(it.reader(UTF_8))
       }
 
     assertEquals(expected, actual)
