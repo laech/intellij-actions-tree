@@ -52,8 +52,6 @@ class ActionPopupEventDispatcher(
     return true
   }
 
-  override fun setRestoreFocusSilentely() {}
-
   override fun beforeShown(event: LightweightWindowEvent) {
     popupManager.push(this)
   }

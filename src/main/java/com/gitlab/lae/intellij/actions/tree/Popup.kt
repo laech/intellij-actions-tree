@@ -14,9 +14,9 @@ import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
-import com.intellij.openapi.util.AsyncResult
+import com.intellij.openapi.ui.popup.PopupChooserBuilder
 import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.util.Consumer
+import org.jetbrains.concurrency.resolvedPromise
 import java.awt.event.ActionEvent
 import javax.swing.JComponent
 import javax.swing.KeyStroke
@@ -73,18 +73,17 @@ internal class Popup(
     keysOverride
   )
 
-  private fun createPopup(): JBPopup = popupFactory
-    .createListPopupBuilder(list)
-    .setModalContext(true)
-    .setCloseOnEnter(false)
-    .setItemChoosenCallback {
-      val item =
-        list.selectedValue
-      if (item != null) {
-        onActionChosen(item, 0)
+  private fun createPopup(): JBPopup =
+    PopupChooserBuilder<ActionPresentation>(list)
+      .setModalContext(true)
+      .setCloseOnEnter(false)
+      .setItemChoosenCallback {
+        val item = list.selectedValue
+        if (item != null) {
+          onActionChosen(item, 0)
+        }
       }
-    }
-    .createPopup()
+      .createPopup()
 
   private fun registerIdeAction(actionId: String, runnable: () -> Unit) {
     val action = actionManager.getAction(actionId) ?: return
@@ -135,18 +134,18 @@ internal class Popup(
    * current cursor position.
    */
   private fun updatePresentations() {
-    getDataContextAsync(Consumer { dataContext ->
+    getDataContextAsync { context ->
       generateSequence(0, Int::inc)
         .take(list.model.size)
         .map(list.model::getElementAt)
-        .forEach { it.update(actionManager, dataContext) }
-    })
+        .forEach { it.update(actionManager, context) }
+    }
   }
 
-  private fun getDataContextAsync(consumer: Consumer<DataContext>) {
-    (if (sourceComponent == null) dataManager.dataContextFromFocus else AsyncResult.done(
+  private fun getDataContextAsync(consumer: (DataContext) -> Unit) {
+    (if (sourceComponent == null) dataManager.dataContextFromFocusAsync else resolvedPromise(
       dataManager.getDataContext(sourceComponent)
-    )).doWhenDone(consumer)
+    )).then(consumer)
   }
 
   private fun performAction(action: AnAction, modifiers: Int) {
@@ -158,13 +157,13 @@ internal class Popup(
      * get executed correctly if focus is not restored, such
      * as 'Goto next Splitter'.
      */
-    getDataContextAsync(com.intellij.util.Consumer { dataContext ->
+    getDataContextAsync { context ->
       SwingUtilities.invokeLater {
         focusManager.doWhenFocusSettlesDown {
-          performAction(action, modifiers, dataContext)
+          performAction(action, modifiers, context)
         }
       }
-    })
+    }
   }
 
   private fun performAction(
