@@ -8,7 +8,7 @@ buildscript {
 
 plugins {
   id "org.jetbrains.kotlin.jvm" version "$kotlin_version"
-  id 'org.jetbrains.intellij' version '0.4.9'
+  id 'org.jetbrains.intellij' version '0.4.21'
 }
 
 group 'com.gitlab.lae.intellij.actions.tree'
@@ -18,20 +18,23 @@ repositories {
   mavenCentral()
 }
 
-compileKotlin {
-  kotlinOptions {
-    jvmTarget = "1.8"
-  }
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-compileTestKotlin {
+tasks.withType(JavaCompile) {
+  options.compilerArgs.addAll(['--release', '8'])
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
   kotlinOptions {
     jvmTarget = "1.8"
   }
 }
 
 dependencies {
-  testImplementation 'org.mockito:mockito-core:3.2.0'
+  testImplementation 'org.mockito:mockito-core:3.4.0'
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
 }
 
