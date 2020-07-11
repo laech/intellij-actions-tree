@@ -96,7 +96,7 @@
   </change-notes>
 
   <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
-  <idea-version since-build="191"/>
+  <idea-version since-build="193"/>
 
   <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
   <depends>com.intellij.modules.lang</depends>
@@ -112,10 +112,15 @@
   <application-components>
     <component>
       <implementation-class>
-        com.gitlab.lae.intellij.actions.tree.app.AppComponent
+        com.gitlab.lae.intellij.actions.tree.app.App
       </implementation-class>
     </component>
   </application-components>
+
+  <applicationListeners>
+    <listener class="com.gitlab.lae.intellij.actions.tree.app.Startup"
+      topic="com.intellij.ide.AppLifecycleListener"/>
+  </applicationListeners>
 
   <actions>
     <group text="Actions Tree"

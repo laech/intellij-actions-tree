@@ -11,7 +11,6 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.components.BaseComponent
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.keymap.Keymap
 import com.intellij.openapi.keymap.ex.KeymapManagerEx
@@ -19,15 +18,12 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.IdeFocusManager
 import java.nio.file.Paths
 import java.util.*
-import java.util.function.Consumer
 
-class AppComponent : BaseComponent {
+object App {
+
+  private const val PLUGIN_ID = "com.gitlab.lae.intellij.actions.tree"
 
   private val actionIds = HashSet<String>()
-
-  override fun initComponent() {
-    reload()
-  }
 
   fun reload() {
     reload(
@@ -61,16 +57,10 @@ class AppComponent : BaseComponent {
 
     val keymaps = keymapManager.allKeymaps
     for (keymap in keymaps) {
-      actionIds.forEach(Consumer { actionId: String? ->
-        keymap.removeAllActionShortcuts(
-          actionId!!
-        )
-      })
+      actionIds.forEach(keymap::removeAllActionShortcuts)
     }
 
-    actionIds.forEach(Consumer { actionId ->
-      actionManager.unregisterAction(actionId)
-    })
+    actionIds.forEach(actionManager::unregisterAction)
     actionIds.clear()
 
     val pluginId = PluginId.getId(PLUGIN_ID)
@@ -124,9 +114,5 @@ class AppComponent : BaseComponent {
         }
       }
     }
-  }
-
-  companion object {
-    private const val PLUGIN_ID = "com.gitlab.lae.intellij.actions.tree"
   }
 }
