@@ -18,6 +18,13 @@
   <change-notes><![CDATA[
 
     <br/>
+    0.4
+    <ul>
+    <li>Replaced deprecated code usage with newer IntelliJ APIs.</li>
+    <li>Minimum IntelliJ version required is now 2019.3.</li>
+    </ul>
+
+    <br/>
     0.3.2
     <ul>
     <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/19">Fix issue with actions beings ignored when no keys are assigned.</a></li>
