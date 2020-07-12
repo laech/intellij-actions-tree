@@ -112,8 +112,10 @@ internal class Popup(
     val invocation = { performAction(item.action, modifiers) }
     if (item.sticky) {
       invocation()
-      updatePopupLocation()
-      updatePresentations()
+       SwingUtilities.invokeLater {
+        updatePopupLocation()
+        updatePresentations()
+      }
     } else {
       popup.setFinalRunnable(invocation)
       popup.closeOk(null)
