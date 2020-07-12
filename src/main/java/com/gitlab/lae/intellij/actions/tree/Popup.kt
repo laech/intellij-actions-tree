@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR
 import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.application.ApplicationManager.getApplication
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
@@ -20,7 +21,6 @@ import org.jetbrains.concurrency.resolvedPromise
 import java.awt.event.ActionEvent
 import javax.swing.JComponent
 import javax.swing.KeyStroke
-import javax.swing.SwingUtilities
 
 internal class Popup(
   action: ActionNode,
@@ -112,7 +112,7 @@ internal class Popup(
     val invocation = { performAction(item.action, modifiers) }
     if (item.sticky) {
       invocation()
-       SwingUtilities.invokeLater {
+      getApplication().invokeLater {
         updatePopupLocation()
         updatePresentations()
       }
@@ -145,14 +145,16 @@ internal class Popup(
   }
 
   private fun getDataContextAsync(consumer: (DataContext) -> Unit) {
-    (if (sourceComponent == null) dataManager.dataContextFromFocusAsync else resolvedPromise(
-      dataManager.getDataContext(sourceComponent)
-    )).then(consumer)
+    (if (sourceComponent == null) {
+      dataManager.dataContextFromFocusAsync
+    } else {
+      resolvedPromise(dataManager.getDataContext(sourceComponent))
+    }).then(consumer)
   }
 
   private fun performAction(action: AnAction, modifiers: Int) {
     /*
-     * Wrapping with SwingUtilities.invokeLater()
+     * Wrapping with invokeLater()
      * then IdeFocusManager.doWhenFocusSettlesDown()
      * is required to get back to the pre-popup focus state
      * before executing the action, as some action won't
@@ -160,7 +162,7 @@ internal class Popup(
      * as 'Goto next Splitter'.
      */
     getDataContextAsync { context ->
-      SwingUtilities.invokeLater {
+      getApplication().invokeLater {
         focusManager.doWhenFocusSettlesDown {
           performAction(action, modifiers, context)
         }
