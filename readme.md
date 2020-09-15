@@ -90,11 +90,11 @@ The basic structures are:
     ```json
     {
       "id": "...",
-      "keys": [...],
+      "keys": [],
       "name": "...",
       "when": "...",
       "separator-above": "...",
-      "items": [...]
+      "items": []
     }
     ```
 
@@ -168,10 +168,10 @@ The basic structures are:
 
     ```json
     {
-      "keys": [...],
-      "when": ...,
+      "keys": [],
+      "when": "...",
       "separator-above": "...",
-      "sticky": ...,
+      "sticky": false,
       "id": "..."
     }
     ```
