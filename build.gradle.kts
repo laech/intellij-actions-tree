@@ -1,15 +1,9 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-buildscript {
-  dependencies {
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72")
-  }
-}
-
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.3.72"
-  id("org.jetbrains.intellij") version "0.4.21"
+  id("org.jetbrains.kotlin.jvm").version("1.5.0")
+  id("org.jetbrains.intellij").version("0.7.3")
 }
 
 group = "com.gitlab.lae.intellij.actions.tree"
@@ -20,31 +14,25 @@ repositories {
 }
 
 dependencies {
+  implementation(kotlin("stdlib-jdk8"))
   testImplementation("org.mockito:mockito-core:3.4.0")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 }
 
-tasks {
-  withType<JavaCompile> {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-    options.compilerArgs.addAll(listOf("--release", "8"))
-  }
+tasks.withType<KotlinCompile> {
+  kotlinOptions.jvmTarget = "11"
+  kotlinOptions.jdkHome = javaToolchains
+    .compilerFor { languageVersion.set(JavaLanguageVersion.of(11)) }
+    .get().metadata.installationPath.asFile.absolutePath
+}
 
-  withType<KotlinCompile> {
-    kotlinOptions {
-      jvmTarget = "1.8"
-    }
+tasks.withType<Test> {
+  testLogging {
+    exceptionFormat = TestExceptionFormat.FULL
   }
+}
 
-  test {
-    testLogging {
-      exceptionFormat = TestExceptionFormat.FULL
-    }
-  }
-
-  intellij {
-    version = project.properties["intellijVersion"] as String? ?: "2019.3"
-    updateSinceUntilBuild = false
-  }
+intellij {
+  version = "2021.1"
+  updateSinceUntilBuild = false
 }

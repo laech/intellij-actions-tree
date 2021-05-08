@@ -19,7 +19,7 @@ class ExportIdeActions : AnAction(), DumbAware {
     val descriptor = FileSaverDescriptor("Export IDE Actions", "")
     val result = FileChooserFactory.getInstance()
       .createSaveFileDialog(descriptor, null as Project?)
-      .save(null, "actions.json")
+      .save("actions.json")
       ?: return
 
     ApplicationManager.getApplication().runWriteAction {
@@ -36,7 +36,7 @@ class ExportIdeActions : AnAction(), DumbAware {
       JsonWriter(it).use { writer ->
         writer.setIndent("  ")
         writer.beginArray()
-        mgr.getActionIds("").forEach { id ->
+        mgr.getActionIdList("").forEach { id ->
           val action = mgr.getActionOrStub(id) ?: return@forEach
           val name = action.templatePresentation.text ?: ""
           writer.beginObject()
