@@ -31,7 +31,7 @@ class AppConfigurable : Configurable {
     confLocation.text = settings().getValue(CONF_KEY, "")
   }
 
-  override fun createComponent(): JComponent? {
+  override fun createComponent(): JComponent {
     confLocation = JTextField()
 
     val row = JPanel(BorderLayout())

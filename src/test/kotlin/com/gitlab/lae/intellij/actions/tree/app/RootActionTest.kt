@@ -70,9 +70,9 @@ class RootActionTest {
 
   @Test
   fun `merges root actions`() {
-    val cut = EmptyAction("cut", null, null)
-    val copy = EmptyAction("copy", null, null)
-    val paste = EmptyAction("paste", null, null)
+    val cut = EmptyAction("Cut", null, null)
+    val copy = EmptyAction("Copy", null, null)
+    val paste = EmptyAction("Paste", null, null)
 
     val actionManager = mock<ActionManager>()
     whenever(actionManager.getAction(ACTION_CUT)).thenReturn(cut)
@@ -124,9 +124,9 @@ class RootActionTest {
 
   @Test
   fun `merging maintains action with no key strokes`() {
-    val cut = EmptyAction("cut", null, null)
-    val copy = EmptyAction("copy", null, null)
-    val paste = EmptyAction("paste", null, null)
+    val cut = EmptyAction("Cut", null, null)
+    val copy = EmptyAction("Copy", null, null)
+    val paste = EmptyAction("Paste", null, null)
     val actionManager = mock<ActionManager>()
     whenever(actionManager.getAction(ACTION_CUT)).thenReturn(cut)
     whenever(actionManager.getAction(ACTION_COPY)).thenReturn(copy)

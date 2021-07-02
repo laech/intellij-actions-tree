@@ -78,13 +78,12 @@ object App {
     return try {
       parseJsonActions(Paths.get(conf))
     } catch (e: Exception) {
+      val groupId = "ActionsTree"
+      val title = "Failed to load keymap"
+      val content =
+        "Failed to load keymap: ${conf}\n${getStackTraceAsString(e)}"
       Notifications.Bus.notify(
-        Notification(
-          "ActionsTree",
-          "Failed to load keymap",
-          "Failed to load keymap: ${conf}\n${getStackTraceAsString(e)}",
-          NotificationType.ERROR,
-        ),
+        Notification(groupId, title, content, NotificationType.ERROR),
       )
       emptyList()
     }
