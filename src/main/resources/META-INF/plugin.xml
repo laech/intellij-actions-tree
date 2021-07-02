@@ -1,103 +1,151 @@
 <idea-plugin>
   <id>com.gitlab.lae.intellij.actions.tree</id>
   <name>Actions Tree</name>
-  <vendor url="https://gitlab.com/lae/intellij-actions-tree">Lae</vendor>
+  <vendor url="https://github.com/laech/intellij-actions-tree">Lae</vendor>
 
   <description><![CDATA[
     <p>
-    This plugin allows you to define a list of actions to show in a popup, an
-    action in the list can be a further action list to show when invoked, or an
-    ordinary IDE action. Each action in the list can be assigned a keyboard
-    shortcut that is local to the list, doesn't conflict with other global
-    shortcuts. This allows simulation of Emacs like prefix keys (n-level deep), so
-    you are not restricted to IntelliJ keymap's maximum of two key strokes.
+      This plugin allows you to define a list of actions to show in a popup, an
+      action in the list can be a further action list to show when invoked, or
+      an ordinary IDE action. Each action in the list can be assigned a keyboard
+      shortcut that is local to the list, doesn't conflict with other global
+      shortcuts. This allows simulation of Emacs like prefix keys (n-level
+      deep), so you are not restricted to IntelliJ keymap's maximum of two key
+      strokes.
     </p>
-    Configuration is done via a JSON file, see <a href="https://gitlab.com/lae/intellij-actions-tree">here</a> for more details.
+    Configuration is done via a JSON file, see <a
+      href="https://github.com/laech/intellij-actions-tree">here</a> for more details.
     ]]></description>
 
   <change-notes><![CDATA[
+    <br/>
+    0.5
+    <ul>
+      <li>Add PathExists condition.</li>
+    </ul>
 
     <br/>
     0.4
     <ul>
-    <li>Replaced deprecated code usage with newer IntelliJ APIs.</li>
-    <li>Minimum IntelliJ version required is now 2019.3.</li>
+      <li>Replaced deprecated code usage with newer IntelliJ APIs.</li>
+      <li>Minimum IntelliJ version required is now 2019.3.</li>
     </ul>
 
     <br/>
     0.3.2
     <ul>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/19">Fix issue with actions beings ignored when no keys are assigned.</a></li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/19">
+          Fix issue with actions beings ignored when no keys are assigned.
+        </a>
+      </li>
     </ul>
 
     <br/>
     0.3/0.3.1
     <ul>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/14">Support condition actions.</a></li>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/17">Popup now works in modal dialogs.</a></li>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/15">Root actions can now be action references.</a></li>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/16">Fix focus issue causing some actions such as 'Goto Next Splitter' to not work.</a></li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/14">
+          Support condition actions.
+        </a>
+      </li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/17">
+          Popup now works in modal dialogs.
+        </a>
+      </li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/15">
+          Root actions can now be action references.
+        </a>
+      </li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/16">
+          Fix focus issue causing some actions such as 'Goto Next Splitter' to
+          not work.
+        </a>
+      </li>
     </ul>
 
     <br/>
     0.2.2
     <ul>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/9">Sticky action not sticky if invoked via mouse or enter key.</a></li>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/1">Mouse or enter key does not invoke actions in the popup</a></li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/9">
+          Sticky action not sticky if invoked via mouse or enter key.
+        </a>
+      </li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/1">
+          Mouse or enter key does not invoke actions in the popup
+        </a>
+      </li>
     </ul>
 
     <br/>
     0.2.1
     <ul>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/10">Fix double action invocation issue with IntelliJ 2019.2</a></li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/10">
+          Fix double action invocation issue with IntelliJ 2019.2
+        </a>
+      </li>
     </ul>
 
     <br/>
     0.2
     <ul>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/6">Add "sticky" actions.</a></li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/6">
+          Add "sticky" actions.
+        </a>
+      </li>
     </ul>
 
     <br/>
     0.1.7
     <ul>
-    <li><a href="https://gitlab.com/lae/intellij-actions-tree/issues/4">Fix conflict with IntelliJ prefix keybinding.</a></li>
+      <li>
+        <a href="https://gitlab.com/lae/intellij-actions-tree/issues/4">
+          Fix conflict with IntelliJ prefix keybinding.
+        </a>
+      </li>
     </ul>
 
     <br/>
     0.1.6
     <ul>
-    <li>Minor UI fix.</li>
+      <li>Minor UI fix.</li>
     </ul>
 
     <br/>
     0.1.5
     <ul>
-    <li>Handle display of symbolic shortcuts.</li>
+      <li>Handle display of symbolic shortcuts.</li>
     </ul>
 
     <br/>
     0.1.4
     <ul>
-    <li>Fix an issue with some actions not working.</li>
+      <li>Fix an issue with some actions not working.</li>
     </ul>
 
     <br/>
     0.1.3
     <ul>
-    <li>Show invalid actions defined in config.</li>
+      <li>Show invalid actions defined in config.</li>
     </ul>
 
     <br/>
     0.1.2
     <ul>
-    <li>Fix an issue with some actions not working.</li>
+      <li>Fix an issue with some actions not working.</li>
     </ul>
 
     <br/>
     0.1.1
     <ul>
-    <li>Fix an issue with some keyboard shortcuts not working.</li>
+      <li>Fix an issue with some keyboard shortcuts not working.</li>
     </ul>
     ]]>
   </change-notes>

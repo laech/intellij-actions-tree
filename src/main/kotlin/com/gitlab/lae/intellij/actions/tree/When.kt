@@ -1,9 +1,13 @@
 package com.gitlab.lae.intellij.actions.tree
 
+import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW
 import com.intellij.openapi.wm.IdeFocusManager
+import java.nio.file.Files.exists
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Collections.unmodifiableList
 import java.util.function.Predicate
 import java.util.regex.Pattern
@@ -63,6 +67,17 @@ interface When : Predicate<DataContext> {
       context.getData(VIRTUAL_FILE)?.extension
   }
 
+  data class PathExists(val path: Path) : When {
+    override fun test(context: DataContext) =
+      if (path.isAbsolute) {
+        exists(path)
+      } else {
+        context.getData(PROJECT)?.basePath?.let {
+          exists(Paths.get(it).resolve(path))
+        } ?: false
+      }
+  }
+
   companion object {
 
     val ALWAYS: When = object : When {
@@ -103,6 +118,7 @@ interface When : Predicate<DataContext> {
         "ToolWindowActive" -> toolWindowActive(arg)
         "ToolWindowTabActive" -> toolWindowTabActive(arg)
         "FileExtension" -> fileExtension(arg)
+        "PathExists" -> pathExists(arg)
         else -> throw IllegalArgumentException(input)
       }
     }
@@ -121,6 +137,9 @@ interface When : Predicate<DataContext> {
 
     fun fileExtension(extRegex: String): When =
       FileExtension(EqPattern(extRegex))
+
+    fun pathExists(path: String): When =
+      PathExists(Paths.get(path))
 
     fun not(condition: When): When = Not(condition)
   }

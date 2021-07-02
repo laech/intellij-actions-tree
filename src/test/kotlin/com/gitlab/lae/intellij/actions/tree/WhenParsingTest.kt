@@ -9,7 +9,7 @@ import org.junit.runners.Parameterized.Parameters
 @RunWith(Parameterized::class)
 class WhenParsingTest(
   private val input: String,
-  private val expected: When
+  private val expected: When,
 ) {
 
   @Test
@@ -24,7 +24,8 @@ class WhenParsingTest(
       arrayOf("ToolWindowActive:Project", When.toolWindowActive("Project")),
       arrayOf("ToolWindowTabActive:Log", When.toolWindowTabActive("Log")),
       arrayOf("FileExtension:rs", When.fileExtension("rs")),
-      arrayOf("!FileExtension:rs", When.not(When.fileExtension("rs")))
+      arrayOf("!FileExtension:rs", When.not(When.fileExtension("rs"))),
+      arrayOf("PathExists:readme", When.pathExists("readme")),
     )
   }
 }

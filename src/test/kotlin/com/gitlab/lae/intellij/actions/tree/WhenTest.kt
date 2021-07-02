@@ -2,9 +2,11 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.gitlab.lae.intellij.actions.tree.When.Companion.ALWAYS
 import com.gitlab.lae.intellij.actions.tree.When.Companion.NEVER
+import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.nhaarman.mockitokotlin2.mock
@@ -12,6 +14,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 class WhenTest {
 
@@ -87,5 +90,25 @@ class WhenTest {
 
     whenever(toolWindow.title).thenReturn("Test")
     assertFalse(condition.test(context))
+  }
+
+  @Test
+  fun pathExists() {
+    val context = mock<DataContext>()
+    assertTrue(When.pathExists("/").test(context))
+    assertFalse(When.pathExists("/adsfxdfr").test(context))
+    assertFalse(When.pathExists("adsfxdfr").test(context))
+
+    val folder = TemporaryFolder()
+    try {
+      folder.create()
+      folder.newFile("test")
+      val project = mock<Project>()
+      whenever(project.basePath).thenReturn(folder.root.path)
+      whenever(context.getData(PROJECT)).thenReturn(project)
+      assertTrue(When.pathExists("test").test(context))
+    } finally {
+      folder.delete()
+    }
   }
 }
