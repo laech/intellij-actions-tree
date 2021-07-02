@@ -17,7 +17,6 @@ import com.intellij.openapi.keymap.ex.KeymapManagerEx
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.IdeFocusManager
 import java.nio.file.Paths
-import java.util.*
 
 object App {
 
@@ -33,7 +32,7 @@ object App {
       JBPopupFactory.getInstance(),
       DataManager.getInstance(),
       KeymapManagerEx.getInstanceEx(),
-      PropertiesComponent.getInstance()
+      PropertiesComponent.getInstance(),
     )
   }
 
@@ -44,7 +43,7 @@ object App {
     popupFactory: JBPopupFactory,
     dataManager: DataManager,
     keymapManager: KeymapManagerEx,
-    properties: PropertiesComponent
+    properties: PropertiesComponent,
   ) {
     val actions = RootAction.merge(
       loadActions(properties),
@@ -52,7 +51,7 @@ object App {
       focusManager,
       popupManager,
       popupFactory,
-      dataManager
+      dataManager,
     )
 
     val keymaps = keymapManager.allKeymaps
@@ -84,8 +83,8 @@ object App {
           "ActionsTree",
           "Failed to load keymap",
           "Failed to load keymap: ${conf}\n${getStackTraceAsString(e)}",
-          NotificationType.ERROR
-        )
+          NotificationType.ERROR,
+        ),
       )
       emptyList()
     }
@@ -93,7 +92,7 @@ object App {
 
   private fun setShortcuts(
     keymaps: Array<Keymap>,
-    actions: Iterable<RootAction>
+    actions: Iterable<RootAction>,
   ) {
     // Adding a shortcut this way will have it appear as default
     // when viewing the Keymap preferences tree, which is good,

@@ -7,20 +7,20 @@ import javax.swing.JComponent
 
 fun JBPopup.setBestLocation(
   popupFactory: JBPopupFactory,
-  editor: Editor
+  editor: Editor,
 ) {
   editor.scrollingModel.runActionOnScrollingFinished {
     setLocation(
       popupFactory
         .guessBestPopupLocation(editor)
-        .screenPoint
+        .screenPoint,
     )
   }
 }
 
 fun JBPopup.setBestLocation(
   popupFactory: JBPopupFactory,
-  component: JComponent
+  component: JComponent,
 ) {
   setLocation(popupFactory.guessBestPopupLocation(component).screenPoint)
 }

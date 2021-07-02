@@ -15,14 +15,14 @@ data class ActionPresentation(
   val keys: List<KeyStroke>,
   val separatorAbove: String?,
   val sticky: Boolean,
-  val action: AnAction
+  val action: AnAction,
 ) {
 
   override fun toString() = presentation.text ?: ""
 
   fun registerShortcuts(
     list: JList<*>,
-    consumer: (ActionPresentation, ActionEvent) -> Unit
+    consumer: (ActionPresentation, ActionEvent) -> Unit,
   ) {
     if (keys.isEmpty()) {
       return
@@ -31,17 +31,20 @@ data class ActionPresentation(
     val actionMap = list.actionMap
     for (key in keys) {
       inputMap.put(key, key)
-      actionMap.put(key, object : AbstractAction() {
-        override fun actionPerformed(e: ActionEvent) {
-          consumer(this@ActionPresentation, e)
-        }
-      })
+      actionMap.put(
+        key,
+        object : AbstractAction() {
+          override fun actionPerformed(e: ActionEvent) {
+            consumer(this@ActionPresentation, e)
+          }
+        },
+      )
     }
   }
 
   fun update(
     actionManager: ActionManager,
-    dataContext: DataContext
+    dataContext: DataContext,
   ) {
     val event = AnActionEvent(
       null,
@@ -49,7 +52,7 @@ data class ActionPresentation(
       ACTION_PLACE,
       presentation,
       actionManager,
-      0
+      0,
     )
     event.setInjectedContext(action.isInInjectedContext)
     val isModal = dataContext.getData(IS_MODAL_CONTEXT) ?: false
@@ -62,13 +65,13 @@ data class ActionPresentation(
       action: AnAction,
       keys: List<KeyStroke>,
       separatorAbove: String?,
-      sticky: Boolean
+      sticky: Boolean,
     ) = ActionPresentation(
       action.templatePresentation.clone(),
       keys,
       separatorAbove,
       sticky,
-      action
+      action,
     )
   }
 }

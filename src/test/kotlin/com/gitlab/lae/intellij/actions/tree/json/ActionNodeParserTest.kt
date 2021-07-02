@@ -26,17 +26,17 @@ class ActionNodeParserTest {
               action(
                 id = "CloseProject",
                 name = "Unnamed",
-                keys = keys("K", "ctrl K")
+                keys = keys("K", "ctrl K"),
               ),
               action(
                 id = "OpenProjectGroup",
                 name = "Unnamed",
                 separatorAbove = "SEP",
-                keys = keys("P")
-              )
-            )
-          )
-        )
+                keys = keys("P"),
+              ),
+            ),
+          ),
+        ),
       ),
       action(
         id = "ActionsTree.Node.3",
@@ -48,9 +48,9 @@ class ActionNodeParserTest {
             id = "EditorSwapSelectionBoundaries",
             name = "Unnamed",
             keys = keys("ctrl X"),
-            isSticky = true
-          )
-        )
+            isSticky = true,
+          ),
+        ),
       ),
       action(
         id = "ActionsTree.Node.4",
@@ -59,15 +59,15 @@ class ActionNodeParserTest {
           When.fileExtension("txt"),
           When.all(
             When.toolWindowActive("Run"),
-            When.fileExtension("java")
-          )
-        )
-      )
+            When.fileExtension("java"),
+          ),
+        ),
+      ),
     )
 
     val actual = ActionNodeParserTest::class.java
       .getResourceAsStream("test.json").use {
-        parseJsonActions(it.reader(UTF_8))
+        parseJsonActions(it!!.reader(UTF_8))
       }
 
     assertEquals(expected, actual)

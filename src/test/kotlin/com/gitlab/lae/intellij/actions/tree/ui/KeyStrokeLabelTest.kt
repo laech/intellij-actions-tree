@@ -12,7 +12,7 @@ import javax.swing.KeyStroke.getKeyStroke
 @RunWith(Parameterized::class)
 class KeyStrokeLabelTest(
   private val expected: String,
-  private val keyStroke: KeyStroke
+  private val keyStroke: KeyStroke,
 ) {
 
   @Test
@@ -38,7 +38,7 @@ class KeyStrokeLabelTest(
       arrayOf("/", getKeyStroke(VK_SLASH, 0)),
       arrayOf("@", getKeyStroke('@')),
       arrayOf("<", getKeyStroke('<')),
-      arrayOf("|", getKeyStroke('|'))
+      arrayOf("|", getKeyStroke('|')),
     )
   }
 

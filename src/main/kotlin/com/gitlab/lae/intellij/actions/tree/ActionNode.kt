@@ -9,7 +9,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.IdeFocusManager
-import java.util.*
 import javax.swing.KeyStroke
 
 data class ActionNode(
@@ -19,7 +18,7 @@ data class ActionNode(
   val isSticky: Boolean,
   val condition: When,
   val keys: List<KeyStroke>,
-  val items: List<ActionNode>
+  val items: List<ActionNode>,
 ) {
 
   fun createPresentation(
@@ -29,7 +28,7 @@ data class ActionNode(
     popupManager: IdePopupManager,
     popupFactory: JBPopupFactory,
     dataManager: DataManager,
-    keysOverride: List<KeyStroke>
+    keysOverride: List<KeyStroke>,
   ): ActionPresentation {
 
     val action = toAction(
@@ -37,13 +36,13 @@ data class ActionNode(
       focusManager,
       popupManager,
       popupFactory,
-      dataManager
+      dataManager,
     )
     val presentation = ActionPresentation.create(
       action,
       keysOverride,
       separatorAbove,
-      isSticky
+      isSticky,
     )
     presentation.update(actionManager, dataContext)
     return presentation
@@ -54,7 +53,7 @@ data class ActionNode(
     focusManager: IdeFocusManager,
     popupManager: IdePopupManager,
     popupFactory: JBPopupFactory,
-    dataManager: DataManager
+    dataManager: DataManager,
   ): AnAction = when {
     items.isEmpty() -> actionManager.getAction(id) ?: UnknownAction(this)
     else -> PopupAction(
@@ -62,7 +61,7 @@ data class ActionNode(
       focusManager,
       popupManager,
       popupFactory,
-      dataManager
+      dataManager,
     )
   }
 

@@ -16,13 +16,13 @@ fun action(
   isSticky: Boolean = false,
   condition: When = When.ALWAYS,
   keys: List<KeyStroke> = emptyList(),
-  items: List<ActionNode> = emptyList()
+  items: List<ActionNode> = emptyList(),
 ) = ActionNode(id, name, separatorAbove, isSticky, condition, keys, items)
 
 fun rootAction(
   id: String = "",
   keys: List<KeyStroke> = emptyList(),
-  actions: List<Pair<AnAction, When>> = emptyList()
+  actions: List<Pair<AnAction, When>> = emptyList(),
 ) = RootAction(id, keys, actions)
 
 fun actionEvent(
@@ -31,12 +31,12 @@ fun actionEvent(
   place: String = "",
   presentation: Presentation = Presentation(),
   actionManager: ActionManager = mock(),
-  mask: Int = 0
+  mask: Int = 0,
 ) = AnActionEvent(
   input,
   context,
   place,
   presentation,
   actionManager,
-  mask
+  mask,
 )

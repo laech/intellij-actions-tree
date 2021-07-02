@@ -28,7 +28,7 @@ internal class Popup(
   private val focusManager: IdeFocusManager,
   private val popupManager: IdePopupManager,
   private val popupFactory: JBPopupFactory,
-  private val dataManager: DataManager
+  private val dataManager: DataManager,
 ) {
 
   private val actionManager = e.actionManager
@@ -62,7 +62,7 @@ internal class Popup(
     action: ActionNode,
     actionManager: ActionManager,
     dataContext: DataContext,
-    keysOverride: List<KeyStroke>
+    keysOverride: List<KeyStroke>,
   ): ActionPresentation = action.createPresentation(
     actionManager,
     dataContext,
@@ -70,7 +70,7 @@ internal class Popup(
     popupManager,
     popupFactory,
     dataManager,
-    keysOverride
+    keysOverride,
   )
 
   private fun createPopup(): JBPopup =
@@ -173,7 +173,7 @@ internal class Popup(
   private fun performAction(
     action: AnAction,
     modifiers: Int,
-    dataContext: DataContext
+    dataContext: DataContext,
   ) {
     val event = AnActionEvent(
       null,
@@ -181,7 +181,7 @@ internal class Popup(
       ActionNode.ACTION_PLACE,
       action.templatePresentation.clone(),
       actionManager,
-      modifiers
+      modifiers,
     )
 
     event.setInjectedContext(action.isInInjectedContext)
@@ -206,7 +206,7 @@ internal class Popup(
       e.presentation.text,
       action,
       e.dataContext, ActionSelectionAid.NUMBERING,
-      true
+      true,
     ).showInBestPositionFor(e.dataContext)
 
     return true

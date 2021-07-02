@@ -13,15 +13,20 @@ import javax.swing.KeyStroke
 data class RootAction(
   val id: String,
   val keyStrokes: List<KeyStroke>,
-  val actions: List<Pair<AnAction, When>>
-) : AnAction(actions.joinToString(", ") {
-  it.first.templatePresentation.text ?: ""
-}) {
-
+  val actions: List<Pair<AnAction, When>>,
+) : AnAction(
+  actions.joinToString(", ") {
+    it.first.templatePresentation.text ?: ""
+  },
+) {
   init {
-    super.setShortcutSet(CustomShortcutSet(*keyStrokes
-      .map { KeyboardShortcut(it, null) }
-      .toTypedArray()))
+    super.setShortcutSet(
+      CustomShortcutSet(
+        *keyStrokes
+          .map { KeyboardShortcut(it, null) }
+          .toTypedArray(),
+      ),
+    )
 
     isEnabledInModalContext =
       actions.any { it.first.isEnabledInModalContext }
@@ -93,7 +98,7 @@ data class RootAction(
       focusManager: IdeFocusManager,
       popupManager: IdePopupManager,
       popupFactory: JBPopupFactory,
-      dataManager: DataManager
+      dataManager: DataManager,
     ): List<RootAction> {
 
       val (noKeys, byKeys) = actions
@@ -130,15 +135,19 @@ data class RootAction(
           } else {
             "ActionsTree.Root.$i"
           }
-          RootAction(id, keys, nodes.map {
-            it.toAction(
-              actionManager,
-              focusManager,
-              popupManager,
-              popupFactory,
-              dataManager
-            ) to it.condition
-          }.reversed())
+          RootAction(
+            id,
+            keys,
+            nodes.map {
+              it.toAction(
+                actionManager,
+                focusManager,
+                popupManager,
+                popupFactory,
+                dataManager,
+              ) to it.condition
+            }.reversed(),
+          )
         }
         .toList()
     }

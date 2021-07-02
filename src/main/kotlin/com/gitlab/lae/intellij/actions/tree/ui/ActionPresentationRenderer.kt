@@ -33,7 +33,7 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
     value: ActionPresentation,
     index: Int,
     isSelected: Boolean,
-    cellHasFocus: Boolean
+    cellHasFocus: Boolean,
   ): Component {
 
     initEmptyIcon(list)
@@ -73,7 +73,7 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
         val icon = p.icon ?: p.disabledIcon ?: p.selectedIcon ?: return@map null
         EmptyIcon.create(
           icon.iconWidth,
-          icon.iconHeight
+          icon.iconHeight,
         )
       }
       .filterNotNull()
@@ -82,19 +82,19 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
 
   private fun setColors(
     list: JList<out ActionPresentation>,
-    isSelected: Boolean
+    isSelected: Boolean,
   ) {
     if (isSelected) {
       content.background = list.selectionBackground
       nameLabel.foreground = list.selectionForeground
       keyLabel.foreground = UIManager.getColor(
-        "MenuItem.acceleratorSelectionForeground"
+        "MenuItem.acceleratorSelectionForeground",
       )
     } else {
       content.background = list.background
       nameLabel.foreground = list.foreground
       keyLabel.foreground = UIManager.getColor(
-        "MenuItem.acceleratorForeground"
+        "MenuItem.acceleratorForeground",
       )
     }
   }

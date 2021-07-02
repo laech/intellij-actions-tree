@@ -27,7 +27,7 @@ import java.util.stream.Stream
 class ActionPopupEventDispatcher(
   private val popup: JBPopup,
   private val list: ActionList,
-  private val popupManager: IdePopupManager
+  private val popupManager: IdePopupManager,
 ) : IdePopupEventDispatcher, JBPopupListener {
 
   override fun getPopupStream(): Stream<JBPopup> = Stream.of(popup)

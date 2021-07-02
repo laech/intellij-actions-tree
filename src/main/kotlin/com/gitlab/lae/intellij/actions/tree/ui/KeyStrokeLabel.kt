@@ -9,7 +9,7 @@ fun getKeyText(key: KeyStroke): String {
   val copy = KeyStroke.getKeyStroke(
     KeyEvent.VK_A,
     key.modifiers,
-    key.isOnKeyRelease
+    key.isOnKeyRelease,
   )
 
   var prefix = KeymapUtil.getKeystrokeText(copy)

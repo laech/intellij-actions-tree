@@ -19,7 +19,7 @@ class ActionNodeTest {
     val expected = listOf(
       keys("typed a") to a,
       keys("typed z") to b,
-      keys("typed b") to c
+      keys("typed b") to c,
     )
     assertEquals(expected, actual)
   }
@@ -35,7 +35,7 @@ class ActionNodeTest {
     val expected = listOf(
       keys() to a,
       keys("typed b") to b,
-      keys() to c
+      keys() to c,
     )
     assertEquals(expected, actual)
   }

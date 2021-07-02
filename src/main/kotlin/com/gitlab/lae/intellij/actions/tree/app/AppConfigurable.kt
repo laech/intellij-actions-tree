@@ -6,7 +6,6 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import java.awt.BorderLayout
-import java.awt.event.ActionListener
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -37,17 +36,19 @@ class AppConfigurable : Configurable {
 
     val row = JPanel(BorderLayout())
     row.add(JLabel("Configuration File: "), BorderLayout.LINE_START)
-    row.add(TextFieldWithBrowseButton(confLocation, ActionListener {
-      val file = FileChooser.chooseFile(
-        FileChooserDescriptor(true, false, false, false, false, false),
-        null,
-        null
-      )
-      if (file != null) {
-        confLocation.text = file.path
-      }
-    }
-    ), BorderLayout.CENTER)
+    row.add(
+      TextFieldWithBrowseButton(confLocation) {
+        val file = FileChooser.chooseFile(
+          FileChooserDescriptor(true, false, false, false, false, false),
+          null,
+          null,
+        )
+        if (file != null) {
+          confLocation.text = file.path
+        }
+      },
+      BorderLayout.CENTER,
+    )
 
     val panel = JPanel(BorderLayout())
     panel.add(row, BorderLayout.PAGE_START)

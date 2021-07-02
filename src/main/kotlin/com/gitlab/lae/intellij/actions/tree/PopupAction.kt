@@ -13,7 +13,7 @@ class PopupAction(
   private val focusManager: IdeFocusManager,
   private val popupManager: IdePopupManager,
   private val popupFactory: JBPopupFactory,
-  private val dataManager: DataManager
+  private val dataManager: DataManager,
 ) : AnAction(action.name), DumbAware {
 
   init {
@@ -27,7 +27,7 @@ class PopupAction(
       focusManager,
       popupManager,
       popupFactory,
-      dataManager
+      dataManager,
     ).show(e.dataContext)
   }
 }

@@ -64,7 +64,7 @@ private fun processWhen(element: JsonElement?): When {
   }
 
   throw IllegalArgumentException(
-    "'$WHEN' object must only have either '$WHEN_ANY' or '$WHEN_ALL' element: $obj"
+    "'$WHEN' object must only have either '$WHEN_ANY' or '$WHEN_ALL' element: $obj",
   )
 }
 

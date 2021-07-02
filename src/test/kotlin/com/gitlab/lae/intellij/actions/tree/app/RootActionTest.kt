@@ -60,9 +60,9 @@ class RootActionTest {
         action(
           id = id,
           keys = keys("X"),
-          items = listOf(action("bob"))
-        )
-      )
+          items = listOf(action("bob")),
+        ),
+      ),
     )
     assertEquals(1, actual.size.toLong())
     assertEquals(id, actual[0].id)
@@ -83,20 +83,20 @@ class RootActionTest {
       listOf(
         action(
           id = ACTION_CUT,
-          keys = keys("typed a")
+          keys = keys("typed a"),
         ),
         action(
           id = ACTION_COPY,
           keys = keys("typed a", "typed b"),
-          condition = When.toolWindowActive("Project")
+          condition = When.toolWindowActive("Project"),
         ),
         action(
           id = ACTION_PASTE,
           keys = keys("typed x", "typed y"),
-          condition = When.fileExtension("txt")
-        )
+          condition = When.fileExtension("txt"),
+        ),
       ),
-      actionManager
+      actionManager,
     )
 
     val expected = listOf(
@@ -105,19 +105,19 @@ class RootActionTest {
         keys("typed a"),
         listOf(
           copy to When.toolWindowActive("Project"),
-          cut to ALWAYS
-        )
+          cut to ALWAYS,
+        ),
       ),
       RootAction(
         "ActionsTree.Root.1",
         keys("typed b"),
-        listOf(copy to When.toolWindowActive("Project"))
+        listOf(copy to When.toolWindowActive("Project")),
       ),
       RootAction(
         "ActionsTree.Root.2",
         keys("typed x", "typed y"),
-        listOf(paste to When.fileExtension("txt"))
-      )
+        listOf(paste to When.fileExtension("txt")),
+      ),
     )
     assertEquals(expected, actual)
   }
@@ -136,24 +136,24 @@ class RootActionTest {
       listOf(
         action(ACTION_CUT),
         action(ACTION_COPY, keys = keys("typed b")),
-        action(ACTION_PASTE)
+        action(ACTION_PASTE),
       ),
-      actionManager
+      actionManager,
     )
 
     val expected = listOf(
       rootAction(
         id = "ActionsTree.Root.0",
         keys = keys("typed b"),
-        actions = listOf(copy to ALWAYS)
+        actions = listOf(copy to ALWAYS),
       ),
       rootAction(
         id = "ActionsTree.Root.1",
         actions = listOf(
           paste to ALWAYS,
-          cut to ALWAYS
-        )
-      )
+          cut to ALWAYS,
+        ),
+      ),
     )
 
     assertEquals(expected, actual)
@@ -173,17 +173,17 @@ class RootActionTest {
       rootAction(
         actions = listOf(
           ModalAction(true) to NEVER,
-          ModalAction(false) to NEVER
-        )
-      ).isEnabledInModalContext
+          ModalAction(false) to NEVER,
+        ),
+      ).isEnabledInModalContext,
     )
     assertFalse(
       rootAction(
         actions = listOf(
           ModalAction(false) to NEVER,
-          ModalAction(false) to NEVER
-        )
-      ).isEnabledInModalContext
+          ModalAction(false) to NEVER,
+        ),
+      ).isEnabledInModalContext,
     )
   }
 
@@ -193,13 +193,13 @@ class RootActionTest {
     focusManager: IdeFocusManager = mock(),
     popupManager: IdePopupManager = IdePopupManager(),
     popupFactory: JBPopupFactory = mock(),
-    dataManager: DataManager = mock()
+    dataManager: DataManager = mock(),
   ) = RootAction.merge(
     actions,
     actionManager,
     focusManager,
     popupManager,
     popupFactory,
-    dataManager
+    dataManager,
   )
 }
