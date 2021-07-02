@@ -1,9 +1,9 @@
 package com.gitlab.lae.intellij.actions.tree
 
 import com.gitlab.lae.intellij.actions.tree.When.Companion.NEVER
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class ActionNodeTest {
 

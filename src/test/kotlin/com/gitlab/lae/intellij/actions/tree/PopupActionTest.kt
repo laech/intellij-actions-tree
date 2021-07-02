@@ -1,9 +1,9 @@
 package com.gitlab.lae.intellij.actions.tree
 
 import com.intellij.ide.IdePopupManager
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class PopupActionTest {
 

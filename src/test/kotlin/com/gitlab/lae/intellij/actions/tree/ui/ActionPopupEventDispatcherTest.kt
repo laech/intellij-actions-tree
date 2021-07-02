@@ -1,11 +1,11 @@
 package com.gitlab.lae.intellij.actions.tree.ui
 
 import com.intellij.ide.IdePopupManager
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.mock
 import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent.CHAR_UNDEFINED
 import java.awt.event.KeyEvent.VK_A

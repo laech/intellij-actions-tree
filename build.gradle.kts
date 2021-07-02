@@ -2,8 +2,8 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("org.jetbrains.kotlin.jvm").version("1.5.0")
-  id("org.jetbrains.intellij").version("0.7.3")
+  kotlin("jvm") version "1.5.20"
+  id("org.jetbrains.intellij").version("1.1.2")
 }
 
 group = "com.gitlab.lae.intellij.actions.tree"
@@ -15,8 +15,8 @@ repositories {
 
 dependencies {
   implementation(kotlin("stdlib-jdk8"))
-  testImplementation("org.mockito:mockito-core:3.4.0")
-  testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+  testImplementation("org.mockito:mockito-core:3.11.2")
+  testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
 }
 
 tasks.withType<KotlinCompile> {
@@ -33,6 +33,6 @@ tasks.withType<Test> {
 }
 
 intellij {
-  version = "2021.1"
-  updateSinceUntilBuild = false
+  version.set("2021.1")
+  updateSinceUntilBuild.set(false)
 }

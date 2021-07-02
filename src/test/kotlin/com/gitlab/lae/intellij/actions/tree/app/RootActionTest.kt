@@ -9,11 +9,11 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.IdeActions.*
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.IdeFocusManager
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.*
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class RootActionTest {
 

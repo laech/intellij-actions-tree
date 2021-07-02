@@ -9,12 +9,12 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class WhenTest {
 

@@ -2,7 +2,7 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.gitlab.lae.intellij.actions.tree.app.RootAction
 import com.intellij.openapi.actionSystem.*
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import java.awt.event.InputEvent
 import javax.swing.KeyStroke
 
