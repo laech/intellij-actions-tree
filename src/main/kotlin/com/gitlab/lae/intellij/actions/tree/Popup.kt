@@ -74,7 +74,7 @@ internal class Popup(
   )
 
   private fun createPopup(): JBPopup =
-    PopupChooserBuilder<ActionPresentation>(list)
+    PopupChooserBuilder(list)
       .setModalContext(true)
       .setCloseOnEnter(false)
       .setItemChoosenCallback {

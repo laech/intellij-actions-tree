@@ -1,6 +1,6 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.gitlab.lae.intellij.actions.tree.When.Companion.NEVER
+import com.gitlab.lae.intellij.actions.tree.When.Never
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.kotlin.mock
@@ -13,7 +13,7 @@ class ActionNodeTest {
     val a = action("a", keys = keys("typed a"))
     val b = action("b", keys = keys("typed b", "typed z"))
     val c = action("c", keys = keys("typed b"))
-    val d = action("d", keys = keys("typed b"), condition = NEVER)
+    val d = action("d", keys = keys("typed b"), condition = Never)
 
     val actual = action(items = listOf(a, b, c, d)).prepare(mock())
     val expected = listOf(

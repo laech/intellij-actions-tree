@@ -111,7 +111,7 @@ data class RootAction(
         }
 
       val byActions =
-        byKeys.entries.asSequence()
+        byKeys.entries
           .groupBy { it.value }
           .mapValues { it.value.map { e -> e.key } } +
           (if (noKeys.isEmpty()) emptyMap()

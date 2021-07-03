@@ -1,5 +1,6 @@
 package com.gitlab.lae.intellij.actions.tree
 
+import com.gitlab.lae.intellij.actions.tree.When.Always
 import com.gitlab.lae.intellij.actions.tree.app.RootAction
 import com.intellij.openapi.actionSystem.*
 import org.mockito.kotlin.mock
@@ -14,7 +15,7 @@ fun action(
   name: String? = null,
   separatorAbove: String? = null,
   isSticky: Boolean = false,
-  condition: When = When.ALWAYS,
+  condition: When = Always,
   keys: List<KeyStroke> = emptyList(),
   items: List<ActionNode> = emptyList(),
 ) = ActionNode(id, name, separatorAbove, isSticky, condition, keys, items)

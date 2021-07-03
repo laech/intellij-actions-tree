@@ -1,8 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree.app
 
 import com.gitlab.lae.intellij.actions.tree.*
-import com.gitlab.lae.intellij.actions.tree.When.Companion.ALWAYS
-import com.gitlab.lae.intellij.actions.tree.When.Companion.NEVER
+import com.gitlab.lae.intellij.actions.tree.When.*
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdePopupManager
 import com.intellij.openapi.actionSystem.*
@@ -88,12 +87,12 @@ class RootActionTest {
         action(
           id = ACTION_COPY,
           keys = keys("typed a", "typed b"),
-          condition = When.toolWindowActive("Project"),
+          condition = ToolWindowActive("Project"),
         ),
         action(
           id = ACTION_PASTE,
           keys = keys("typed x", "typed y"),
-          condition = When.fileExtension("txt"),
+          condition = FileExtension("txt"),
         ),
       ),
       actionManager,
@@ -104,19 +103,19 @@ class RootActionTest {
         "ActionsTree.Root.0",
         keys("typed a"),
         listOf(
-          copy to When.toolWindowActive("Project"),
-          cut to ALWAYS,
+          copy to ToolWindowActive("Project"),
+          cut to Always,
         ),
       ),
       RootAction(
         "ActionsTree.Root.1",
         keys("typed b"),
-        listOf(copy to When.toolWindowActive("Project")),
+        listOf(copy to ToolWindowActive("Project")),
       ),
       RootAction(
         "ActionsTree.Root.2",
         keys("typed x", "typed y"),
-        listOf(paste to When.fileExtension("txt")),
+        listOf(paste to FileExtension("txt")),
       ),
     )
     assertEquals(expected, actual)
@@ -145,13 +144,13 @@ class RootActionTest {
       rootAction(
         id = "ActionsTree.Root.0",
         keys = keys("typed b"),
-        actions = listOf(copy to ALWAYS),
+        actions = listOf(copy to Always),
       ),
       rootAction(
         id = "ActionsTree.Root.1",
         actions = listOf(
-          paste to ALWAYS,
-          cut to ALWAYS,
+          paste to Always,
+          cut to Always,
         ),
       ),
     )
@@ -172,16 +171,16 @@ class RootActionTest {
     assertTrue(
       rootAction(
         actions = listOf(
-          ModalAction(true) to NEVER,
-          ModalAction(false) to NEVER,
+          ModalAction(true) to Never,
+          ModalAction(false) to Never,
         ),
       ).isEnabledInModalContext,
     )
     assertFalse(
       rootAction(
         actions = listOf(
-          ModalAction(false) to NEVER,
-          ModalAction(false) to NEVER,
+          ModalAction(false) to Never,
+          ModalAction(false) to Never,
         ),
       ).isEnabledInModalContext,
     )

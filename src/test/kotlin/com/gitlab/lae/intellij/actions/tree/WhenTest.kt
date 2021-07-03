@@ -1,7 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.gitlab.lae.intellij.actions.tree.When.Companion.ALWAYS
-import com.gitlab.lae.intellij.actions.tree.When.Companion.NEVER
+import com.gitlab.lae.intellij.actions.tree.When.*
+import com.gitlab.lae.intellij.actions.tree.When.Any
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE
 import com.intellij.openapi.actionSystem.DataContext
@@ -20,26 +20,26 @@ class WhenTest {
 
   @Test
   fun any() {
-    assertFalse(When.any().test(mock()))
-    assertTrue(When.any(ALWAYS).test(mock()))
-    assertFalse(When.any(NEVER).test(mock()))
-    assertTrue(When.any(ALWAYS, NEVER).test(mock()))
-    assertTrue(When.any(ALWAYS, ALWAYS).test(mock()))
+    assertFalse(Any().test(mock()))
+    assertTrue(Any(Always).test(mock()))
+    assertFalse(Any(Never).test(mock()))
+    assertTrue(Any(Always, Never).test(mock()))
+    assertTrue(Any(Always, Always).test(mock()))
   }
 
   @Test
   fun all() {
-    assertTrue(When.all().test(mock()))
-    assertTrue(When.all(ALWAYS).test(mock()))
-    assertFalse(When.all(NEVER).test(mock()))
-    assertTrue(When.all(ALWAYS, ALWAYS).test(mock()))
-    assertFalse(When.all(ALWAYS, NEVER).test(mock()))
+    assertTrue(All().test(mock()))
+    assertTrue(All(Always).test(mock()))
+    assertFalse(All(Never).test(mock()))
+    assertTrue(All(Always, Always).test(mock()))
+    assertFalse(All(Always, Never).test(mock()))
   }
 
   @Test
   fun not() {
-    assertFalse(When.not(ALWAYS).test(mock()))
-    assertTrue(When.not(When.not(ALWAYS)).test(mock()))
+    assertFalse(Not(Always).test(mock()))
+    assertTrue(Not(Not(Always)).test(mock()))
   }
 
   @Test
@@ -48,7 +48,7 @@ class WhenTest {
     val context = mock<DataContext>()
     whenever(context.getData(VIRTUAL_FILE)).thenReturn(file)
 
-    val condition = When.fileExtension("txt")
+    val condition = FileExtension("txt")
     whenever(file.extension).thenReturn("txt")
     assertTrue(condition.test(context))
 
@@ -62,16 +62,16 @@ class WhenTest {
     val context = mock<DataContext>()
     whenever(context.getData(TOOL_WINDOW)).thenReturn(toolWindow)
 
-    val condtion = When.toolWindowActive("Project")
+    val condition = ToolWindowActive("Project")
     whenever(toolWindow.stripeTitle).thenReturn("Project")
     whenever(toolWindow.isActive).thenReturn(false)
-    assertFalse(condtion.test(context))
+    assertFalse(condition.test(context))
 
     whenever(toolWindow.isActive).thenReturn(true)
-    assertTrue(condtion.test(context))
+    assertTrue(condition.test(context))
 
     whenever(toolWindow.stripeTitle).thenReturn("Test")
-    assertFalse(condtion.test(context))
+    assertFalse(condition.test(context))
   }
 
   @Test
@@ -80,7 +80,7 @@ class WhenTest {
     val context = mock<DataContext>()
     whenever(context.getData(TOOL_WINDOW)).thenReturn(toolWindow)
 
-    val condition = When.toolWindowTabActive("Project")
+    val condition = ToolWindowTabActive("Project")
     whenever(toolWindow.title).thenReturn("Project")
     whenever(toolWindow.isActive).thenReturn(false)
     assertFalse(condition.test(context))
@@ -95,9 +95,9 @@ class WhenTest {
   @Test
   fun pathExists() {
     val context = mock<DataContext>()
-    assertTrue(When.pathExists("/").test(context))
-    assertFalse(When.pathExists("/adsfxdfr").test(context))
-    assertFalse(When.pathExists("adsfxdfr").test(context))
+    assertTrue(PathExists("/").test(context))
+    assertFalse(PathExists("/adsfxdfr").test(context))
+    assertFalse(PathExists("adsfxdfr").test(context))
 
     val folder = TemporaryFolder()
     try {
@@ -106,7 +106,7 @@ class WhenTest {
       val project = mock<Project>()
       whenever(project.basePath).thenReturn(folder.root.path)
       whenever(context.getData(PROJECT)).thenReturn(project)
-      assertTrue(When.pathExists("test").test(context))
+      assertTrue(PathExists("test").test(context))
     } finally {
       folder.delete()
     }

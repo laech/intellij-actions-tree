@@ -1,5 +1,6 @@
 package com.gitlab.lae.intellij.actions.tree
 
+import com.gitlab.lae.intellij.actions.tree.When.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,11 +22,11 @@ class WhenParsingTest(
     @JvmStatic
     @Parameters(name = "{0}")
     fun parameters() = arrayOf(
-      arrayOf("ToolWindowActive:Project", When.toolWindowActive("Project")),
-      arrayOf("ToolWindowTabActive:Log", When.toolWindowTabActive("Log")),
-      arrayOf("FileExtension:rs", When.fileExtension("rs")),
-      arrayOf("!FileExtension:rs", When.not(When.fileExtension("rs"))),
-      arrayOf("PathExists:readme", When.pathExists("readme")),
+      arrayOf("ToolWindowActive:Project", ToolWindowActive("Project")),
+      arrayOf("ToolWindowTabActive:Log", ToolWindowTabActive("Log")),
+      arrayOf("FileExtension:rs", FileExtension("rs")),
+      arrayOf("!FileExtension:rs", Not(FileExtension("rs"))),
+      arrayOf("PathExists:readme", PathExists("readme")),
     )
   }
 }

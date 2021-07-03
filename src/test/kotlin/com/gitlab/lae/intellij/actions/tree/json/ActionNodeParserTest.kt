@@ -1,6 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree.json
 
-import com.gitlab.lae.intellij.actions.tree.When
+import com.gitlab.lae.intellij.actions.tree.When.*
+import com.gitlab.lae.intellij.actions.tree.When.Any
 import com.gitlab.lae.intellij.actions.tree.action
 import com.gitlab.lae.intellij.actions.tree.keys
 import org.junit.Assert.assertEquals
@@ -15,7 +16,7 @@ class ActionNodeParserTest {
       action(
         id = "ActionsTree.Node.1",
         name = "Unnamed",
-        condition = When.toolWindowActive("Project"),
+        condition = ToolWindowActive("Project"),
         keys = keys("ctrl C"),
         items = listOf(
           action(
@@ -41,7 +42,7 @@ class ActionNodeParserTest {
       action(
         id = "ActionsTree.Node.3",
         name = "b",
-        condition = When.fileExtension("java"),
+        condition = FileExtension("java"),
         keys = keys("ctrl X"),
         items = listOf(
           action(
@@ -55,11 +56,11 @@ class ActionNodeParserTest {
       action(
         id = "ActionsTree.Node.4",
         name = "c",
-        condition = When.any(
-          When.fileExtension("txt"),
-          When.all(
-            When.toolWindowActive("Run"),
-            When.fileExtension("java"),
+        condition = Any(
+          FileExtension("txt"),
+          All(
+            ToolWindowActive("Run"),
+            FileExtension("java"),
           ),
         ),
       ),

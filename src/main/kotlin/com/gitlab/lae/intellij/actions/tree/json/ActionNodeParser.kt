@@ -2,6 +2,8 @@ package com.gitlab.lae.intellij.actions.tree.json
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode
 import com.gitlab.lae.intellij.actions.tree.When
+import com.gitlab.lae.intellij.actions.tree.When.All
+import com.gitlab.lae.intellij.actions.tree.When.Any
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -41,7 +43,7 @@ private fun toActionNode(element: JsonElement, seq: () -> Int): ActionNode {
 }
 
 private fun processWhen(element: JsonElement?): When {
-  element ?: return When.ALWAYS
+  element ?: return When.Always
 
   if (element.isJsonPrimitive) {
     return When.parse(element.asString)
@@ -55,12 +57,12 @@ private fun processWhen(element: JsonElement?): When {
 
   val any = obj.remove(WHEN_ANY)
   if (any != null) {
-    return When.any(*processWhens(any.asJsonArray))
+    return Any(*processWhens(any.asJsonArray))
   }
 
   val all = obj.remove(WHEN_ALL)
   if (all != null) {
-    return When.all(*processWhens(all.asJsonArray))
+    return All(*processWhens(all.asJsonArray))
   }
 
   throw IllegalArgumentException(
