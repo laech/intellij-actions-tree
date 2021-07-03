@@ -22,6 +22,8 @@
     0.5
     <ul>
       <li>Add PathExists condition.</li>
+      <li>Remove deprecated API usage.<li>
+      <li>Minimum IntelliJ version required is now 2021.1.</li>
     </ul>
 
     <br/>
