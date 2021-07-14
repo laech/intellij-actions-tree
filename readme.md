@@ -134,10 +134,10 @@ The basic structures are:
   - `FileExtension:<regex>`: file extension matches `<regex>`,
     e.g. `FileExtension:java`.
 
-  - `ToolWindowActived:<regex>`: active tool window name matches
+  - `ToolWindowActive:<regex>`: active tool window name matches
     `<regex>`, e.g. `ToolWindowActive:Project`.
 
-  - `ToolWindowTabActived:<regex>`: active tool window's active tab title
+  - `ToolWindowTabActive:<regex>`: active tool window's active tab title
     matches `<regex>`, e.g. `ToolWindowTabActive:Log`.
 
   - `InputFocused`: an input editor or field is in focus.
