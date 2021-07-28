@@ -34,4 +34,5 @@ tasks.withType<Test> {
 
 intellij {
   version.set("2021.1")
+  updateSinceUntilBuild.set(false)
 }
