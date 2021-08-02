@@ -33,6 +33,10 @@ tasks.withType<Test> {
 }
 
 intellij {
+
+  // See idea-version in plugin.xml
   version.set("2021.1")
+
+  // If true this sets until-build to same major version which is not good
   updateSinceUntilBuild.set(false)
 }
