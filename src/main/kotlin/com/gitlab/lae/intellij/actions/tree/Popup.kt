@@ -190,7 +190,9 @@ internal class Popup(
     }
 
     if (ActionUtil.lastUpdateAndCheckDumb(action, event, false)) {
-      ActionUtil.performActionDumbAware(action, event)
+      getApplication().invokeLater {
+        ActionUtil.performActionDumbAware(action, event)
+      }
     }
   }
 
