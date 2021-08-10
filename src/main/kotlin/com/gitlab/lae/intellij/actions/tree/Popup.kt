@@ -164,7 +164,10 @@ internal class Popup(
     getDataContextAsync { context ->
       getApplication().invokeLater {
         focusManager.doWhenFocusSettlesDown {
-          performAction(action, modifiers, context)
+          // Another invokeLater() to put us back on the right thread
+          getApplication().invokeLater {
+            performAction(action, modifiers, context)
+          }
         }
       }
     }
@@ -190,9 +193,7 @@ internal class Popup(
     }
 
     if (ActionUtil.lastUpdateAndCheckDumb(action, event, false)) {
-      getApplication().invokeLater {
-        ActionUtil.performActionDumbAware(action, event)
-      }
+      ActionUtil.performActionDumbAware(action, event)
     }
   }
 
