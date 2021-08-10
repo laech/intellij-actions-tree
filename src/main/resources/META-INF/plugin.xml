@@ -19,6 +19,16 @@
 
   <change-notes><![CDATA[
     <br/>
+    0.5.4
+    <ul>
+      <li>
+        <a href="https://github.com/laech/intellij-actions-tree/issues/3">
+          Fix IDE unsafe write error, again.
+        </a>
+      </li>
+    </ul>
+
+    <br/>
     0.5.3
     <ul>
       <li>
@@ -38,7 +48,7 @@
     0.5.1
     <ul>
       <li>Add PathExists condition.</li>
-      <li>Remove deprecated API usage.<li>
+      <li>Remove deprecated API usage.</li>
       <li>Minimum IntelliJ version required is now 2021.1.</li>
     </ul>
 
