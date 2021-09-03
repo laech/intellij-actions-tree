@@ -19,6 +19,12 @@
 
   <change-notes><![CDATA[
     <br/>
+    0.5.5
+    <ul>
+      <li>Remove deprecated IntelliJ API usage.</li>
+    </ul>
+
+    <br/>
     0.5.4
     <ul>
       <li>
