@@ -1,9 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "1.5.20"
-  id("org.jetbrains.intellij").version("1.1.2")
+  kotlin("jvm") version "1.5.30"
+  id("org.jetbrains.intellij").version("1.1.4")
 }
 
 group = "com.gitlab.lae.intellij.actions.tree"
@@ -19,11 +18,10 @@ dependencies {
   testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
 }
 
-tasks.withType<KotlinCompile> {
-  kotlinOptions.jvmTarget = "11"
-  kotlinOptions.jdkHome = javaToolchains
-    .compilerFor { languageVersion.set(JavaLanguageVersion.of(11)) }
-    .get().metadata.installationPath.asFile.absolutePath
+kotlin {
+  jvmToolchain {
+    (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(11))
+  }
 }
 
 tasks.withType<Test> {
@@ -35,7 +33,7 @@ tasks.withType<Test> {
 intellij {
 
   // See idea-version in plugin.xml
-  version.set("2021.1")
+  version.set("2021.2.1")
 
   // If true this sets until-build to same major version which is not good
   updateSinceUntilBuild.set(false)

@@ -15,6 +15,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import java.nio.file.Paths
 
 class WhenTest {
 
@@ -95,7 +96,7 @@ class WhenTest {
   @Test
   fun pathExists() {
     val context = mock<DataContext>()
-    assertTrue(PathExists("/").test(context))
+    assertTrue(PathExists(Paths.get("").toAbsolutePath().toString()).test(context))
     assertFalse(PathExists("/adsfxdfr").test(context))
     assertFalse(PathExists("adsfxdfr").test(context))
 
