@@ -193,7 +193,7 @@ internal class Popup(
     }
 
     if (ActionUtil.lastUpdateAndCheckDumb(action, event, false)) {
-      ActionUtil.performActionDumbAware(action, event)
+      ActionUtil.performActionDumbAwareWithCallbacks(action, event)
     }
   }
 
