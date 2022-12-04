@@ -3,7 +3,6 @@ package com.gitlab.lae.intellij.actions.tree.ui
 import com.gitlab.lae.intellij.actions.tree.ActionNode.Companion.ACTION_PLACE
 import com.gitlab.lae.intellij.actions.tree.util.setEnabledModalContext
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.PlatformDataKeys.IS_MODAL_CONTEXT
 import com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUpdate
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
@@ -55,8 +54,7 @@ data class ActionPresentation(
       0,
     )
     event.setInjectedContext(action.isInInjectedContext)
-    val isModal = dataContext.getData(IS_MODAL_CONTEXT) ?: false
-    performDumbAwareUpdate(isModal, action, event, false)
+    performDumbAwareUpdate(action, event, false)
     setEnabledModalContext(event, action)
   }
 

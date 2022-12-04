@@ -10,14 +10,19 @@
       an ordinary IDE action. Each action in the list can be assigned a keyboard
       shortcut that is local to the list, doesn't conflict with other global
       shortcuts. This allows simulation of Emacs like prefix keys (n-level
-      deep), so you are not restricted to IntelliJ keymap's maximum of two key
-      strokes.
+      deep), so you are not restricted to IntelliJ keymap's maximum of two keystrokes.
     </p>
     Configuration is done via a JSON file, see <a
       href="https://github.com/laech/intellij-actions-tree">here</a> for more details.
     ]]></description>
 
   <change-notes><![CDATA[
+    <br/>
+    0.5.6
+    <ul>
+      <li>Remove deprecated IntelliJ API usage.</li>
+    </ul>
+
     <br/>
     0.5.5
     <ul>
@@ -185,7 +190,7 @@
   </change-notes>
 
   <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
-  <idea-version since-build="212.5080"/>
+  <idea-version since-build="221.5080.210"/>
 
   <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
   <depends>com.intellij.modules.lang</depends>

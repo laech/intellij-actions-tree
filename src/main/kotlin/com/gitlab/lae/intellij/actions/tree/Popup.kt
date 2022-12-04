@@ -201,7 +201,7 @@ internal class Popup(
     if (action !is ActionGroup) {
       return false
     }
-    if (action.canBePerformed(e.dataContext)) {
+    if (e.presentation.isPerformGroup) {
       return false
     }
 
