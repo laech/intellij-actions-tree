@@ -6,8 +6,12 @@ import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation
 import com.gitlab.lae.intellij.actions.tree.util.setBestLocation
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdePopupManager
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil

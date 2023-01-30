@@ -5,7 +5,11 @@ import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import java.awt.Component
-import javax.swing.*
+import javax.swing.JLabel
+import javax.swing.JList
+import javax.swing.JPanel
+import javax.swing.ListCellRenderer
+import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
 
 class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {

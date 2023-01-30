@@ -18,6 +18,11 @@
 
   <change-notes><![CDATA[
     <br/>
+    0.5.7
+    <ul>
+      <li>Fix an UnsupportedOperationException in newer version of IntelliJ.</li>
+    </ul>
+
     0.5.6
     <ul>
       <li>Remove deprecated IntelliJ API usage.</li>
@@ -190,7 +195,7 @@
   </change-notes>
 
   <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
-  <idea-version since-build="221.5080.210"/>
+  <idea-version since-build="223.8617.9"/>
 
   <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
   <depends>com.intellij.modules.lang</depends>

@@ -2,7 +2,12 @@ package com.gitlab.lae.intellij.actions.tree.ui
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode.Companion.ACTION_PLACE
 import com.gitlab.lae.intellij.actions.tree.util.setEnabledModalContext
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.Presentation
+import com.intellij.openapi.actionSystem.UpdateSession
 import com.intellij.openapi.actionSystem.ex.ActionUtil.performDumbAwareUpdate
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
@@ -54,7 +59,12 @@ data class ActionPresentation(
       0,
     )
     event.setInjectedContext(action.isInInjectedContext)
-    performDumbAwareUpdate(action, event, false)
+
+    // Check for empty session to avoid UnsupportedOperationException
+    if (event.updateSession != UpdateSession.EMPTY) {
+      performDumbAwareUpdate(action, event, false)
+    }
+
     setEnabledModalContext(event, action)
   }
 

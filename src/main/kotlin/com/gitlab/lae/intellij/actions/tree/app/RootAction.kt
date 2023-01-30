@@ -5,7 +5,12 @@ import com.gitlab.lae.intellij.actions.tree.When
 import com.gitlab.lae.intellij.actions.tree.util.setEnabledModalContext
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdePopupManager
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CustomShortcutSet
+import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.actionSystem.ShortcutSet
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.IdeFocusManager
 import javax.swing.KeyStroke
