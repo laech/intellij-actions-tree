@@ -1,8 +1,10 @@
 package com.gitlab.lae.intellij.actions.tree.json
 
-import com.gitlab.lae.intellij.actions.tree.When.*
+import com.gitlab.lae.intellij.actions.tree.When.All
 import com.gitlab.lae.intellij.actions.tree.When.Any
-import com.gitlab.lae.intellij.actions.tree.action
+import com.gitlab.lae.intellij.actions.tree.When.FileExtension
+import com.gitlab.lae.intellij.actions.tree.When.ToolWindowActive
+import com.gitlab.lae.intellij.actions.tree.actionNode
 import com.gitlab.lae.intellij.actions.tree.keys
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -13,23 +15,23 @@ class ActionNodeParserTest {
   @Test
   fun deserialization() {
     val expected = listOf(
-      action(
+      actionNode(
         id = "ActionsTree.Node.1",
         name = "Unnamed",
         condition = ToolWindowActive("Project"),
         keys = keys("ctrl C"),
         items = listOf(
-          action(
+          actionNode(
             id = "ActionsTree.Node.2",
             name = "Unnamed",
             keys = keys("P"),
             items = listOf(
-              action(
+              actionNode(
                 id = "CloseProject",
                 name = "Unnamed",
                 keys = keys("K", "ctrl K"),
               ),
-              action(
+              actionNode(
                 id = "OpenProjectGroup",
                 name = "Unnamed",
                 separatorAbove = "SEP",
@@ -39,13 +41,13 @@ class ActionNodeParserTest {
           ),
         ),
       ),
-      action(
+      actionNode(
         id = "ActionsTree.Node.3",
         name = "b",
         condition = FileExtension("java"),
         keys = keys("ctrl X"),
         items = listOf(
-          action(
+          actionNode(
             id = "EditorSwapSelectionBoundaries",
             name = "Unnamed",
             keys = keys("ctrl X"),
@@ -53,7 +55,7 @@ class ActionNodeParserTest {
           ),
         ),
       ),
-      action(
+      actionNode(
         id = "ActionsTree.Node.4",
         name = "c",
         condition = Any(
@@ -63,6 +65,10 @@ class ActionNodeParserTest {
             FileExtension("java"),
           ),
         ),
+      ),
+      actionNode(
+        id = "MyId",
+        name = "Unnamed",
       ),
     )
 

@@ -27,6 +27,8 @@ class WhenParsingTest(
       arrayOf("FileExtension:rs", FileExtension("rs")),
       arrayOf("!FileExtension:rs", Not(FileExtension("rs"))),
       arrayOf("PathExists:readme", PathExists("readme")),
+      arrayOf("InputFocused", InputFocused),
+      arrayOf("TextSelected", TextSelected),
     )
   }
 }

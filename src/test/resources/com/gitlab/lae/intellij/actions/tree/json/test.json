@@ -37,6 +37,10 @@
           { "all": ["ToolWindowActive:Run", "FileExtension:java"] }
         ]
       }
+    },
+    {
+      "id": "MyId",
+      "items": []
     }
   ]
 }

@@ -10,12 +10,12 @@ class ActionNodeTest {
   @Test
   fun `prepares child item for context`() {
 
-    val a = action("a", keys = keys("typed a"))
-    val b = action("b", keys = keys("typed b", "typed z"))
-    val c = action("c", keys = keys("typed b"))
-    val d = action("d", keys = keys("typed b"), condition = Never)
+    val a = actionNode("a", keys = keys("typed a"))
+    val b = actionNode("b", keys = keys("typed b", "typed z"))
+    val c = actionNode("c", keys = keys("typed b"))
+    val d = actionNode("d", keys = keys("typed b"), condition = Never)
 
-    val actual = action(items = listOf(a, b, c, d)).prepare(mock())
+    val actual = actionNode(items = listOf(a, b, c, d)).prepare(mock())
     val expected = listOf(
       keys("typed a") to a,
       keys("typed z") to b,
@@ -27,11 +27,11 @@ class ActionNodeTest {
   @Test
   fun `prepares child item for context keeps empty key strokes`() {
 
-    val a = action("a")
-    val b = action("b", keys = keys("typed b"))
-    val c = action("c")
+    val a = actionNode("a")
+    val b = actionNode("b", keys = keys("typed b"))
+    val c = actionNode("c")
 
-    val actual = action(items = listOf(a, b, c)).prepare(mock())
+    val actual = actionNode(items = listOf(a, b, c)).prepare(mock())
     val expected = listOf(
       keys() to a,
       keys("typed b") to b,

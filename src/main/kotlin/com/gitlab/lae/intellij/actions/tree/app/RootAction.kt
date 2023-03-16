@@ -1,48 +1,38 @@
 package com.gitlab.lae.intellij.actions.tree.app
 
 import com.gitlab.lae.intellij.actions.tree.ActionNode
-import com.gitlab.lae.intellij.actions.tree.When
 import com.gitlab.lae.intellij.actions.tree.util.setEnabledModalContext
-import com.intellij.ide.DataManager
-import com.intellij.ide.IdePopupManager
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CustomShortcutSet
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.actionSystem.ShortcutSet
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.wm.IdeFocusManager
 import javax.swing.KeyStroke
 
 data class RootAction(
   val id: String,
   val keyStrokes: List<KeyStroke>,
-  val actions: List<Pair<AnAction, When>>,
-) : AnAction(
-  actions.joinToString(", ") {
-    it.first.templatePresentation.text ?: ""
-  },
-) {
+  val actions: List<ActionNode>,
+) : AnAction() {
+
   init {
     super.setShortcutSet(
       CustomShortcutSet(
-        *keyStrokes
-          .map { KeyboardShortcut(it, null) }
-          .toTypedArray(),
+        *keyStrokes.map { KeyboardShortcut(it, null) }.toTypedArray(),
       ),
     )
-
-    isEnabledInModalContext =
-      actions.any { it.first.isEnabledInModalContext }
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.BGT
 
   override fun setShortcutSet(ignored: ShortcutSet) {}
 
   private fun findAction(e: AnActionEvent): AnAction? = actions
     .asSequence()
-    .filter { it.second.test(e.dataContext) }
-    .map { it.first }
+    .filter { it.condition.test(e.dataContext) }
+    .map { it.toAction(e.actionManager) }
     .firstOrNull()
 
   override fun actionPerformed(e: AnActionEvent) {
@@ -58,7 +48,7 @@ data class RootAction(
     super.update(e)
 
     /* It's important to disable this action when none inner action
-     * is available to execute, so that the key stroke will be passed
+     * is available to execute, so that the keystroke will be passed
      * through to the IDE for processing.
      *
      * For example, if the 'N' key is configured to be the 'Down'
@@ -80,7 +70,7 @@ data class RootAction(
 
   companion object {
     /**
-     * Merges the root level actions by their key strokes.
+     * Merges the root level actions by their keystrokes.
      *
      *
      * For example:
@@ -100,10 +90,6 @@ data class RootAction(
     fun merge(
       actions: Collection<ActionNode>,
       actionManager: ActionManager,
-      focusManager: IdeFocusManager,
-      popupManager: IdePopupManager,
-      popupFactory: JBPopupFactory,
-      dataManager: DataManager,
     ): List<RootAction> {
 
       val (noKeys, byKeys) = actions
@@ -115,12 +101,11 @@ data class RootAction(
             .mapValues { it.value.map { p -> p.second } }
         }
 
-      val byActions =
-        byKeys.entries
-          .groupBy { it.value }
-          .mapValues { it.value.map { e -> e.key } } +
-          (if (noKeys.isEmpty()) emptyMap()
-          else mapOf(noKeys to emptyList()))
+      val byActions = byKeys.entries
+        .groupBy { it.value }
+        .mapValues { it.value.map { e -> e.key } } +
+        (if (noKeys.isEmpty()) emptyMap()
+        else mapOf(noKeys to emptyList()))
 
       return generateSequence(0, Int::inc)
         .zip(byActions.asSequence()) { i, (k, v) -> Triple(i, k, v) }
@@ -140,22 +125,18 @@ data class RootAction(
           } else {
             "ActionsTree.Root.$i"
           }
-          RootAction(
-            id,
-            keys,
-            nodes.map {
-              it.toAction(
-                actionManager,
-                focusManager,
-                popupManager,
-                popupFactory,
-                dataManager,
-              ) to it.condition
-            }.reversed(),
-          )
-        }
-        .toList()
+
+          RootAction(id, keys, nodes.reversed()).apply {
+            this.templatePresentation.setText {
+              this.actions.joinToString(", ") {
+                it.toAction(actionManager).templatePresentation.text ?: ""
+              }
+            }
+            this.isEnabledInModalContext = this.actions.any {
+              it.toAction(actionManager).isEnabledInModalContext
+            }
+          }
+        }.toList()
     }
   }
-
 }

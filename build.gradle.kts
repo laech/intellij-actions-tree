@@ -2,8 +2,8 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
   id("java")
-  id("org.jetbrains.intellij").version("1.12.0")
-  id("org.jetbrains.kotlin.jvm").version("1.7.22")
+  id("org.jetbrains.intellij").version("1.13.2")
+  id("org.jetbrains.kotlin.jvm").version("1.8.10")
 }
 
 group = "com.gitlab.lae.intellij.actions.tree"

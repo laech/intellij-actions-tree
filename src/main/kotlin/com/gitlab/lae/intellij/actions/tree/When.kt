@@ -120,6 +120,16 @@ interface When : Predicate<DataContext> {
     }
   }
 
+  object TextSelected : When {
+    override fun toString() = "When.TextSelected"
+    override fun test(context: DataContext): Boolean {
+      val focusManager = IdeFocusManager.findInstanceByContext(context)
+      val component = focusManager.focusOwner
+      return component is JTextComponent
+        && component.selectionStart < component.selectionEnd
+    }
+  }
+
   companion object {
 
     fun parse(input: String): When =
@@ -127,8 +137,9 @@ interface When : Predicate<DataContext> {
       else doParse(input)
 
     private fun doParse(input: String): When {
-      if (input == "InputFocused") {
-        return InputFocused
+      when (input) {
+        "InputFocused" -> return InputFocused
+        "TextSelected" -> return TextSelected
       }
 
       val parts = input.split(":".toRegex(), 2).toTypedArray()

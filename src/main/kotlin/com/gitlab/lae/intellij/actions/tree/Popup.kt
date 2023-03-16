@@ -5,7 +5,7 @@ import com.gitlab.lae.intellij.actions.tree.ui.ActionPopupEventDispatcher
 import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation
 import com.gitlab.lae.intellij.actions.tree.util.setBestLocation
 import com.intellij.ide.DataManager
-import com.intellij.ide.IdePopupManager
+import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
@@ -26,14 +26,7 @@ import java.awt.event.ActionEvent
 import javax.swing.JComponent
 import javax.swing.KeyStroke
 
-internal class Popup(
-  action: ActionNode,
-  e: AnActionEvent,
-  private val focusManager: IdeFocusManager,
-  private val popupManager: IdePopupManager,
-  private val popupFactory: JBPopupFactory,
-  private val dataManager: DataManager,
-) {
+internal class Popup(action: ActionNode, e: AnActionEvent) {
 
   private val actionManager = e.actionManager
   private val sourceComponent = e.getData(CONTEXT_COMPONENT)
@@ -54,7 +47,13 @@ internal class Popup(
       it.registerShortcuts(list) { item, e -> this.onActionChosen(item, e) }
     }
     popup = createPopup()
-    popup.addListener(ActionPopupEventDispatcher(popup, list, popupManager))
+    popup.addListener(
+      ActionPopupEventDispatcher(
+        popup,
+        list,
+        IdeEventQueue.getInstance().popupManager,
+      ),
+    )
     registerIdeAction(ACTION_EDITOR_ESCAPE, popup::cancel)
   }
 
@@ -70,10 +69,6 @@ internal class Popup(
   ): ActionPresentation = action.createPresentation(
     actionManager,
     dataContext,
-    focusManager,
-    popupManager,
-    popupFactory,
-    dataManager,
     keysOverride,
   )
 
@@ -127,6 +122,7 @@ internal class Popup(
   }
 
   private fun updatePopupLocation() {
+    val popupFactory = JBPopupFactory.getInstance()
     if (sourceEditor != null) {
       popup.setBestLocation(popupFactory, sourceEditor)
     } else if (sourceComponent is JComponent) {
@@ -149,6 +145,7 @@ internal class Popup(
   }
 
   private fun getDataContextAsync(consumer: (DataContext) -> Unit) {
+    val dataManager = DataManager.getInstance()
     (if (sourceComponent == null) {
       dataManager.dataContextFromFocusAsync
     } else {
@@ -167,7 +164,7 @@ internal class Popup(
      */
     getDataContextAsync { context ->
       getApplication().invokeLater {
-        focusManager.doWhenFocusSettlesDown {
+        IdeFocusManager.findInstance().doWhenFocusSettlesDown {
           // Another invokeLater() to put us back on the right thread
           getApplication().invokeLater {
             performAction(action, modifiers, context)
@@ -209,7 +206,7 @@ internal class Popup(
       return false
     }
 
-    popupFactory.createActionGroupPopup(
+    JBPopupFactory.getInstance().createActionGroupPopup(
       e.presentation.text,
       action,
       e.dataContext, ActionSelectionAid.NUMBERING,

@@ -3,9 +3,6 @@ package com.gitlab.lae.intellij.actions.tree.app
 import com.gitlab.lae.intellij.actions.tree.ActionNode
 import com.gitlab.lae.intellij.actions.tree.json.parseJsonActions
 import com.google.common.base.Throwables.getStackTraceAsString
-import com.intellij.ide.DataManager
-import com.intellij.ide.IdeEventQueue
-import com.intellij.ide.IdePopupManager
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -14,8 +11,6 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.keymap.Keymap
 import com.intellij.openapi.keymap.ex.KeymapManagerEx
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.wm.IdeFocusManager
 import java.nio.file.Paths
 
 object App {
@@ -27,10 +22,6 @@ object App {
   fun reload() {
     reload(
       ActionManager.getInstance(),
-      IdeFocusManager.findInstance(),
-      IdeEventQueue.getInstance().popupManager,
-      JBPopupFactory.getInstance(),
-      DataManager.getInstance(),
       KeymapManagerEx.getInstanceEx(),
       PropertiesComponent.getInstance(),
     )
@@ -38,20 +29,12 @@ object App {
 
   private fun reload(
     actionManager: ActionManager,
-    focusManager: IdeFocusManager,
-    popupManager: IdePopupManager,
-    popupFactory: JBPopupFactory,
-    dataManager: DataManager,
     keymapManager: KeymapManagerEx,
     properties: PropertiesComponent,
   ) {
     val actions = RootAction.merge(
       loadActions(properties),
       actionManager,
-      focusManager,
-      popupManager,
-      popupFactory,
-      dataManager,
     )
 
     val keymaps = keymapManager.allKeymaps

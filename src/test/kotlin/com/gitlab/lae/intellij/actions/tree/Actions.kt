@@ -1,8 +1,10 @@
 package com.gitlab.lae.intellij.actions.tree
 
 import com.gitlab.lae.intellij.actions.tree.When.Always
-import com.gitlab.lae.intellij.actions.tree.app.RootAction
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.Presentation
 import org.mockito.kotlin.mock
 import java.awt.event.InputEvent
 import javax.swing.KeyStroke
@@ -10,7 +12,7 @@ import javax.swing.KeyStroke
 fun keys(vararg keys: String): List<KeyStroke> =
   keys.map(KeyStroke::getKeyStroke)
 
-fun action(
+fun actionNode(
   id: String = "",
   name: String? = null,
   separatorAbove: String? = null,
@@ -19,12 +21,6 @@ fun action(
   keys: List<KeyStroke> = emptyList(),
   items: List<ActionNode> = emptyList(),
 ) = ActionNode(id, name, separatorAbove, isSticky, condition, keys, items)
-
-fun rootAction(
-  id: String = "",
-  keys: List<KeyStroke> = emptyList(),
-  actions: List<Pair<AnAction, When>> = emptyList(),
-) = RootAction(id, keys, actions)
 
 fun actionEvent(
   input: InputEvent? = null,

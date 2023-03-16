@@ -1,14 +1,10 @@
 package com.gitlab.lae.intellij.actions.tree
 
 import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation
-import com.intellij.ide.DataManager
-import com.intellij.ide.IdePopupManager
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.wm.IdeFocusManager
 import javax.swing.KeyStroke
 
 data class ActionNode(
@@ -24,20 +20,10 @@ data class ActionNode(
   fun createPresentation(
     actionManager: ActionManager,
     dataContext: DataContext,
-    focusManager: IdeFocusManager,
-    popupManager: IdePopupManager,
-    popupFactory: JBPopupFactory,
-    dataManager: DataManager,
     keysOverride: List<KeyStroke>,
   ): ActionPresentation {
 
-    val action = toAction(
-      actionManager,
-      focusManager,
-      popupManager,
-      popupFactory,
-      dataManager,
-    )
+    val action = toAction(actionManager)
     val presentation = ActionPresentation.create(
       action,
       keysOverride,
@@ -48,21 +34,9 @@ data class ActionNode(
     return presentation
   }
 
-  fun toAction(
-    actionManager: ActionManager,
-    focusManager: IdeFocusManager,
-    popupManager: IdePopupManager,
-    popupFactory: JBPopupFactory,
-    dataManager: DataManager,
-  ): AnAction = when {
+  fun toAction(actionManager: ActionManager): AnAction = when {
     items.isEmpty() -> actionManager.getAction(id) ?: UnknownAction(this)
-    else -> PopupAction(
-      this,
-      focusManager,
-      popupManager,
-      popupFactory,
-      dataManager,
-    )
+    else -> PopupAction(this)
   }
 
   /**

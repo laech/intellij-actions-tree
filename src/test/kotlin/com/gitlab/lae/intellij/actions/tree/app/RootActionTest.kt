@@ -1,14 +1,22 @@
 package com.gitlab.lae.intellij.actions.tree.app
 
-import com.gitlab.lae.intellij.actions.tree.*
-import com.gitlab.lae.intellij.actions.tree.When.*
-import com.intellij.ide.DataManager
-import com.intellij.ide.IdePopupManager
-import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.IdeActions.*
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.wm.IdeFocusManager
-import org.junit.Assert.*
+import com.gitlab.lae.intellij.actions.tree.When
+import com.gitlab.lae.intellij.actions.tree.When.FileExtension
+import com.gitlab.lae.intellij.actions.tree.When.ToolWindowActive
+import com.gitlab.lae.intellij.actions.tree.actionEvent
+import com.gitlab.lae.intellij.actions.tree.actionNode
+import com.gitlab.lae.intellij.actions.tree.keys
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.EmptyAction
+import com.intellij.openapi.actionSystem.IdeActions.ACTION_COPY
+import com.intellij.openapi.actionSystem.IdeActions.ACTION_CUT
+import com.intellij.openapi.actionSystem.IdeActions.ACTION_PASTE
+import com.intellij.openapi.actionSystem.Presentation
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -29,7 +37,13 @@ class RootActionTest {
   fun `disables presentation if no suitable action found`() {
     val enable = EnableAction()
     val condition = mock<When>()
-    val action = rootAction(actions = listOf(enable to condition))
+    val actionManager = mock<ActionManager>()
+    whenever(actionManager.getAction("bob")).thenReturn(enable)
+
+    val action = RootAction.merge(
+      listOf(actionNode("bob", condition = condition)),
+      actionManager,
+    )[0]
 
     val presentation = Presentation()
     presentation.isEnabled = true
@@ -38,7 +52,10 @@ class RootActionTest {
     enable.enabled = true
     whenever(condition.test(any())).thenReturn(false)
 
-    val event = actionEvent(presentation = presentation)
+    val event = actionEvent(
+      presentation = presentation,
+      actionManager = actionManager,
+    )
     action.update(event)
     assertFalse(presentation.isEnabled)
 
@@ -54,14 +71,15 @@ class RootActionTest {
   @Test
   fun `merging maintains custom action groups ids`() {
     val id = "my-custom-group-id"
-    val actual = merge(
+    val actual = RootAction.merge(
       listOf(
-        action(
+        actionNode(
           id = id,
           keys = keys("X"),
-          items = listOf(action("bob")),
+          items = listOf(actionNode("bob")),
         ),
       ),
+      mock(),
     )
     assertEquals(1, actual.size.toLong())
     assertEquals(id, actual[0].id)
@@ -78,44 +96,36 @@ class RootActionTest {
     whenever(actionManager.getAction(ACTION_COPY)).thenReturn(copy)
     whenever(actionManager.getAction(ACTION_PASTE)).thenReturn(paste)
 
-    val actual = merge(
-      listOf(
-        action(
-          id = ACTION_CUT,
-          keys = keys("typed a"),
-        ),
-        action(
-          id = ACTION_COPY,
-          keys = keys("typed a", "typed b"),
-          condition = ToolWindowActive("Project"),
-        ),
-        action(
-          id = ACTION_PASTE,
-          keys = keys("typed x", "typed y"),
-          condition = FileExtension("txt"),
-        ),
-      ),
-      actionManager,
+    val cutNode = actionNode(ACTION_CUT, keys = keys("typed a"))
+    val copyNode = actionNode(
+      ACTION_COPY,
+      keys = keys("typed a", "typed b"),
+      condition = ToolWindowActive("Project"),
     )
+    val pasteNode = actionNode(
+      ACTION_PASTE,
+      keys = keys("typed x", "typed y"),
+      condition = FileExtension("txt"),
+    )
+
+    val actual =
+      RootAction.merge(listOf(cutNode, copyNode, pasteNode), actionManager)
 
     val expected = listOf(
       RootAction(
         "ActionsTree.Root.0",
         keys("typed a"),
-        listOf(
-          copy to ToolWindowActive("Project"),
-          cut to Always,
-        ),
+        listOf(copyNode, cutNode),
       ),
       RootAction(
         "ActionsTree.Root.1",
         keys("typed b"),
-        listOf(copy to ToolWindowActive("Project")),
+        listOf(copyNode),
       ),
       RootAction(
         "ActionsTree.Root.2",
         keys("typed x", "typed y"),
-        listOf(paste to FileExtension("txt")),
+        listOf(pasteNode),
       ),
     )
     assertEquals(expected, actual)
@@ -131,30 +141,25 @@ class RootActionTest {
     whenever(actionManager.getAction(ACTION_COPY)).thenReturn(copy)
     whenever(actionManager.getAction(ACTION_PASTE)).thenReturn(paste)
 
-    val actual = merge(
-      listOf(
-        action(ACTION_CUT),
-        action(ACTION_COPY, keys = keys("typed b")),
-        action(ACTION_PASTE),
-      ),
-      actionManager,
-    )
+    val cutNode = actionNode(ACTION_CUT)
+    val copyNode = actionNode(ACTION_COPY, keys = keys("typed b"))
+    val pasteNode = actionNode(ACTION_PASTE)
+
+    val actual =
+      RootAction.merge(listOf(cutNode, copyNode, pasteNode), actionManager)
 
     val expected = listOf(
-      rootAction(
-        id = "ActionsTree.Root.0",
-        keys = keys("typed b"),
-        actions = listOf(copy to Always),
+      RootAction(
+        "ActionsTree.Root.0",
+        keys("typed b"),
+        listOf(copyNode),
       ),
-      rootAction(
-        id = "ActionsTree.Root.1",
-        actions = listOf(
-          paste to Always,
-          cut to Always,
-        ),
+      RootAction(
+        "ActionsTree.Root.1",
+        emptyList(),
+        listOf(pasteNode, cutNode),
       ),
     )
-
     assertEquals(expected, actual)
   }
 
@@ -168,37 +173,31 @@ class RootActionTest {
 
   @Test
   fun `enable in modal if any action supports modal`() {
+    val modalTrue = ModalAction(true)
+    val modalFalse = ModalAction(false)
+
+    val actionManager = mock<ActionManager>()
+    whenever(actionManager.getAction("true")).thenReturn(modalTrue)
+    whenever(actionManager.getAction("false")).thenReturn(modalFalse)
+
     assertTrue(
-      rootAction(
-        actions = listOf(
-          ModalAction(true) to Never,
-          ModalAction(false) to Never,
+      RootAction.merge(
+        listOf(
+          actionNode("true"),
+          actionNode("false"),
         ),
-      ).isEnabledInModalContext,
+        actionManager,
+      )[0].isEnabledInModalContext,
     )
+
     assertFalse(
-      rootAction(
-        actions = listOf(
-          ModalAction(false) to Never,
-          ModalAction(false) to Never,
+      RootAction.merge(
+        listOf(
+          actionNode("false"),
+          actionNode("false"),
         ),
-      ).isEnabledInModalContext,
+        actionManager,
+      )[0].isEnabledInModalContext,
     )
   }
-
-  private fun merge(
-    actions: List<ActionNode>,
-    actionManager: ActionManager = mock(),
-    focusManager: IdeFocusManager = mock(),
-    popupManager: IdePopupManager = IdePopupManager(),
-    popupFactory: JBPopupFactory = mock(),
-    dataManager: DataManager = mock(),
-  ) = RootAction.merge(
-    actions,
-    actionManager,
-    focusManager,
-    popupManager,
-    popupFactory,
-    dataManager,
-  )
 }

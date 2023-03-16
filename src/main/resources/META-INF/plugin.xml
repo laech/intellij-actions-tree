@@ -18,6 +18,13 @@
 
   <change-notes><![CDATA[
     <br/>
+    0.5.8
+    <ul>
+      <li>Add new condition <code>TextSelected</code>.</li>
+      <li>Allow action references to refer to other actions in the config file.</li>
+    </ul>
+
+    <br/>
     0.5.7
     <ul>
       <li>Fix an UnsupportedOperationException in newer version of IntelliJ.</li>

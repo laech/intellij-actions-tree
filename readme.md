@@ -142,6 +142,8 @@ The basic structures are:
 
   - `InputFocused`: an input editor or field is in focus.
 
+  - `TextSelected`: a text component is in focus and has text selected.
+
   - `PathExists:<path>`: checks the given path exists, can be an absolute path
     or a relative path, if it's a relative path, it will be resolved against the
     project's base path.
@@ -164,7 +166,7 @@ The basic structures are:
 - `items`: (required) sub-actions to show in a popup when this action is
   invoked, each item can be an action group or an action reference.
 
-2. Action Reference - references an existing IDE action:
+1. Action Reference - references an existing IDE action:
 
     ```json
     {
@@ -203,4 +205,3 @@ To build the plugin, run `./gradlew clean build buildPlugin`, then
 build/distributions/intellij-actions-tree-xxx.zip will be created. It can be
 installed by going to the IntelliJ's plugins settings, and choose install from
 disk.
-
