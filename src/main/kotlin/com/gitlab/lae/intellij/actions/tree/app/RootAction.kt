@@ -25,7 +25,7 @@ data class RootAction(
     )
   }
 
-  override fun getActionUpdateThread() = ActionUpdateThread.BGT
+  override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
   override fun setShortcutSet(ignored: ShortcutSet) {}
 

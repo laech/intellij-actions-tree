@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 internal class UnknownAction(action: ActionNode) :
   AnAction("?" + action.id + "?") {
 
-  override fun getActionUpdateThread() = ActionUpdateThread.BGT
+  override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
   override fun actionPerformed(e: AnActionEvent) {}
 
