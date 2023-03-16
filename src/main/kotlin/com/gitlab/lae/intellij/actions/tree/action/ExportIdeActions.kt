@@ -17,14 +17,13 @@ class ExportIdeActions : AnAction(), DumbAware {
 
   override fun actionPerformed(e: AnActionEvent) {
     val descriptor = FileSaverDescriptor("Export IDE Actions", "")
-    val result = FileChooserFactory.getInstance()
-      .createSaveFileDialog(descriptor, null as Project?)
-      .save("actions.json")
-      ?: return
+    val result =
+        FileChooserFactory.getInstance()
+            .createSaveFileDialog(descriptor, null as Project?)
+            .save("actions.json")
+            ?: return
 
-    ApplicationManager.getApplication().runWriteAction {
-      export(result.file, e.actionManager)
-    }
+    ApplicationManager.getApplication().runWriteAction { export(result.file, e.actionManager) }
 
     val project = e.project ?: return
     val virtualFile = result.virtualFile ?: return
@@ -39,10 +38,7 @@ class ExportIdeActions : AnAction(), DumbAware {
         mgr.getActionIdList("").forEach { id ->
           val action = mgr.getActionOrStub(id) ?: return@forEach
           val name = action.templatePresentation.text ?: ""
-          writer.beginObject()
-            .name("id").value(id)
-            .name("name").value(name)
-            .endObject()
+          writer.beginObject().name("id").value(id).name("name").value(name).endObject()
         }
         writer.endArray()
         writer.flush()

@@ -33,11 +33,11 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
   }
 
   override fun getListCellRendererComponent(
-    list: JList<out ActionPresentation>,
-    value: ActionPresentation,
-    index: Int,
-    isSelected: Boolean,
-    cellHasFocus: Boolean,
+      list: JList<out ActionPresentation>,
+      value: ActionPresentation,
+      index: Int,
+      isSelected: Boolean,
+      cellHasFocus: Boolean,
   ): Component {
 
     initEmptyIcon(list)
@@ -50,13 +50,11 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
     nameLabel.isEnabled = presentation.isEnabled
     nameLabel.text = presentation.text
     nameLabel.disabledIcon =
-      if (presentation.disabledIcon != null) presentation.disabledIcon
-      else emptyIcon
+        if (presentation.disabledIcon != null) presentation.disabledIcon else emptyIcon
 
     val icon =
-      (if (isSelected) presentation.selectedIcon else presentation.icon)
-        ?: presentation.icon
-        ?: emptyIcon
+        (if (isSelected) presentation.selectedIcon else presentation.icon)
+            ?: presentation.icon ?: emptyIcon
 
     nameLabel.icon = icon
     keyLabel.isEnabled = presentation.isEnabled
@@ -70,36 +68,39 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
     }
     emptyIconInit = true
 
-    emptyIcon = generateSequence(0, Int::inc)
-      .take(list.model.size)
-      .map {
-        val p = list.model.getElementAt(it).presentation
-        val icon = p.icon ?: p.disabledIcon ?: p.selectedIcon ?: return@map null
-        EmptyIcon.create(
-          icon.iconWidth,
-          icon.iconHeight,
-        )
-      }
-      .filterNotNull()
-      .firstOrNull()
+    emptyIcon =
+        generateSequence(0, Int::inc)
+            .take(list.model.size)
+            .map {
+              val p = list.model.getElementAt(it).presentation
+              val icon = p.icon ?: p.disabledIcon ?: p.selectedIcon ?: return@map null
+              EmptyIcon.create(
+                  icon.iconWidth,
+                  icon.iconHeight,
+              )
+            }
+            .filterNotNull()
+            .firstOrNull()
   }
 
   private fun setColors(
-    list: JList<out ActionPresentation>,
-    isSelected: Boolean,
+      list: JList<out ActionPresentation>,
+      isSelected: Boolean,
   ) {
     if (isSelected) {
       content.background = list.selectionBackground
       nameLabel.foreground = list.selectionForeground
-      keyLabel.foreground = UIManager.getColor(
-        "MenuItem.acceleratorSelectionForeground",
-      )
+      keyLabel.foreground =
+          UIManager.getColor(
+              "MenuItem.acceleratorSelectionForeground",
+          )
     } else {
       content.background = list.background
       nameLabel.foreground = list.foreground
-      keyLabel.foreground = UIManager.getColor(
-        "MenuItem.acceleratorForeground",
-      )
+      keyLabel.foreground =
+          UIManager.getColor(
+              "MenuItem.acceleratorForeground",
+          )
     }
   }
 }

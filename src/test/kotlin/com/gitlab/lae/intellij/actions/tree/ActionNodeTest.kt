@@ -16,11 +16,12 @@ class ActionNodeTest {
     val d = actionNode("d", keys = keys("typed b"), condition = Never)
 
     val actual = actionNode(items = listOf(a, b, c, d)).prepare(mock())
-    val expected = listOf(
-      keys("typed a") to a,
-      keys("typed z") to b,
-      keys("typed b") to c,
-    )
+    val expected =
+        listOf(
+            keys("typed a") to a,
+            keys("typed z") to b,
+            keys("typed b") to c,
+        )
     assertEquals(expected, actual)
   }
 
@@ -32,11 +33,12 @@ class ActionNodeTest {
     val c = actionNode("c")
 
     val actual = actionNode(items = listOf(a, b, c)).prepare(mock())
-    val expected = listOf(
-      keys() to a,
-      keys("typed b") to b,
-      keys() to c,
-    )
+    val expected =
+        listOf(
+            keys() to a,
+            keys("typed b") to b,
+            keys() to c,
+        )
     assertEquals(expected, actual)
   }
 }

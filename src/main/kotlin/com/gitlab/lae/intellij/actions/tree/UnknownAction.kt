@@ -4,8 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 
-internal class UnknownAction(action: ActionNode) :
-  AnAction("?" + action.id + "?") {
+internal class UnknownAction(action: ActionNode) : AnAction("?" + action.id + "?") {
 
   override fun getActionUpdateThread() = ActionUpdateThread.EDT
 

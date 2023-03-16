@@ -21,21 +21,22 @@ object App {
 
   fun reload() {
     reload(
-      ActionManager.getInstance(),
-      KeymapManagerEx.getInstanceEx(),
-      PropertiesComponent.getInstance(),
+        ActionManager.getInstance(),
+        KeymapManagerEx.getInstanceEx(),
+        PropertiesComponent.getInstance(),
     )
   }
 
   private fun reload(
-    actionManager: ActionManager,
-    keymapManager: KeymapManagerEx,
-    properties: PropertiesComponent,
+      actionManager: ActionManager,
+      keymapManager: KeymapManagerEx,
+      properties: PropertiesComponent,
   ) {
-    val actions = RootAction.merge(
-      loadActions(properties),
-      actionManager,
-    )
+    val actions =
+        RootAction.merge(
+            loadActions(properties),
+            actionManager,
+        )
 
     val keymaps = keymapManager.allKeymaps
     for (keymap in keymaps) {
@@ -55,26 +56,24 @@ object App {
   }
 
   private fun loadActions(properties: PropertiesComponent): List<ActionNode> {
-    val conf = properties.getValue(AppConfigurable.CONF_KEY)?.trim()
-      ?: return emptyList()
+    val conf = properties.getValue(AppConfigurable.CONF_KEY)?.trim() ?: return emptyList()
 
     return try {
       parseJsonActions(Paths.get(conf))
     } catch (e: Exception) {
       val groupId = "ActionsTree"
       val title = "Failed to load keymap"
-      val content =
-        "Failed to load keymap: ${conf}\n${getStackTraceAsString(e)}"
+      val content = "Failed to load keymap: ${conf}\n${getStackTraceAsString(e)}"
       Notifications.Bus.notify(
-        Notification(groupId, title, content, NotificationType.ERROR),
+          Notification(groupId, title, content, NotificationType.ERROR),
       )
       emptyList()
     }
   }
 
   private fun setShortcuts(
-    keymaps: Array<Keymap>,
-    actions: Iterable<RootAction>,
+      keymaps: Array<Keymap>,
+      actions: Iterable<RootAction>,
   ) {
     // Adding a shortcut this way will have it appear as default
     // when viewing the Keymap preferences tree, which is good,

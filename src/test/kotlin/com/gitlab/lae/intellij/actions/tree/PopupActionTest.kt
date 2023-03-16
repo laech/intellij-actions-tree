@@ -15,6 +15,5 @@ class PopupActionTest {
     assertTrue(newPopupAction().isDumbAware)
   }
 
-  private fun newPopupAction() =
-    PopupAction(actionNode())
+  private fun newPopupAction() = PopupAction(actionNode())
 }

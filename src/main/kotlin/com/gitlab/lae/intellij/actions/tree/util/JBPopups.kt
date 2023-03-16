@@ -6,21 +6,19 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import javax.swing.JComponent
 
 fun JBPopup.setBestLocation(
-  popupFactory: JBPopupFactory,
-  editor: Editor,
+    popupFactory: JBPopupFactory,
+    editor: Editor,
 ) {
   editor.scrollingModel.runActionOnScrollingFinished {
     setLocation(
-      popupFactory
-        .guessBestPopupLocation(editor)
-        .screenPoint,
+        popupFactory.guessBestPopupLocation(editor).screenPoint,
     )
   }
 }
 
 fun JBPopup.setBestLocation(
-  popupFactory: JBPopupFactory,
-  component: JComponent,
+    popupFactory: JBPopupFactory,
+    component: JComponent,
 ) {
   setLocation(popupFactory.guessBestPopupLocation(component).screenPoint)
 }

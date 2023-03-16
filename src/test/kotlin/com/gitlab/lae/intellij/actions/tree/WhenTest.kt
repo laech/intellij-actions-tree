@@ -1,7 +1,14 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.gitlab.lae.intellij.actions.tree.When.*
+import com.gitlab.lae.intellij.actions.tree.When.All
+import com.gitlab.lae.intellij.actions.tree.When.Always
 import com.gitlab.lae.intellij.actions.tree.When.Any
+import com.gitlab.lae.intellij.actions.tree.When.FileExtension
+import com.gitlab.lae.intellij.actions.tree.When.Never
+import com.gitlab.lae.intellij.actions.tree.When.Not
+import com.gitlab.lae.intellij.actions.tree.When.PathExists
+import com.gitlab.lae.intellij.actions.tree.When.ToolWindowActive
+import com.gitlab.lae.intellij.actions.tree.When.ToolWindowTabActive
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE
 import com.intellij.openapi.actionSystem.DataContext
@@ -9,13 +16,13 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
+import java.nio.file.Paths
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import java.nio.file.Paths
 
 class WhenTest {
 

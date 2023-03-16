@@ -18,25 +18,20 @@ interface When : Predicate<DataContext> {
 
   data class Any(val clauses: List<When>) : When {
 
-    constructor(vararg clauses: When) :
-      this(listOf(*clauses))
+    constructor(vararg clauses: When) : this(listOf(*clauses))
 
-    override fun test(context: DataContext) =
-      clauses.any { it.test(context) }
+    override fun test(context: DataContext) = clauses.any { it.test(context) }
   }
 
   data class All(val clauses: List<When>) : When {
 
-    constructor(vararg clauses: When) :
-      this(listOf(*clauses))
+    constructor(vararg clauses: When) : this(listOf(*clauses))
 
-    override fun test(context: DataContext) =
-      clauses.all { it.test(context) }
+    override fun test(context: DataContext) = clauses.all { it.test(context) }
   }
 
   data class Not(val condition: When) : When {
-    override fun test(context: DataContext) =
-      !condition.test(context)
+    override fun test(context: DataContext) = !condition.test(context)
   }
 
   class EqPattern(val pattern: Pattern) {
@@ -45,7 +40,7 @@ interface When : Predicate<DataContext> {
     override fun toString() = pattern.toString()
     override fun hashCode() = pattern.hashCode()
     override fun equals(other: kotlin.Any?) =
-      other is EqPattern && pattern.pattern() == other.pattern.pattern()
+        other is EqPattern && pattern.pattern() == other.pattern.pattern()
   }
 
   interface Regex : When {
@@ -59,8 +54,7 @@ interface When : Predicate<DataContext> {
 
   data class ToolWindowActive(override val regex: EqPattern) : Regex {
 
-    constructor(regex: String) :
-      this(EqPattern(regex))
+    constructor(regex: String) : this(EqPattern(regex))
 
     override fun value(context: DataContext): String? {
       val window = context.getData(TOOL_WINDOW)
@@ -70,8 +64,7 @@ interface When : Predicate<DataContext> {
 
   data class ToolWindowTabActive(override val regex: EqPattern) : Regex {
 
-    constructor(regex: String) :
-      this(EqPattern(regex))
+    constructor(regex: String) : this(EqPattern(regex))
 
     override fun value(context: DataContext): String? {
       val window = context.getData(TOOL_WINDOW)
@@ -81,26 +74,21 @@ interface When : Predicate<DataContext> {
 
   data class FileExtension(override val regex: EqPattern) : Regex {
 
-    constructor(regex: String) :
-      this(EqPattern(regex))
+    constructor(regex: String) : this(EqPattern(regex))
 
-    override fun value(context: DataContext) =
-      context.getData(VIRTUAL_FILE)?.extension
+    override fun value(context: DataContext) = context.getData(VIRTUAL_FILE)?.extension
   }
 
   data class PathExists(val path: Path) : When {
 
-    constructor(path: String) :
-      this(Paths.get(path))
+    constructor(path: String) : this(Paths.get(path))
 
     override fun test(context: DataContext) =
-      if (path.isAbsolute) {
-        exists(path)
-      } else {
-        context.getData(PROJECT)?.basePath?.let {
-          exists(Paths.get(it).resolve(path))
-        } ?: false
-      }
+        if (path.isAbsolute) {
+          exists(path)
+        } else {
+          context.getData(PROJECT)?.basePath?.let { exists(Paths.get(it).resolve(path)) } ?: false
+        }
   }
 
   object Always : When {
@@ -132,13 +120,11 @@ interface When : Predicate<DataContext> {
         return false
       }
 
-      val hasComponentSelection =
-        component.selectionStart < component.selectionEnd
+      val hasComponentSelection = component.selectionStart < component.selectionEnd
 
       val hasEditorSelection =
-        component is DataProvider
-          && EDITOR.getData(component)?.selectionModel?.hasSelection(true)
-          ?: false
+          component is DataProvider &&
+              EDITOR.getData(component)?.selectionModel?.hasSelection(true) ?: false
 
       return hasComponentSelection || hasEditorSelection
     }
@@ -147,8 +133,7 @@ interface When : Predicate<DataContext> {
   companion object {
 
     fun parse(input: String): When =
-      if (input.startsWith("!")) Not(doParse(input.substring(1)))
-      else doParse(input)
+        if (input.startsWith("!")) Not(doParse(input.substring(1))) else doParse(input)
 
     private fun doParse(input: String): When {
       when (input) {

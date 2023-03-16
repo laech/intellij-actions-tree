@@ -4,6 +4,7 @@ plugins {
   id("java")
   id("org.jetbrains.intellij").version("1.13.2")
   id("org.jetbrains.kotlin.jvm").version("1.8.10")
+  id("com.diffplug.spotless").version("6.17.0")
 }
 
 group = "com.gitlab.lae.intellij.actions.tree"
@@ -37,4 +38,10 @@ intellij {
 
   // If true this sets until-build to same major version which is not good
   updateSinceUntilBuild.set(false)
+}
+
+spotless {
+  kotlin {
+    ktfmt()
+  }
 }

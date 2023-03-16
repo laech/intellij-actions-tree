@@ -15,18 +15,18 @@ import javax.swing.JList
 import javax.swing.KeyStroke
 
 data class ActionPresentation(
-  val presentation: Presentation,
-  val keys: List<KeyStroke>,
-  val separatorAbove: String?,
-  val sticky: Boolean,
-  val action: AnAction,
+    val presentation: Presentation,
+    val keys: List<KeyStroke>,
+    val separatorAbove: String?,
+    val sticky: Boolean,
+    val action: AnAction,
 ) {
 
   override fun toString() = presentation.text ?: ""
 
   fun registerShortcuts(
-    list: JList<*>,
-    consumer: (ActionPresentation, ActionEvent) -> Unit,
+      list: JList<*>,
+      consumer: (ActionPresentation, ActionEvent) -> Unit,
   ) {
     if (keys.isEmpty()) {
       return
@@ -36,28 +36,29 @@ data class ActionPresentation(
     for (key in keys) {
       inputMap.put(key, key)
       actionMap.put(
-        key,
-        object : AbstractAction() {
-          override fun actionPerformed(e: ActionEvent) {
-            consumer(this@ActionPresentation, e)
-          }
-        },
+          key,
+          object : AbstractAction() {
+            override fun actionPerformed(e: ActionEvent) {
+              consumer(this@ActionPresentation, e)
+            }
+          },
       )
     }
   }
 
   fun update(
-    actionManager: ActionManager,
-    dataContext: DataContext,
+      actionManager: ActionManager,
+      dataContext: DataContext,
   ) {
-    val event = AnActionEvent(
-      null,
-      dataContext,
-      ACTION_PLACE,
-      presentation,
-      actionManager,
-      0,
-    )
+    val event =
+        AnActionEvent(
+            null,
+            dataContext,
+            ACTION_PLACE,
+            presentation,
+            actionManager,
+            0,
+        )
     event.setInjectedContext(action.isInInjectedContext)
 
     // Check for empty session to avoid UnsupportedOperationException
@@ -70,16 +71,17 @@ data class ActionPresentation(
 
   companion object {
     fun create(
-      action: AnAction,
-      keys: List<KeyStroke>,
-      separatorAbove: String?,
-      sticky: Boolean,
-    ) = ActionPresentation(
-      action.templatePresentation.clone(),
-      keys,
-      separatorAbove,
-      sticky,
-      action,
-    )
+        action: AnAction,
+        keys: List<KeyStroke>,
+        separatorAbove: String?,
+        sticky: Boolean,
+    ) =
+        ActionPresentation(
+            action.templatePresentation.clone(),
+            keys,
+            separatorAbove,
+            sticky,
+            action,
+        )
   }
 }

@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 
 class PopupAction(
-  private val action: ActionNode,
+    private val action: ActionNode,
 ) : AnAction(action.name), DumbAware {
 
   init {
