@@ -140,7 +140,7 @@ interface When : Predicate<DataContext> {
           && EDITOR.getData(component)?.selectionModel?.hasSelection(true)
           ?: false
 
-      return hasComponentSelection || hasEditorSelection;
+      return hasComponentSelection || hasEditorSelection
     }
   }
 
