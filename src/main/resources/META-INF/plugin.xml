@@ -18,7 +18,7 @@
 
   <change-notes><![CDATA[
     <br/>
-    0.5.8
+    0.6
     <ul>
       <li>Add new condition <code>TextSelected</code>.</li>
       <li>Allow action references to refer to other actions in the config file.</li>

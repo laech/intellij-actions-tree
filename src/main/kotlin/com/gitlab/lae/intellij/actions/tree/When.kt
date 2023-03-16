@@ -3,6 +3,8 @@ package com.gitlab.lae.intellij.actions.tree
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.PlatformDataKeys.EDITOR
 import com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW
 import com.intellij.openapi.wm.IdeFocusManager
 import java.nio.file.Files.exists
@@ -122,11 +124,23 @@ interface When : Predicate<DataContext> {
 
   object TextSelected : When {
     override fun toString() = "When.TextSelected"
+
     override fun test(context: DataContext): Boolean {
       val focusManager = IdeFocusManager.findInstanceByContext(context)
       val component = focusManager.focusOwner
-      return component is JTextComponent
-        && component.selectionStart < component.selectionEnd
+      if (component !is JTextComponent) {
+        return false
+      }
+
+      val hasComponentSelection =
+        component.selectionStart < component.selectionEnd
+
+      val hasEditorSelection =
+        component is DataProvider
+          && EDITOR.getData(component)?.selectionModel?.hasSelection(true)
+          ?: false
+
+      return hasComponentSelection || hasEditorSelection;
     }
   }
 
