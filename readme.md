@@ -201,7 +201,7 @@ Reload*.
 
 ## Building
 
-To build the plugin, run `./gradlew clean build buildPlugin`, then
+To build the plugin, run `./gradlew clean build`, then
 build/distributions/intellij-actions-tree-xxx.zip will be created. It can be
 installed by going to the IntelliJ's plugins settings, and choose install from
 disk.

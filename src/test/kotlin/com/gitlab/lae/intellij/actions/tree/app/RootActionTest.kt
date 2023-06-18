@@ -26,7 +26,9 @@ class RootActionTest {
 
   private class EnableAction : AnAction() {
     var enabled = false
+
     override fun actionPerformed(e: AnActionEvent) {}
+
     override fun update(e: AnActionEvent) {
       super.update(e)
       e.presentation.isEnabled = enabled

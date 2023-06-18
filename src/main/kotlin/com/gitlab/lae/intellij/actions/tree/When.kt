@@ -38,14 +38,18 @@ interface When : Predicate<DataContext> {
     constructor(pattern: String) : this(Pattern.compile(pattern))
 
     override fun toString() = pattern.toString()
+
     override fun hashCode() = pattern.hashCode()
+
     override fun equals(other: kotlin.Any?) =
         other is EqPattern && pattern.pattern() == other.pattern.pattern()
   }
 
   interface Regex : When {
     val regex: EqPattern
+
     fun value(context: DataContext): String?
+
     override fun test(context: DataContext): Boolean {
       val value = value(context) ?: return false
       return regex.pattern.matcher(value).matches()
@@ -93,16 +97,19 @@ interface When : Predicate<DataContext> {
 
   object Always : When {
     override fun toString() = "When.Always"
+
     override fun test(context: DataContext) = true
   }
 
   object Never : When {
     override fun toString() = "When.Never"
+
     override fun test(context: DataContext) = false
   }
 
   object InputFocused : When {
     override fun toString() = "When.InputFocused"
+
     override fun test(context: DataContext): Boolean {
       val focusManager = IdeFocusManager.findInstanceByContext(context)
       val component = focusManager.focusOwner

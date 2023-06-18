@@ -201,9 +201,6 @@
     ]]>
   </change-notes>
 
-  <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
-  <idea-version since-build="223.8617.9"/>
-
   <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
   <depends>com.intellij.modules.lang</depends>
 
