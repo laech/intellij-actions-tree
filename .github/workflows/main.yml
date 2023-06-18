@@ -1,4 +1,4 @@
-name: CI
+name: Build
 
 on:
   push:
@@ -17,8 +17,30 @@ jobs:
           java-version: 17
           distribution: 'adopt'
 
-      - run: ./gradlew clean build buildPlugin
+      - run: ./gradlew clean build
 
       - uses: actions/upload-artifact@v3
         with:
-          path: build/distributions/*
+          path: build/distributions/intellij-actions-tree-*.zip
+
+  prerelease:
+    needs: [build]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    concurrency:
+      group: prerelease
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/download-artifact@v3
+      - uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: intellij-actions-tree-head
+          prerelease: true
+          title: intellij-actions-tree-head
+          files: |
+            intellij-actions-tree-*.zip
