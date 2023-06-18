@@ -18,6 +18,12 @@
 
   <change-notes><![CDATA[
     <br/>
+    0.6.1
+    <ul>
+      <li>Remove deprecated IntelliJ API usage.</li>
+    </ul>
+
+    <br/>
     0.6
     <ul>
       <li>Add new condition <code>TextSelected</code>.</li>
@@ -30,6 +36,7 @@
       <li>Fix an UnsupportedOperationException in newer version of IntelliJ.</li>
     </ul>
 
+    <br/>
     0.5.6
     <ul>
       <li>Remove deprecated IntelliJ API usage.</li>
