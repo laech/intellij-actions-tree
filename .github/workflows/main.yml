@@ -20,6 +20,8 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
+          name: intellij-actions-tree
+          if-no-files-found: error
           path: build/distributions/intellij-actions-tree-*.zip
 
   prerelease:
@@ -35,7 +37,6 @@ jobs:
 
     steps:
       - uses: actions/download-artifact@v3
-      - run: ls -lR
       - uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -43,4 +44,4 @@ jobs:
           prerelease: true
           title: intellij-actions-tree-head
           files: |
-            intellij-actions-tree-*.zip
+            intellij-actions-tree/*
