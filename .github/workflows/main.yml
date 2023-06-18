@@ -45,3 +45,17 @@ jobs:
           title: intellij-actions-tree-head
           files: |
             intellij-actions-tree/*
+
+  release:
+    needs: [build]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v3
+      - uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          files: |
+            intellij-actions-tree/*
