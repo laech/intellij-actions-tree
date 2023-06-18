@@ -4,6 +4,7 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.options.Configurable.isFieldModified
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import java.awt.BorderLayout
 import javax.swing.JComponent
@@ -17,7 +18,7 @@ class AppConfigurable : Configurable {
 
   private fun settings() = PropertiesComponent.getInstance()
 
-  override fun isModified() = isModified(confLocation, settings().getValue(CONF_KEY, ""))
+  override fun isModified() = isFieldModified(confLocation, settings().getValue(CONF_KEY, ""))
 
   override fun getDisplayName() = "Actions Tree"
 
