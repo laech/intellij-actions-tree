@@ -10,12 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: gradle/wrapper-validation-action@v1
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
 
       - uses: actions/setup-java@v2
         with:
           java-version: 17
           distribution: 'adopt'
+
+      - uses: gradle/wrapper-validation-action@v1
 
       - run: ./gradlew clean build
 
