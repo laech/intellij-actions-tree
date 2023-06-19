@@ -9,7 +9,7 @@ plugins {
 
 group = "com.gitlab.lae.intellij.actions.tree"
 
-version = "0.6.1"
+version = "0.6.2-SNAPSHOT"
 
 repositories { mavenCentral() }
 
