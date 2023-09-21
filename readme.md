@@ -1,18 +1,23 @@
 # Actions Tree
 
-This plugin allows you to define a list of actions to show in a popup, an action
-in the list can be a further action list to show when invoked, or an ordinary
-IDE action. Each action in the list can be assigned a keyboard shortcut that is
-local to the list, doesn't conflict with other global shortcuts. This allows
-simulation of Emacs like prefix keys (n-level deep), so you are not restricted
-to IntelliJ keymap's maximum of two key strokes.
+This plugin enables Emacs which-key style keymapping in IntelliJ-based IDEs,
+allowing you to define a list of actions to show in a popup. An action in the
+list can be a further action list to show when invoked, or an ordinary IDE
+action. Each action in the list can be assigned a keyboard shortcut that is
+local to the list, doesn't conflict with other global shortcuts.
 
 ![screenshot](screenshot.png)
 
 ## Configuration
 
-Configuration is done via a JSON file, set it under *Preferences | Keymap |
-Actions Tree*.
+Configuration is done via a JSON file, once you've written your it, set the path
+to it under `Preferences | Keymap | Actions Tree`.
+
+Use the menu item `Tools | Actions Tree | Export IDE Actions` to export the ID
+to name mappings of all your IDE actions, when you need to lookup the ID of an
+action to reference in the configuration file.
+
+[This is what my configuration looks like](https://github.com/laech/dotfiles/blob/main/.config/JetBrains/idea/keymaps/actions-tree.json).
 
 The following is an example Emacs like configuration:
 
@@ -79,7 +84,7 @@ The following is an example Emacs like configuration:
 ```
 
 With the above example configuration, typing `ctrl X` will show a popup
-containing its items, then typing `H` will invoke the
+containing its items, then typing `h` will invoke the
 `$SelectAll` action.
 
 The basic structures are:
@@ -161,7 +166,6 @@ The basic structures are:
     - `items`: (required) sub-actions to show in a popup when this action is
       invoked, each item can be an action group or an action reference.
 
-
 2. Action Reference - references an existing IDE action:
 
     ```json
@@ -185,7 +189,7 @@ The basic structures are:
       popup.
 
     - `id`: (required) the ID of an existing action to invoke. To find the ID of
-      an action, use *Tools | Actions Tree | Export IDE Actions* to export the
+      an action, use `Tools | Actions Tree | Export IDE Actions` to export the
       ID to name mappings of all your IDE actions.
 
 The top level actions will be registered as global actions in the keymap (can be
