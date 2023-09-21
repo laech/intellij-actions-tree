@@ -2,9 +2,9 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
   id("java")
-  id("org.jetbrains.intellij").version("1.14.1")
-  id("org.jetbrains.kotlin.jvm").version("1.8.22")
-  id("com.diffplug.spotless").version("6.19.0")
+  id("org.jetbrains.intellij").version("1.15.0")
+  id("org.jetbrains.kotlin.jvm").version("1.9.10")
+  id("com.diffplug.spotless").version("6.21.0")
 }
 
 group = "com.gitlab.lae.intellij.actions.tree"
