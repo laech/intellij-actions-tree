@@ -17,8 +17,6 @@ Use the menu item `Tools | Actions Tree | Export IDE Actions` to export the ID
 to name mappings of all your IDE actions, when you need to lookup the ID of an
 action to reference in the configuration file.
 
-[This is what my configuration looks like](https://github.com/laech/dotfiles/blob/main/.config/JetBrains/idea/keymaps/actions-tree.json).
-
 The following is an example Emacs like configuration:
 
 ```json
