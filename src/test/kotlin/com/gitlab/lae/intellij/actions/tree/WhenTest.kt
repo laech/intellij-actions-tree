@@ -16,11 +16,13 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys.TOOL_WINDOW
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
@@ -101,22 +103,16 @@ class WhenTest {
   }
 
   @Test
-  fun pathExists() {
+  fun pathExists(@TempDir folder: Path) {
     val context = mock<DataContext>()
     assertTrue(PathExists(Paths.get("").toAbsolutePath().toString()).test(context))
     assertFalse(PathExists("/adsfxdfr").test(context))
     assertFalse(PathExists("adsfxdfr").test(context))
 
-    val folder = TemporaryFolder()
-    try {
-      folder.create()
-      folder.newFile("test")
-      val project = mock<Project>()
-      whenever(project.basePath).thenReturn(folder.root.path)
-      whenever(context.getData(PROJECT)).thenReturn(project)
-      assertTrue(PathExists("test").test(context))
-    } finally {
-      folder.delete()
-    }
+    Files.createFile(folder.resolve("test"))
+    val project = mock<Project>()
+    whenever(project.basePath).thenReturn(folder.toString())
+    whenever(context.getData(PROJECT)).thenReturn(project)
+    assertTrue(PathExists("test").test(context))
   }
 }

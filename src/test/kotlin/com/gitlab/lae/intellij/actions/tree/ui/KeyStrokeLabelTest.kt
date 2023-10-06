@@ -13,27 +13,20 @@ import java.awt.event.KeyEvent.VK_SEMICOLON
 import java.awt.event.KeyEvent.VK_SLASH
 import javax.swing.KeyStroke
 import javax.swing.KeyStroke.getKeyStroke
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameters
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
-@RunWith(Parameterized::class)
-class KeyStrokeLabelTest(
-    private val expected: String,
-    private val keyStroke: KeyStroke,
-) {
+class KeyStrokeLabelTest {
 
-  @Test
-  fun test() {
+  @ParameterizedTest
+  @MethodSource("data")
+  fun test(expected: String, keyStroke: KeyStroke) {
     assertEquals(expected, getKeyText(keyStroke))
   }
 
   companion object {
-
     @JvmStatic
-    @Parameters(name = "{0}, {1}")
     fun data() =
         arrayOf(
             arrayOf("`", getKeyStroke(VK_BACK_QUOTE, 0)),

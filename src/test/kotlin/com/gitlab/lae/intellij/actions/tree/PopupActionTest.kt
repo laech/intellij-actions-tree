@@ -1,7 +1,7 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
 class PopupActionTest {
 
