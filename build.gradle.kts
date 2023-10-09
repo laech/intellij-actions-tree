@@ -16,7 +16,7 @@ repositories { mavenCentral() }
 dependencies {
   testImplementation("org.mockito:mockito-core:3.11.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
-  testImplementation("nz.lae.stacksrc:stacksrc-junit5:0.5.0")
+  testImplementation("nz.lae.stacksrc:stacksrc-junit5:0.5.1")
   testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
   testImplementation("org.junit.vintage:junit-vintage-engine:5.10.0")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
