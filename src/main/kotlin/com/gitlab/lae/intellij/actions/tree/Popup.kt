@@ -76,12 +76,13 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
       PopupChooserBuilder(list)
           .setModalContext(true)
           .setCloseOnEnter(false)
-          .setItemChoosenCallback {
-            val item = list.selectedValue
-            if (item != null) {
-              onActionChosen(item, 0)
-            }
-          }
+          .setItemChosenCallback(
+              Runnable {
+                val item = list.selectedValue
+                if (item != null) {
+                  onActionChosen(item, 0)
+                }
+              })
           .createPopup()
 
   private fun registerIdeAction(actionId: String, runnable: () -> Unit) {

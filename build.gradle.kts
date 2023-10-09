@@ -24,7 +24,7 @@ dependencies {
 
 kotlin { jvmToolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
 
-intellij { version.set("2023.1") }
+intellij { version.set("2023.2") }
 
 spotless {
   kotlin { ktfmt() }

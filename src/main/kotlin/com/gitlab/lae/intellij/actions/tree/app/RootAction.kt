@@ -6,9 +6,6 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CustomShortcutSet
-import com.intellij.openapi.actionSystem.KeyboardShortcut
-import com.intellij.openapi.actionSystem.ShortcutSet
 import javax.swing.KeyStroke
 
 data class RootAction(
@@ -17,17 +14,7 @@ data class RootAction(
     val actions: List<ActionNode>,
 ) : AnAction() {
 
-  init {
-    super.setShortcutSet(
-        CustomShortcutSet(
-            *keyStrokes.map { KeyboardShortcut(it, null) }.toTypedArray(),
-        ),
-    )
-  }
-
   override fun getActionUpdateThread() = ActionUpdateThread.EDT
-
-  override fun setShortcutSet(ignored: ShortcutSet) {}
 
   private fun findAction(e: AnActionEvent): AnAction? =
       actions

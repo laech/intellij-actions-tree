@@ -8,6 +8,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.keymap.Keymap
 import com.intellij.openapi.keymap.ex.KeymapManagerEx
@@ -89,8 +90,8 @@ object App {
     for (keymap in keymaps) {
       for (action in actions) {
         keymap.removeAllActionShortcuts(action.id)
-        for (shortcut in action.shortcutSet.shortcuts) {
-          keymap.addShortcut(action.id, shortcut)
+        for (keyStroke in action.keyStrokes) {
+          keymap.addShortcut(action.id, KeyboardShortcut(keyStroke, null))
         }
       }
     }
