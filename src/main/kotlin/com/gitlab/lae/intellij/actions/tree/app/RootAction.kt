@@ -28,13 +28,10 @@ data class RootAction(
   }
 
   override fun beforeActionPerformedUpdate(e: AnActionEvent) {
-    super.beforeActionPerformedUpdate(e)
     findAction(e)?.beforeActionPerformedUpdate(e)
   }
 
   override fun update(e: AnActionEvent) {
-    super.update(e)
-
     /* It's important to disable this action when none inner action
      * is available to execute, so that the keystroke will be passed
      * through to the IDE for processing.
@@ -76,10 +73,7 @@ data class RootAction(
      *
      * The order of the inner actions of each [RootAction] is reverse.
      */
-    fun merge(
-      actions: Collection<ActionNode>,
-      actionManager: ActionManager,
-    ): List<RootAction> {
+    fun merge(actions: Collection<ActionNode>, actionManager: ActionManager): List<RootAction> {
 
       val (noKeys, byKeys) =
         actions
