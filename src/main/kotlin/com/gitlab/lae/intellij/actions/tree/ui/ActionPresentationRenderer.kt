@@ -54,7 +54,8 @@ class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
 
     val icon =
         (if (isSelected) presentation.selectedIcon else presentation.icon)
-            ?: presentation.icon ?: emptyIcon
+            ?: presentation.icon
+            ?: emptyIcon
 
     nameLabel.icon = icon
     keyLabel.isEnabled = presentation.isEnabled

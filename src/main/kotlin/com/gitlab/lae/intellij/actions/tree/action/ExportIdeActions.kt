@@ -20,8 +20,7 @@ class ExportIdeActions : AnAction(), DumbAware {
     val result =
         FileChooserFactory.getInstance()
             .createSaveFileDialog(descriptor, null as Project?)
-            .save("actions.json")
-            ?: return
+            .save("actions.json") ?: return
 
     ApplicationManager.getApplication().runWriteAction { export(result.file, e.actionManager) }
 
