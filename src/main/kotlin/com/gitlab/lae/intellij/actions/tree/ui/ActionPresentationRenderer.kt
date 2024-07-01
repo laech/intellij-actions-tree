@@ -1,7 +1,8 @@
 package com.gitlab.lae.intellij.actions.tree.ui
 
-import com.intellij.ui.SeparatorWithText
+import com.intellij.ui.GroupHeaderSeparator
 import com.intellij.util.ui.EmptyIcon
+import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
 import java.awt.Component
@@ -14,7 +15,7 @@ import javax.swing.border.EmptyBorder
 
 class ActionPresentationRenderer : ListCellRenderer<ActionPresentation> {
 
-  private val separator = SeparatorWithText()
+  private val separator = GroupHeaderSeparator(JBUI.CurrentTheme.Popup.separatorLabelInsets())
   private val root = JPanel(BorderLayout())
   private val content = JPanel(BorderLayout(30, 0))
   private val nameLabel = JLabel()
