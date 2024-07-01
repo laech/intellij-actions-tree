@@ -43,10 +43,10 @@ class RootActionTest {
     whenever(actionManager.getAction("bob")).thenReturn(enable)
 
     val action =
-        RootAction.merge(
-                listOf(actionNode("bob", condition = condition)),
-                actionManager,
-            )[0]
+      RootAction.merge(
+          listOf(actionNode("bob", condition = condition)),
+          actionManager,
+        )[0]
 
     val presentation = Presentation()
     presentation.isEnabled = true
@@ -56,10 +56,10 @@ class RootActionTest {
     whenever(condition.test(any())).thenReturn(false)
 
     val event =
-        actionEvent(
-            presentation = presentation,
-            actionManager = actionManager,
-        )
+      actionEvent(
+        presentation = presentation,
+        actionManager = actionManager,
+      )
     action.update(event)
     assertFalse(presentation.isEnabled)
 
@@ -76,16 +76,16 @@ class RootActionTest {
   fun `merging maintains custom action groups ids`() {
     val id = "my-custom-group-id"
     val actual =
-        RootAction.merge(
-            listOf(
-                actionNode(
-                    id = id,
-                    keys = keys("X"),
-                    items = listOf(actionNode("bob")),
-                ),
-            ),
-            mock(),
-        )
+      RootAction.merge(
+        listOf(
+          actionNode(
+            id = id,
+            keys = keys("X"),
+            items = listOf(actionNode("bob")),
+          ),
+        ),
+        mock(),
+      )
     assertEquals(1, actual.size.toLong())
     assertEquals(id, actual[0].id)
   }
@@ -103,38 +103,38 @@ class RootActionTest {
 
     val cutNode = actionNode(ACTION_CUT, keys = keys("typed a"))
     val copyNode =
-        actionNode(
-            ACTION_COPY,
-            keys = keys("typed a", "typed b"),
-            condition = ToolWindowActive("Project"),
-        )
+      actionNode(
+        ACTION_COPY,
+        keys = keys("typed a", "typed b"),
+        condition = ToolWindowActive("Project"),
+      )
     val pasteNode =
-        actionNode(
-            ACTION_PASTE,
-            keys = keys("typed x", "typed y"),
-            condition = FileExtension("txt"),
-        )
+      actionNode(
+        ACTION_PASTE,
+        keys = keys("typed x", "typed y"),
+        condition = FileExtension("txt"),
+      )
 
     val actual = RootAction.merge(listOf(cutNode, copyNode, pasteNode), actionManager)
 
     val expected =
-        listOf(
-            RootAction(
-                "ActionsTree.Root.0",
-                keys("typed a"),
-                listOf(copyNode, cutNode),
-            ),
-            RootAction(
-                "ActionsTree.Root.1",
-                keys("typed b"),
-                listOf(copyNode),
-            ),
-            RootAction(
-                "ActionsTree.Root.2",
-                keys("typed x", "typed y"),
-                listOf(pasteNode),
-            ),
-        )
+      listOf(
+        RootAction(
+          "ActionsTree.Root.0",
+          keys("typed a"),
+          listOf(copyNode, cutNode),
+        ),
+        RootAction(
+          "ActionsTree.Root.1",
+          keys("typed b"),
+          listOf(copyNode),
+        ),
+        RootAction(
+          "ActionsTree.Root.2",
+          keys("typed x", "typed y"),
+          listOf(pasteNode),
+        ),
+      )
     assertEquals(expected, actual)
   }
 
@@ -155,18 +155,18 @@ class RootActionTest {
     val actual = RootAction.merge(listOf(cutNode, copyNode, pasteNode), actionManager)
 
     val expected =
-        listOf(
-            RootAction(
-                "ActionsTree.Root.0",
-                keys("typed b"),
-                listOf(copyNode),
-            ),
-            RootAction(
-                "ActionsTree.Root.1",
-                emptyList(),
-                listOf(pasteNode, cutNode),
-            ),
-        )
+      listOf(
+        RootAction(
+          "ActionsTree.Root.0",
+          keys("typed b"),
+          listOf(copyNode),
+        ),
+        RootAction(
+          "ActionsTree.Root.1",
+          emptyList(),
+          listOf(pasteNode, cutNode),
+        ),
+      )
     assertEquals(expected, actual)
   }
 
@@ -188,25 +188,25 @@ class RootActionTest {
     whenever(actionManager.getAction("false")).thenReturn(modalFalse)
 
     assertTrue(
-        RootAction.merge(
-                listOf(
-                    actionNode("true"),
-                    actionNode("false"),
-                ),
-                actionManager,
-            )[0]
-            .isEnabledInModalContext,
+      RootAction.merge(
+          listOf(
+            actionNode("true"),
+            actionNode("false"),
+          ),
+          actionManager,
+        )[0]
+        .isEnabledInModalContext,
     )
 
     assertFalse(
-        RootAction.merge(
-                listOf(
-                    actionNode("false"),
-                    actionNode("false"),
-                ),
-                actionManager,
-            )[0]
-            .isEnabledInModalContext,
+      RootAction.merge(
+          listOf(
+            actionNode("false"),
+            actionNode("false"),
+          ),
+          actionManager,
+        )[0]
+        .isEnabledInModalContext,
     )
   }
 }

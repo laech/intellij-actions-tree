@@ -65,13 +65,13 @@ private fun processWhen(element: JsonElement?): When {
   }
 
   throw IllegalArgumentException(
-      "'$WHEN' object must only have either '$WHEN_ANY' or '$WHEN_ALL' element: $obj",
+    "'$WHEN' object must only have either '$WHEN_ANY' or '$WHEN_ALL' element: $obj",
   )
 }
 
 private fun processWhens(clauses: JsonArray): Array<When> =
-    clauses.asJsonArray.map(::processWhen).toTypedArray()
+  clauses.asJsonArray.map(::processWhen).toTypedArray()
 
 private fun toKeyStroke(element: JsonElement): KeyStroke =
-    getKeyStroke(element.asString)
-        ?: throw IllegalArgumentException("Invalid key stroke: " + element.asString)
+  getKeyStroke(element.asString)
+    ?: throw IllegalArgumentException("Invalid key stroke: " + element.asString)

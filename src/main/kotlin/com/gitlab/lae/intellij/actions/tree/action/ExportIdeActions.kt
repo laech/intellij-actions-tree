@@ -18,9 +18,9 @@ class ExportIdeActions : AnAction(), DumbAware {
   override fun actionPerformed(e: AnActionEvent) {
     val descriptor = FileSaverDescriptor("Export IDE Actions", "")
     val result =
-        FileChooserFactory.getInstance()
-            .createSaveFileDialog(descriptor, null as Project?)
-            .save("actions.json") ?: return
+      FileChooserFactory.getInstance()
+        .createSaveFileDialog(descriptor, null as Project?)
+        .save("actions.json") ?: return
 
     ApplicationManager.getApplication().runWriteAction { export(result.file, e.actionManager) }
 

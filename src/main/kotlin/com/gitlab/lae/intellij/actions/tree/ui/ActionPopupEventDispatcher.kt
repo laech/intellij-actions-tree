@@ -21,9 +21,9 @@ import java.util.stream.Stream
  * prefix key. We want the entry in the popup to be execute when "Ctrl+D" is pressed.
  */
 class ActionPopupEventDispatcher(
-    private val popup: JBPopup,
-    private val list: ActionList,
-    private val popupManager: IdePopupManager,
+  private val popup: JBPopup,
+  private val list: ActionList,
+  private val popupManager: IdePopupManager,
 ) : IdePopupEventDispatcher, JBPopupListener {
 
   override fun getPopupStream(): Stream<JBPopup> = Stream.of(popup)

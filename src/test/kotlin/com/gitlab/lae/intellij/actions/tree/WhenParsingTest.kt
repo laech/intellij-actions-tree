@@ -22,14 +22,14 @@ class WhenParsingTest {
   companion object {
     @JvmStatic
     fun parameters() =
-        arrayOf(
-            arrayOf("ToolWindowActive:Project", ToolWindowActive("Project")),
-            arrayOf("ToolWindowTabActive:Log", ToolWindowTabActive("Log")),
-            arrayOf("FileExtension:rs", FileExtension("rs")),
-            arrayOf("!FileExtension:rs", Not(FileExtension("rs"))),
-            arrayOf("PathExists:readme", PathExists("readme")),
-            arrayOf("InputFocused", InputFocused),
-            arrayOf("TextSelected", TextSelected),
-        )
+      arrayOf(
+        arrayOf("ToolWindowActive:Project", ToolWindowActive("Project")),
+        arrayOf("ToolWindowTabActive:Log", ToolWindowTabActive("Log")),
+        arrayOf("FileExtension:rs", FileExtension("rs")),
+        arrayOf("!FileExtension:rs", Not(FileExtension("rs"))),
+        arrayOf("PathExists:readme", PathExists("readme")),
+        arrayOf("InputFocused", InputFocused),
+        arrayOf("TextSelected", TextSelected),
+      )
   }
 }

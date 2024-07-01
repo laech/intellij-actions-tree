@@ -37,18 +37,18 @@ class AppConfigurable : Configurable {
     val row = JPanel(BorderLayout())
     row.add(JLabel("Configuration File: "), BorderLayout.LINE_START)
     row.add(
-        TextFieldWithBrowseButton(confLocation) {
-          val file =
-              FileChooser.chooseFile(
-                  FileChooserDescriptor(true, false, false, false, false, false),
-                  null,
-                  null,
-              )
-          if (file != null) {
-            confLocation.text = file.path
-          }
-        },
-        BorderLayout.CENTER,
+      TextFieldWithBrowseButton(confLocation) {
+        val file =
+          FileChooser.chooseFile(
+            FileChooserDescriptor(true, false, false, false, false, false),
+            null,
+            null,
+          )
+        if (file != null) {
+          confLocation.text = file.path
+        }
+      },
+      BorderLayout.CENTER,
     )
 
     val panel = JPanel(BorderLayout())

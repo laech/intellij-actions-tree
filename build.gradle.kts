@@ -27,7 +27,7 @@ kotlin { jvmToolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
 intellij { version.set("2024.1") }
 
 spotless {
-  kotlin { ktfmt() }
+  kotlin { ktfmt().googleStyle() }
   kotlinGradle { ktfmt() }
 }
 

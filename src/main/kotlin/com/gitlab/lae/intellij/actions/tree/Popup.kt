@@ -36,9 +36,9 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
 
   init {
     val items =
-        action.prepare(e.dataContext).map { (keys, item) ->
-          createPresentation(item, e.actionManager, e.dataContext, keys)
-        }
+      action.prepare(e.dataContext).map { (keys, item) ->
+        createPresentation(item, e.actionManager, e.dataContext, keys)
+      }
     list = ActionList(items)
 
     // Register our action first before IntelliJ registers the default
@@ -47,11 +47,11 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
     items.forEach { it.registerShortcuts(list) { item, e -> this.onActionChosen(item, e) } }
     popup = createPopup()
     popup.addListener(
-        ActionPopupEventDispatcher(
-            popup,
-            list,
-            IdeEventQueue.getInstance().popupManager,
-        ),
+      ActionPopupEventDispatcher(
+        popup,
+        list,
+        IdeEventQueue.getInstance().popupManager,
+      ),
     )
     registerIdeAction(ACTION_EDITOR_ESCAPE, popup::cancel)
   }
@@ -61,29 +61,30 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
   }
 
   private fun createPresentation(
-      action: ActionNode,
-      actionManager: ActionManager,
-      dataContext: DataContext,
-      keysOverride: List<KeyStroke>,
+    action: ActionNode,
+    actionManager: ActionManager,
+    dataContext: DataContext,
+    keysOverride: List<KeyStroke>,
   ): ActionPresentation =
-      action.createPresentation(
-          actionManager,
-          dataContext,
-          keysOverride,
-      )
+    action.createPresentation(
+      actionManager,
+      dataContext,
+      keysOverride,
+    )
 
   private fun createPopup(): JBPopup =
-      PopupChooserBuilder(list)
-          .setModalContext(true)
-          .setCloseOnEnter(false)
-          .setItemChosenCallback(
-              Runnable {
-                val item = list.selectedValue
-                if (item != null) {
-                  onActionChosen(item, 0)
-                }
-              })
-          .createPopup()
+    PopupChooserBuilder(list)
+      .setModalContext(true)
+      .setCloseOnEnter(false)
+      .setItemChosenCallback(
+        Runnable {
+          val item = list.selectedValue
+          if (item != null) {
+            onActionChosen(item, 0)
+          }
+        }
+      )
+      .createPopup()
 
   private fun registerIdeAction(actionId: String, runnable: () -> Unit) {
     val action = actionManager.getAction(actionId) ?: return
@@ -93,11 +94,11 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
     }
 
     object : AnAction() {
-          override fun actionPerformed(e: AnActionEvent) {
-            runnable()
-          }
+        override fun actionPerformed(e: AnActionEvent) {
+          runnable()
         }
-        .registerCustomShortcutSet(shortcutSet, list)
+      }
+      .registerCustomShortcutSet(shortcutSet, list)
   }
 
   private fun onActionChosen(item: ActionPresentation, e: ActionEvent) {
@@ -147,11 +148,11 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
   private fun getDataContextAsync(consumer: (DataContext) -> Unit) {
     val dataManager = DataManager.getInstance()
     (if (sourceComponent == null) {
-          dataManager.dataContextFromFocusAsync
-        } else {
-          resolvedPromise(dataManager.getDataContext(sourceComponent))
-        })
-        .then(consumer)
+        dataManager.dataContextFromFocusAsync
+      } else {
+        resolvedPromise(dataManager.getDataContext(sourceComponent))
+      })
+      .then(consumer)
   }
 
   private fun performAction(action: AnAction, modifiers: Int) {
@@ -174,19 +175,19 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
   }
 
   private fun performAction(
-      action: AnAction,
-      modifiers: Int,
-      dataContext: DataContext,
+    action: AnAction,
+    modifiers: Int,
+    dataContext: DataContext,
   ) {
     val event =
-        AnActionEvent(
-            null,
-            dataContext,
-            ActionNode.ACTION_PLACE,
-            action.templatePresentation.clone(),
-            actionManager,
-            modifiers,
-        )
+      AnActionEvent(
+        null,
+        dataContext,
+        ActionNode.ACTION_PLACE,
+        action.templatePresentation.clone(),
+        actionManager,
+        modifiers,
+      )
 
     event.setInjectedContext(action.isInInjectedContext)
     if (showPopupIfGroup(action, event)) {
@@ -207,14 +208,14 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
     }
 
     JBPopupFactory.getInstance()
-        .createActionGroupPopup(
-            e.presentation.text,
-            action,
-            e.dataContext,
-            ActionSelectionAid.NUMBERING,
-            true,
-        )
-        .showInBestPositionFor(e.dataContext)
+      .createActionGroupPopup(
+        e.presentation.text,
+        action,
+        e.dataContext,
+        ActionSelectionAid.NUMBERING,
+        true,
+      )
+      .showInBestPositionFor(e.dataContext)
 
     return true
   }

@@ -42,7 +42,7 @@ interface When : Predicate<DataContext> {
     override fun hashCode() = pattern.hashCode()
 
     override fun equals(other: kotlin.Any?) =
-        other is EqPattern && pattern.pattern() == other.pattern.pattern()
+      other is EqPattern && pattern.pattern() == other.pattern.pattern()
   }
 
   interface Regex : When {
@@ -88,11 +88,11 @@ interface When : Predicate<DataContext> {
     constructor(path: String) : this(Paths.get(path))
 
     override fun test(context: DataContext) =
-        if (path.isAbsolute) {
-          exists(path)
-        } else {
-          context.getData(PROJECT)?.basePath?.let { exists(Paths.get(it).resolve(path)) } ?: false
-        }
+      if (path.isAbsolute) {
+        exists(path)
+      } else {
+        context.getData(PROJECT)?.basePath?.let { exists(Paths.get(it).resolve(path)) } ?: false
+      }
   }
 
   object Always : When {
@@ -130,8 +130,8 @@ interface When : Predicate<DataContext> {
       val hasComponentSelection = component.selectionStart < component.selectionEnd
 
       val hasEditorSelection =
-          component is DataProvider &&
-              EDITOR.getData(component)?.selectionModel?.hasSelection(true) ?: false
+        component is DataProvider &&
+          EDITOR.getData(component)?.selectionModel?.hasSelection(true) ?: false
 
       return hasComponentSelection || hasEditorSelection
     }
@@ -140,7 +140,7 @@ interface When : Predicate<DataContext> {
   companion object {
 
     fun parse(input: String): When =
-        if (input.startsWith("!")) Not(doParse(input.substring(1))) else doParse(input)
+      if (input.startsWith("!")) Not(doParse(input.substring(1))) else doParse(input)
 
     private fun doParse(input: String): When {
       when (input) {
