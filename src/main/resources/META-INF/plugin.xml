@@ -231,14 +231,6 @@
       instance="com.gitlab.lae.intellij.actions.tree.app.AppConfigurable"/>
   </extensions>
 
-  <application-components>
-    <component>
-      <implementation-class>
-        com.gitlab.lae.intellij.actions.tree.app.App
-      </implementation-class>
-    </component>
-  </application-components>
-
   <applicationListeners>
     <listener class="com.gitlab.lae.intellij.actions.tree.app.Startup"
       topic="com.intellij.ide.AppLifecycleListener"/>
