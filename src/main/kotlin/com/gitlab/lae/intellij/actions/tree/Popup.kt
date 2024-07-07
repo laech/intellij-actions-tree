@@ -65,7 +65,6 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
       return
     }
 
-    popup.list.setSelectedValue(item, false)
     val invocation = { performAction(item.value, modifiers) }
     if (item.sticky) {
       invocation()
