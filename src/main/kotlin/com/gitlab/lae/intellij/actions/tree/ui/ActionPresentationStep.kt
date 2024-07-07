@@ -16,7 +16,7 @@ class ActionPresentationStep(
 
   private val emptyIcon =
     values.firstNotNullOfOrNull {
-      (it.presentation.icon ?: it.presentation.disabledIcon ?: it.presentation.selectedIcon).run {
+      (it.presentation.icon ?: it.presentation.disabledIcon ?: it.presentation.selectedIcon)?.run {
         EmptyIcon.create(iconWidth, iconHeight)
       }
     }
