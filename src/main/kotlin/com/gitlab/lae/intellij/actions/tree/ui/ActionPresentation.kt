@@ -53,7 +53,7 @@ data class ActionPresentation(
     }
   }
 
-  fun registerShortcuts(list: JList<*>, consumer: (ActionPresentation, ActionEvent) -> Unit) {
+  fun registerShortcuts(list: JList<*>, handler: (ActionEvent) -> Unit) {
     if (keys.isEmpty()) {
       return
     }
@@ -65,7 +65,7 @@ data class ActionPresentation(
         key,
         object : AbstractAction() {
           override fun actionPerformed(e: ActionEvent) {
-            consumer(this@ActionPresentation, e)
+            handler(e)
           }
         },
       )

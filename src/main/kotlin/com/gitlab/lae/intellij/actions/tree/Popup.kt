@@ -42,7 +42,9 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
         e.project,
         ActionPresentationStep(items) { value, modifiers -> onActionChosen(value, modifiers) },
       )
-    items.forEach { it.registerShortcuts(popup.list) { item, e -> this.onActionChosen(item, e) } }
+    items.forEach { item ->
+      item.registerShortcuts(popup.list) { event -> onActionChosen(item, event) }
+    }
   }
 
   fun show(dataContext: DataContext) {
