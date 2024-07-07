@@ -1,26 +1,23 @@
 package com.gitlab.lae.intellij.actions.tree
 
-import com.gitlab.lae.intellij.actions.tree.ui.ActionList
-import com.gitlab.lae.intellij.actions.tree.ui.ActionPopupEventDispatcher
 import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation
+import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentationStep
 import com.gitlab.lae.intellij.actions.tree.util.setBestLocation
 import com.intellij.ide.DataManager
-import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces.ACTION_PLACE_QUICK_LIST_POPUP_ACTION
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ESCAPE
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.application.ApplicationManager.getApplication
-import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
-import com.intellij.openapi.ui.popup.PopupChooserBuilder
 import com.intellij.openapi.wm.IdeFocusManager
+import com.intellij.ui.popup.list.ListPopupImpl
 import java.awt.event.ActionEvent
 import javax.swing.JComponent
 import javax.swing.KeyStroke
@@ -31,29 +28,23 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
   private val actionManager = e.actionManager
   private val sourceComponent = e.getData(CONTEXT_COMPONENT)
   private val sourceEditor = e.getData(EDITOR)
-  private val list: ActionList
-  private val popup: JBPopup
+  private val popup: ListPopupImpl
+  private val items: List<ActionPresentation>
 
   init {
-    val items =
+    items =
       action.prepare(e.dataContext).map { (keys, item) ->
         createPresentation(item, e.actionManager, e.dataContext, keys)
       }
-    list = ActionList(items)
 
-    // Register our action first before IntelliJ registers the default
-    // actions (e.g. com.intellij.ui.ScrollingUtil) so that in case of
-    // conflict our action will be executed
-    items.forEach { it.registerShortcuts(list) { item, e -> this.onActionChosen(item, e) } }
-    popup = createPopup()
-    popup.addListener(
-      ActionPopupEventDispatcher(
-        popup,
-        list,
-        IdeEventQueue.getInstance().popupManager,
-      ),
-    )
-    registerIdeAction(ACTION_EDITOR_ESCAPE, popup::cancel)
+    popup =
+      ListPopupImpl(
+        e.project,
+        ActionPresentationStep(items) { value, modifiers -> onActionChosen(value, modifiers) },
+      )
+    items.forEach { item ->
+      item.registerShortcuts(popup.list) { event -> onActionChosen(item, event) }
+    }
   }
 
   fun show(dataContext: DataContext) {
@@ -65,41 +56,7 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
     actionManager: ActionManager,
     dataContext: DataContext,
     keysOverride: List<KeyStroke>,
-  ): ActionPresentation =
-    action.createPresentation(
-      actionManager,
-      dataContext,
-      keysOverride,
-    )
-
-  private fun createPopup(): JBPopup =
-    PopupChooserBuilder(list)
-      .setModalContext(true)
-      .setCloseOnEnter(false)
-      .setItemChosenCallback(
-        Runnable {
-          val item = list.selectedValue
-          if (item != null) {
-            onActionChosen(item, 0)
-          }
-        }
-      )
-      .createPopup()
-
-  private fun registerIdeAction(actionId: String, runnable: () -> Unit) {
-    val action = actionManager.getAction(actionId) ?: return
-    val shortcutSet = action.shortcutSet
-    if (shortcutSet.shortcuts.isEmpty()) {
-      return
-    }
-
-    object : AnAction() {
-        override fun actionPerformed(e: AnActionEvent) {
-          runnable()
-        }
-      }
-      .registerCustomShortcutSet(shortcutSet, list)
-  }
+  ): ActionPresentation = action.createPresentation(actionManager, dataContext, keysOverride)
 
   private fun onActionChosen(item: ActionPresentation, e: ActionEvent) {
     onActionChosen(item, e.modifiers)
@@ -110,8 +67,7 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
       return
     }
 
-    list.setSelectedValue(item, false)
-    val invocation = { performAction(item.action, modifiers) }
+    val invocation = { performAction(item.value, modifiers) }
     if (item.sticky) {
       invocation()
       getApplication().invokeLater {
@@ -138,11 +94,7 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
    * action should be enabled/disabled for current cursor position.
    */
   private fun updatePresentations() {
-    getDataContextAsync { context ->
-      generateSequence(0, Int::inc).take(list.model.size).map(list.model::getElementAt).forEach {
-        it.update(actionManager, context)
-      }
-    }
+    getDataContextAsync { context -> items.forEach { it.update(actionManager, context) } }
   }
 
   private fun getDataContextAsync(consumer: (DataContext) -> Unit) {
@@ -174,16 +126,12 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
     }
   }
 
-  private fun performAction(
-    action: AnAction,
-    modifiers: Int,
-    dataContext: DataContext,
-  ) {
+  private fun performAction(action: AnAction, modifiers: Int, dataContext: DataContext) {
     val event =
       AnActionEvent(
         null,
         dataContext,
-        ActionNode.ACTION_PLACE,
+        ACTION_PLACE_QUICK_LIST_POPUP_ACTION,
         action.templatePresentation.clone(),
         actionManager,
         modifiers,

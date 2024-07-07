@@ -2,7 +2,6 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.gitlab.lae.intellij.actions.tree.ui.ActionPresentation
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataContext
 import javax.swing.KeyStroke
@@ -24,13 +23,7 @@ data class ActionNode(
   ): ActionPresentation {
 
     val action = toAction(actionManager)
-    val presentation =
-      ActionPresentation.create(
-        action,
-        keysOverride,
-        separatorAbove,
-        isSticky,
-      )
+    val presentation = ActionPresentation.create(action, keysOverride, separatorAbove, isSticky)
     presentation.update(actionManager, dataContext)
     return presentation
   }
@@ -57,17 +50,5 @@ data class ActionNode(
       .map { it.keys.filter { k -> registered.add(k) } to it }
       .toList()
       .reversed()
-  }
-
-  companion object {
-
-    /* Use ACTION_SEARCH as the action place seems to work the best.
-     *
-     * 'Run | Stop' menu action works correctly this way by
-     * showing a list of processes to stop
-     *
-     * 'Exit' actions works (doesn't work if place is MAIN_MENU)
-     */
-    const val ACTION_PLACE = ActionPlaces.ACTION_SEARCH
   }
 }
