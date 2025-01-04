@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
   id("java")
-  id("org.jetbrains.intellij.platform").version("2.2.0")
+  id("org.jetbrains.intellij.platform").version("2.2.1")
   id("org.jetbrains.kotlin.jvm").version("2.0.0")
   id("com.diffplug.spotless").version("6.25.0")
 }
@@ -26,7 +26,7 @@ dependencies {
   testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
 }
 
-kotlin { jvmToolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
+kotlin { jvmToolchain { languageVersion.set(JavaLanguageVersion.of(21)) } }
 
 spotless {
   kotlin { ktfmt().googleStyle() }
