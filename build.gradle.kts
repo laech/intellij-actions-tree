@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-  intellijPlatform { intellijIdeaCommunity("2024.1") }
+  intellijPlatform { intellijIdeaCommunity("2024.3") }
   testImplementation("org.mockito:mockito-core:3.11.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
   testImplementation("nz.lae.stacksrc:stacksrc-junit5:0.5.1")

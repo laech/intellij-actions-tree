@@ -3,6 +3,7 @@ package com.gitlab.lae.intellij.actions.tree.ui
 import com.gitlab.lae.intellij.actions.tree.util.setEnabledModalContext
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces.ACTION_PLACE_QUICK_LIST_POPUP_ACTION
+import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.AnActionHolder
@@ -75,12 +76,13 @@ data class ActionPresentation(
   fun update(actionManager: ActionManager, dataContext: DataContext) {
     val event =
       AnActionEvent(
-        null,
         dataContext,
-        ACTION_PLACE_QUICK_LIST_POPUP_ACTION,
         presentation,
-        actionManager,
+        ACTION_PLACE_QUICK_LIST_POPUP_ACTION,
+        ActionUiKind.POPUP,
+        null,
         0,
+        actionManager,
       )
     event.setInjectedContext(value.isInInjectedContext)
     performDumbAwareUpdate(value, event, false)

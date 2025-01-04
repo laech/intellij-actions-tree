@@ -7,6 +7,7 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces.ACTION_PLACE_QUICK_LIST_POPUP_ACTION
+import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR
@@ -129,12 +130,13 @@ internal class Popup(action: ActionNode, e: AnActionEvent) {
   private fun performAction(action: AnAction, modifiers: Int, dataContext: DataContext) {
     val event =
       AnActionEvent(
-        null,
         dataContext,
-        ACTION_PLACE_QUICK_LIST_POPUP_ACTION,
         action.templatePresentation.clone(),
-        actionManager,
+        ACTION_PLACE_QUICK_LIST_POPUP_ACTION,
+        ActionUiKind.POPUP,
+        null,
         modifiers,
+        actionManager,
       )
 
     event.setInjectedContext(action.isInInjectedContext)

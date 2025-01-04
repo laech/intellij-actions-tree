@@ -2,6 +2,7 @@ package com.gitlab.lae.intellij.actions.tree
 
 import com.gitlab.lae.intellij.actions.tree.When.Always
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.Presentation
@@ -30,10 +31,11 @@ fun actionEvent(
   mask: Int = 0,
 ) =
   AnActionEvent(
-    input,
     context,
-    place,
     presentation,
-    actionManager,
+    place,
+    ActionUiKind.NONE,
+    input,
     mask,
+    actionManager,
   )

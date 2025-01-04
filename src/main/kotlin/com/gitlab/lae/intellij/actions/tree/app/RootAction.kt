@@ -27,10 +27,6 @@ data class RootAction(
     findAction(e)?.actionPerformed(e)
   }
 
-  override fun beforeActionPerformedUpdate(e: AnActionEvent) {
-    findAction(e)?.beforeActionPerformedUpdate(e)
-  }
-
   override fun update(e: AnActionEvent) {
     /* It's important to disable this action when none inner action
      * is available to execute, so that the keystroke will be passed
