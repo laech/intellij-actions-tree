@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
   id("java")
-  id("org.jetbrains.intellij").version("1.17.4")
+  id("org.jetbrains.intellij.platform").version("2.2.0")
   id("org.jetbrains.kotlin.jvm").version("2.0.0")
   id("com.diffplug.spotless").version("6.25.0")
 }
@@ -11,9 +11,13 @@ group = "com.gitlab.lae.intellij.actions.tree"
 
 version = "0.7.1-SNAPSHOT"
 
-repositories { mavenCentral() }
+repositories {
+  mavenCentral()
+  intellijPlatform { defaultRepositories() }
+}
 
 dependencies {
+  intellijPlatform { intellijIdeaCommunity("2024.1") }
   testImplementation("org.mockito:mockito-core:3.11.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
   testImplementation("nz.lae.stacksrc:stacksrc-junit5:0.5.1")
@@ -23,8 +27,6 @@ dependencies {
 }
 
 kotlin { jvmToolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
-
-intellij { version.set("2024.1") }
 
 spotless {
   kotlin { ktfmt().googleStyle() }
@@ -37,4 +39,4 @@ tasks.test {
   testLogging { exceptionFormat = TestExceptionFormat.FULL }
 }
 
-tasks.patchPluginXml { untilBuild.set("") }
+intellijPlatform { pluginConfiguration { ideaVersion { untilBuild = provider { null } } } }
