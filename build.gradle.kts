@@ -33,10 +33,12 @@ spotless {
   kotlinGradle { ktfmt() }
 }
 
+intellijPlatform { pluginConfiguration { ideaVersion { untilBuild = provider { null } } } }
+
 tasks.test {
   useJUnitPlatform()
   systemProperty("junit.jupiter.extensions.autodetection.enabled", true)
   testLogging { exceptionFormat = TestExceptionFormat.FULL }
 }
 
-intellijPlatform { pluginConfiguration { ideaVersion { untilBuild = provider { null } } } }
+tasks.build { dependsOn(tasks.buildPlugin) }
