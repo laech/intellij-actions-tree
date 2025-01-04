@@ -18,6 +18,11 @@
 
   <change-notes><![CDATA[
     <br/>
+    0.7.1
+    <ul>
+      <li>Compatibility update for newer versions of IntelliJ.</li>
+    </ul>
+
     0.7
     <ul>
       <li>Match IntelliJ's new UI style.</li>
